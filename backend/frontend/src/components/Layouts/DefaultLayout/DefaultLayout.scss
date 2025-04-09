@@ -1,16 +1,24 @@
 @import 'normalize.css';
 
 .admin-layout {
+  display: flex;
+  flex-direction: column;  /* Header sẽ nằm trên cùng */
+  min-height: 100vh;
+
+  .main-content-wrapper {
     display: flex;
-    min-height: 100vh;
-  
+    flex: 1;  /* Chiếm phần còn lại sau Header */
+
     .main-content {
       flex: 1;
-      margin-left: 250px; // Width of sidebar
-      padding-top: 70px; // Height of header
-  
+      margin-left: 250px;  /* Đúng bằng width của Sidebar */
+      padding-top: 70px;   /* Đúng bằng height của Header */
+
       .content {
         padding: 20px;
+        height: calc(100vh - 70px);  /* Trừ đi height của Header */
+        overflow-y: auto;  /* Cho phép scroll nội dung nếu dài */
       }
     }
   }
+}
