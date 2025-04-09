@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import './ProductModal.scss';
+import axios from 'axios';
 
 const ProductModal = ({ show, onClose, onSave }) => {
   const [formData, setFormData] = useState({
@@ -11,7 +12,7 @@ const ProductModal = ({ show, onClose, onSave }) => {
     description: '',
     image: null
   });
-
+  const [message, setMessage] = useState('');
   const handleChange = (e) => {
     const { name, value, files } = e.target;
     setFormData(prev => ({
@@ -20,16 +21,29 @@ const ProductModal = ({ show, onClose, onSave }) => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    onSave({
-      ...formData,
-      id: `F${Math.floor(100 + Math.random() * 900)}`, // Tạo ID ngẫu nhiên
-      image: formData.image || 'https://via.placeholder.com/50'
-    });
-    onClose();
-  };
+    try{
+      // Gọi API POST tới Laravel
+      const response = await axios.post('http://localhost:8000/api/product',formData);
 
+      setMessage('Tạo Product thành công');
+      // Reset form sau khi tạo thành công
+      setFormData({name: '',
+        category: '',
+        price: '',
+        stock: '',
+        status: 'Còn hàng',
+        description: '',
+        image: null});
+        console.log(response.data); // Dữ liệu trả về từ API
+    }catch(error) {
+
+      setMessage('Có lỗi xảy ra khi tạo Product.');
+      console.error(error);
+    }
+  };
+    
   if (!show) return null;
 
   return (
@@ -76,12 +90,6 @@ const ProductModal = ({ show, onClose, onSave }) => {
                   </div>
                 </div>
 
-               <div className="row mb-3">
-                <div className="col-md-6">
-                  <label htmlFor="productName" className="form-label">Tên sản phẩm</label>
-                  <input type="text" className="form-control" id="productName" required />
-                </div>
-              </div>
 
               <div className="row mb-3">
                 <div className="col-md-4">
