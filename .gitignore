@@ -1,18 +1,20 @@
-# Build and Release Folders
-bin-debug/
-bin-release/
-[Oo]bj/
-[Bb]in/
+# Laravel (PHP)
+vendor/
+.env
+.phpunit.result.cache
+/storage/*.key
+/public/storage
 
-# Other files and folders
-.settings/
+# Node modules (React in frontend)
+frontend/node_modules/
 
-# Executables
-*.swf
-*.air
-*.ipa
-*.apk
+# IDE / Editor
+.idea/
+.vscode/
+.DS_Store
 
-# Project files, i.e. `.project`, `.actionScriptProperties` and `.flexProperties`
-# should NOT be excluded as they contain compiler settings and other important
-# information for Eclipse / Flash Builder.
+# Logs
+*.log
+
+# Build (React nếu dùng build trong frontend)
+frontend/build/
