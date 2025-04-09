@@ -1,0 +1,16 @@
+@import 'normalize.css';
+
+.admin-layout {
+    display: flex;
+    min-height: 100vh;
+  
+    .main-content {
+      flex: 1;
+      margin-left: 250px; // Width of sidebar
+      padding-top: 70px; // Height of header
+  
+      .content {
+        padding: 20px;
+      }
+    }
+  }
