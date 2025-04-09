@@ -1,15 +1,14 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
-import Home from './pages/Home';
-function App() {
+import './styles.css';
+import Sidebar from './components/Sidebar';
+import Topbar from './components/Topbar';
+import ProductTable from './components/ProductTable';
+
+export default function App() {
   return (
-    <Router>
-      <div className="App">
-        <Routes>
-          <Route path='/' element={<Home />}/>
-        </Routes>
-      </div>
-    </Router>
+    <>
+      <Sidebar />
+      <Topbar />
+      <ProductTable />
+    </>
   );
 }
-
-export default App;
