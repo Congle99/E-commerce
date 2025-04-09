@@ -17,6 +17,7 @@ export default function Sidebar() {
             <i className="fas fa-tachometer-alt me-2"></i> Dashboard
           </a>
         </li>
+
         <li
           className={`nav-item ${
             active === "products" ? "active" : ""
@@ -27,6 +28,7 @@ export default function Sidebar() {
             <i className="fas fa-boxes me-2"></i> Sản phẩm
           </a>
         </li>
+
         <li
           className={`nav-item ${
             active === "orders" ? "active" : ""
@@ -37,6 +39,7 @@ export default function Sidebar() {
             <i className="fas fa-shopping-cart me-2"></i> Đơn hàng
           </a>
         </li>
+
         <li
           className={`nav-item ${
             active === "customers" ? "active" : ""
@@ -47,6 +50,18 @@ export default function Sidebar() {
             <i className="fas fa-users me-2"></i> Khách hàng
           </a>
         </li>
+
+        <li
+          className={`nav-item ${
+            active === "customers" ? "active" : ""
+          }`}
+          onClick={() => setActive("customers")}
+        >
+          <a href="#" className="nav-link text-white">
+            <i className="fas fa-users me-2"></i> Khách hàng
+          </a>
+        </li>
+        
       </ul>
     </div>
   );
