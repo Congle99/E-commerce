@@ -1,0 +1,26 @@
+/* Bạn có thể tùy chỉnh hoặc giữ nguyên style gốc tùy vào project */
+
+.subscribe-inner {
+    background-color: #000; /* hoặc dùng biến màu nếu có */
+    padding-top: 70px;
+    padding-bottom: 20px;
+  }
+  
+  .subscribe-icon img {
+    max-width: 100%;
+    height: auto;
+  }
+  
+  .subscribe-form input[type="text"] {
+    padding: 12px 20px;
+    border: none;
+    outline: none;
+    width: 60%;
+    max-width: 400px;
+    margin-right: 10px;
+  }
+  
+  .subscribe-form button {
+    padding: 12px 25px;
+  }
+  

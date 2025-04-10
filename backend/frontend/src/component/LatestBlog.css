@@ -1,0 +1,37 @@
+.latest-blog-area {
+    padding-top: 95px;
+    padding-bottom: 60px;
+  }
+  
+  .news__thumb img {
+    width: 100%;
+    border-radius: 8px;
+  }
+  
+  .news__caption {
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+  }
+  
+  .news-meta span {
+    margin-right: 15px;
+    font-size: 14px;
+    color: #888;
+  }
+  
+  .news-meta i {
+    margin-right: 5px;
+  }
+  
+  .news__caption h2 {
+    font-size: 18px;
+    margin-bottom: 10px;
+    line-height: 1.5;
+  }
+  
+  .news__caption p {
+    font-size: 14px;
+    color: #555;
+  }
+  
