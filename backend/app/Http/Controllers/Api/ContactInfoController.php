@@ -19,18 +19,39 @@ class ContactInfoController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    // public function store(Request $request)
+    // {
+    //     $request->validate([
+    //         'email' => 'nullable|email',
+    //         'phone' => 'nullable|string',
+    //         'address' => 'nullable|string',
+    //         'google_map' => 'nullable|url',
+    //     ]);
+
+    //     $info = ContactInfo::create($request->all());
+
+    //     return response()->json($info, 201);
+    // }
+    public function upsert(Request $request)
     {
         $request->validate([
             'email' => 'nullable|email',
             'phone' => 'nullable|string',
             'address' => 'nullable|string',
-            'google_map' => 'nullable|url',
+            'google_map' => 'nullable|url'
         ]);
-
-        $info = ContactInfo::create($request->all());
-
-        return response()->json($info, 201);
+        $info = ContactInfo::first();
+        if ($info) {
+            $info->update(($request->all()));
+        } else {
+            $info = ContactInfo::create($request->all());
+        }
+        return response()->json($info);
+    }
+    public function getCompanyInfo()
+    {
+        $info = ContactInfo::first();
+        return response()->json($info);
     }
 
     /**
@@ -41,15 +62,6 @@ class ContactInfoController extends Controller
         return ContactInfo::findOrFail($id);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        $info = ContactInfo::findOrFail($id);
-        $info->update($request->all());
-        return response()->json($info);
-    }
 
     /**
      * Remove the specified resource from storage.

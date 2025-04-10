@@ -7,7 +7,7 @@ import { useState } from "react";
 const ContactPage = () => {
     const [info, setInfo] = useState(null);
     useEffect(() => {
-        fetch("http://127.0.0.1:8000/api/contact-infos")
+        fetch("http://127.0.0.1:8000/api/contact-info")
             .then((res) => {
                 if (!res.ok) {
                     throw new Error("Api khong phan hoi");
@@ -15,7 +15,7 @@ const ContactPage = () => {
                 return res.json();
             })
             .then((data) => {
-                setInfo(data[0]);
+                setInfo(data);
             });
     }, []);
     console.log(info);
