@@ -5,26 +5,7 @@ import '../Product/Product.scss';
 
 const ProductsPage = () => {
   const [showModal, setShowModal] = useState(false);
-  const [products, setProducts] = useState([ {
-      id: 'F001',
-      image: 'https://via.placeholder.com/50',
-      name: 'Áo thun cổ tròn',
-      category: 'Áo thun',
-      price: '250.000đ',
-      stock: 45,
-      status: 'Còn hàng'
-    },
-    // Thêm các sản phẩm khác...
-    {
-      id: 'F002',
-      image: 'https://via.placeholder.com/50',
-      name: 'Quần jeans',
-      category: 'Quần',
-      price: '450.000đ',
-      stock: 12,
-      status: 'Sắp hết'
-    }
-  ]);
+  const [products, setProducts] = useState([]);
 
   const stats = [
     { title: 'Sản phẩm', value: 124, icon: 'fa-tshirt', color: 'primary' },
