@@ -8,6 +8,7 @@ import {
   faPercent,
   faStar,
   faChartBar,
+  faFileInvoiceDollar,
 } from "@fortawesome/free-solid-svg-icons";
 import "./SidebarStyle.scss";
 
@@ -46,6 +47,10 @@ const Sidebar = () => {
         <li className="nav-item">
           <FontAwesomeIcon icon={faChartBar} className="icon" />
           <span>Báo cáo</span>
+        </li>
+        <li className="nav-item">
+          <FontAwesomeIcon icon={faFileInvoiceDollar} className="icon" />
+          <span>Hoá Đơn</span>
         </li>
       </ul>
 

@@ -47,6 +47,17 @@ export default function Sidebar() {
             <i className="fas fa-users me-2"></i> Khách hàng
           </a>
         </li>
+        <li
+          className={`nav-item ${
+            active === "invoice" ? "active" : ""
+          }`}
+          onClick={() => setActive("invoice")}
+        >
+          <a href="#" className="nav-link text-white">
+          <i class="fas fa-file-invoice"></i>Hoá Đơn
+          </a>
+        </li>
+
       </ul>
     </div>
   );
