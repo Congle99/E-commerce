@@ -11,7 +11,7 @@ class OrderController extends Controller
     /**
      * Display a listing of the orders.
      */
-    public function index(Request $request)
+    public function index()
     {
         try {
             // Lấy đơn hàng với phân trang, 10 đơn hàng mỗi trang

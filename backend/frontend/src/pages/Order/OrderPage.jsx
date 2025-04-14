@@ -11,7 +11,6 @@ const QuanLyDonHang = () => {
     const [error, setError] = useState(null);
     const [currentPage, setCurrentPage] = useState(1);
     const [lastPage, setLastPage] = useState(1); // Tổng số trang
-    const ordersPerPage = 10; // 10 đơn hàng mỗi trang
 
     const fetchOrder = async (page = 1) => {
         try {
