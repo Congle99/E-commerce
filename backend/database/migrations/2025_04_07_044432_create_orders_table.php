@@ -20,7 +20,7 @@ return new class extends Migration
             $table->timestamp('updated_at')->useCurrent(); 
 
             // Thêm khóa ngoại
-            $table->foreign('user_id')->references('id')->on('users');
+            $table->foreign('user_id')->references('id')->on('user');
         });
     }
 

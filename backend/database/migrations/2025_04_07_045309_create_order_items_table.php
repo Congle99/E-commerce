@@ -17,6 +17,7 @@ return new class extends Migration
             $table->unsignedBigInteger('product_id');
             $table->integer('quantity')->unsigned();
             $table->decimal('price', 10, 2);
+            $table->timestamps();
 
             // Thêm các khóa ngoại
             $table->foreign('order_id')->references('id')->on('orders')->onDelete('cascade');
@@ -29,6 +30,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('order__items');
+        Schema::dropIfExists('order_items');
     }
 };
