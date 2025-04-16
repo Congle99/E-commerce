@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import '../Order/OrderPage.scss';
+import './OrderPage.scss';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faFilter, faDownload, faEye } from '@fortawesome/free-solid-svg-icons';
+import { faFilter, faDownload } from '@fortawesome/free-solid-svg-icons';
 import Api from '~/components/Api.jsx';
 import { useNavigate } from 'react-router-dom';
 import { Collapse } from 'react-bootstrap';
@@ -49,17 +49,46 @@ const QuanLyDonHang = () => {
                 setOrderDetailsMap((prev) => ({ ...prev, [id]: null }));
             }
         } catch (err) {
-            setMessage(<div>Không tìm thấy chi tiết đơn hàng</div>);
             setOrderDetailsMap((prev) => ({ ...prev, [id]: null }));
             console.error('Error fetching order details:', err);
         } finally {
             setLoadingMap((prev) => ({ ...prev, [id]: false }));
         }
     };
-
+    
     useEffect(() => {
         fetchOrder(currentPage);
     }, [currentPage]);
+
+    //Hàm cập nhật order
+    const updateOrderStatus = async (orderId) => {
+        try {
+            const newStatus = updatedStatus[orderId]; // Lấy trạng thái mới từ state
+            if (!newStatus) {
+                setMessage('Vui lòng chọn trạng thái mới');
+                return;
+            }
+
+            // Gửi yêu cầu PUT đến API để cập nhật trạng thái
+            const response = await http.put(`/order/${orderId}`, {
+                status: newStatus,
+            });
+
+            if (response.data) {
+                // Cập nhật danh sách đơn hàng sau khi cập nhật thành công
+                setOrder((prevOrders) =>
+                    prevOrders.map((order) => (order.id === orderId ? { ...order, status: newStatus } : order)),
+                );
+                setMessage('Cập nhật trạng thái thành công');
+                setTimeout(() => setMessage(null), 3000); // Xóa sau 3 giây
+                setCollapseState((prev) => ({ ...prev, [orderId]: false })); // Đóng collapse
+                setUpdatedStatus((prev) => ({ ...prev, [orderId]: undefined })); // Xóa trạng thái đã chọn
+            }
+        } catch (err) {
+            setMessage('Cập nhật trạng thái thất bại');
+            console.error('Error updating order status:', err);
+        }
+    };
 
     // Hàm chuyển trang
     const handlePageChange = (page) => {
@@ -133,15 +162,43 @@ const QuanLyDonHang = () => {
                                 <FontAwesomeIcon icon={faFilter} className="me-1" /> Lọc đơn hàng
                             </button>
                             <ul className="dropdown-menu">
-                                <li><a className="dropdown-item" href="#">Tất cả</a></li>
-                                <li><a className="dropdown-item" href="#">Chờ xác nhận</a></li>
-                                <li><a className="dropdown-item" href="#">Đang giao</a></li>
-                                <li><a className="dropdown-item" href="#">Đã giao</a></li>
-                                <li><a className="dropdown-item" href="#">Đã hủy</a></li>
+                                <li>
+                                    <a className="dropdown-item" href="#">
+                                        Tất cả
+                                    </a>
+                                </li>
+                                <li>
+                                    <a className="dropdown-item" href="#">
+                                        Chờ xác nhận
+                                    </a>
+                                </li>
+                                <li>
+                                    <a className="dropdown-item" href="#">
+                                        Đang giao
+                                    </a>
+                                </li>
+                                <li>
+                                    <a className="dropdown-item" href="#">
+                                        Đã giao
+                                    </a>
+                                </li>
+                                <li>
+                                    <a className="dropdown-item" href="#">
+                                        Đã hủy
+                                    </a>
+                                </li>
                             </ul>
                         </div>
                     </div>
+
                     <div className="card-body">
+                        {message && (
+                            <div
+                                className={`alert ${message.includes('thành công') ? 'alert-success' : 'alert-danger'}`}
+                            >
+                                {message}
+                            </div>
+                        )}
                         <div className="table-responsive">
                             <table className="table table-bordered table-hover">
                                 <thead className="table-dark">
@@ -166,9 +223,18 @@ const QuanLyDonHang = () => {
                                                     <td>{order.created_at}</td>
                                                     <td>{order.total_price}</td>
                                                     <td>
-                                                        <span className="badge bg-success">{order.status}</span>
+                                                        <span
+                                                            className={`badge bg-${
+                                                                order.status === 'Đã giao'
+                                                                    ? 'success'
+                                                                    : order.status === 'Đang giao'
+                                                                    ? 'warning'
+                                                                    : 'danger'
+                                                            }`}
+                                                        >
+                                                            {order.status}
+                                                        </span>
                                                     </td>
-    
                                                 </tr>
                                                 {/* Collapse Form */}
                                                 <tr>
@@ -182,21 +248,29 @@ const QuanLyDonHang = () => {
                                                                     <>
                                                                         <div className="row mb-3">
                                                                             <div className="col-md-3">
-                                                                                <label className="form-label">Mã đơn:</label>
-                                                                                <input
-                                                                                    type="text"
-                                                                                    className="form-control form-control-sm"
-                                                                                    value={orderDetailsMap[order.id][0]?.order?.id || order.id}
-                                                                                    readOnly
-                                                                                />
-                                                                            </div>
-                                                                            <div className="col-md-3">
-                                                                                <label className="form-label">Khách hàng:</label>
+                                                                                <label className="form-label">
+                                                                                    Mã đơn:
+                                                                                </label>
                                                                                 <input
                                                                                     type="text"
                                                                                     className="form-control form-control-sm"
                                                                                     value={
-                                                                                        orderDetailsMap[order.id][0]?.order?.user?.email ||
+                                                                                        orderDetailsMap[order.id][0]
+                                                                                            ?.order?.id || order.id
+                                                                                    }
+                                                                                    readOnly
+                                                                                />
+                                                                            </div>
+                                                                            <div className="col-md-3">
+                                                                                <label className="form-label">
+                                                                                    Khách hàng:
+                                                                                </label>
+                                                                                <input
+                                                                                    type="text"
+                                                                                    className="form-control form-control-sm"
+                                                                                    value={
+                                                                                        orderDetailsMap[order.id][0]
+                                                                                            ?.order?.user?.email ||
                                                                                         order.user?.email ||
                                                                                         'N/A'
                                                                                     }
@@ -204,24 +278,30 @@ const QuanLyDonHang = () => {
                                                                                 />
                                                                             </div>
                                                                             <div className="col-md-3">
-                                                                                <label className="form-label">Ngày đặt:</label>
+                                                                                <label className="form-label">
+                                                                                    Ngày đặt:
+                                                                                </label>
                                                                                 <input
                                                                                     type="text"
                                                                                     className="form-control form-control-sm"
                                                                                     value={
-                                                                                        orderDetailsMap[order.id][0]?.created_at ||
+                                                                                        orderDetailsMap[order.id][0]
+                                                                                            ?.created_at ||
                                                                                         order.created_at
                                                                                     }
                                                                                     readOnly
                                                                                 />
                                                                             </div>
                                                                             <div className="col-md-3">
-                                                                                <label className="form-label">Tổng tiền:</label>
+                                                                                <label className="form-label">
+                                                                                    Tổng tiền:
+                                                                                </label>
                                                                                 <input
                                                                                     type="text"
                                                                                     className="form-control form-control-sm"
                                                                                     value={
-                                                                                        orderDetailsMap[order.id][0]?.order?.total_price ||
+                                                                                        orderDetailsMap[order.id][0]
+                                                                                            ?.order?.total_price ||
                                                                                         order.total_price
                                                                                     }
                                                                                     readOnly
@@ -230,36 +310,50 @@ const QuanLyDonHang = () => {
                                                                         </div>
                                                                         <div className="row mb-3">
                                                                             <div className="col-md-3">
-                                                                                <label className="form-label">Trạng thái:</label>
+                                                                                <label className="form-label">
+                                                                                    Trạng thái:
+                                                                                </label>
                                                                                 <select
                                                                                     className="form-select form-select-sm"
                                                                                     value={
                                                                                         updatedStatus[order.id] ||
-                                                                                        orderDetailsMap[order.id][0]?.order?.status ||
+                                                                                        orderDetailsMap[order.id][0]
+                                                                                            ?.order?.status ||
                                                                                         order.status
                                                                                     }
                                                                                     onChange={(e) =>
-                                                                                        handleStatusChange(order.id, e.target.value)
+                                                                                        handleStatusChange(
+                                                                                            order.id,
+                                                                                            e.target.value,
+                                                                                        )
                                                                                     }
                                                                                 >
-                                                                                    <option value="Đã giao">Đã giao</option>
-                                                                                    <option value="Chưa giao">Chưa giao</option>
+                                                                                    <option value="Đã giao">
+                                                                                        Đã giao
+                                                                                    </option>
+                                                                                    <option value="Đang giao">
+                                                                                        Đang giao
+                                                                                    </option>
                                                                                     <option value="Hủy">Hủy</option>
                                                                                 </select>
                                                                             </div>
                                                                             <div className="col-md-3">
-                                                                                <label className="form-label">Địa chỉ giao hàng:</label>
+                                                                                <label className="form-label">
+                                                                                    Địa chỉ giao hàng:
+                                                                                </label>
                                                                                 <input
                                                                                     type="text"
                                                                                     className="form-control form-control-sm"
                                                                                     value={
-                                                                                        orderDetailsMap[order.id][0]?.address ||
+                                                                                        orderDetailsMap[order.id][0]
+                                                                                            ?.address ||
                                                                                         '123 Đường ABC, Quận 1, TP.HCM'
                                                                                     }
                                                                                     readOnly
                                                                                 />
                                                                             </div>
                                                                         </div>
+
                                                                         <h6>Danh sách sản phẩm</h6>
                                                                         <table className="table table-bordered table-hover">
                                                                             <thead className="table-dark">
@@ -272,19 +366,39 @@ const QuanLyDonHang = () => {
                                                                             </thead>
                                                                             <tbody>
                                                                                 {orderDetailsMap[order.id] &&
-                                                                                Array.isArray(orderDetailsMap[order.id]) &&
+                                                                                Array.isArray(
+                                                                                    orderDetailsMap[order.id],
+                                                                                ) &&
                                                                                 orderDetailsMap[order.id].length > 0 ? (
-                                                                                    orderDetailsMap[order.id].map((item, index) => (
-                                                                                        <tr key={index}>
-                                                                                            <td>{item.product?.name || 'N/A'}</td>
-                                                                                            <td>{item.quantity || 0}</td>
-                                                                                            <td>{item.product?.price || 0}</td>
-                                                                                            <td>{(item.quantity || 0) * (item.product?.price || 0)}</td>
-                                                                                        </tr>
-                                                                                    ))
+                                                                                    orderDetailsMap[order.id].map(
+                                                                                        (item, index) => (
+                                                                                            <tr key={index}>
+                                                                                                <td>
+                                                                                                    {item.product
+                                                                                                        ?.name || 'N/A'}
+                                                                                                </td>
+                                                                                                <td>
+                                                                                                    {item.quantity || 0}
+                                                                                                </td>
+                                                                                                <td>
+                                                                                                    {item.product
+                                                                                                        ?.price || 0}
+                                                                                                </td>
+                                                                                                <td>
+                                                                                                    {(item.quantity ||
+                                                                                                        0) *
+                                                                                                        (item.product
+                                                                                                            ?.price ||
+                                                                                                            0)}
+                                                                                                </td>
+                                                                                            </tr>
+                                                                                        ),
+                                                                                    )
                                                                                 ) : (
                                                                                     <tr>
-                                                                                        <td colSpan="4">Không có sản phẩm</td>
+                                                                                        <td colSpan="4">
+                                                                                            Không có sản phẩm
+                                                                                        </td>
                                                                                     </tr>
                                                                                 )}
                                                                             </tbody>
@@ -294,9 +408,15 @@ const QuanLyDonHang = () => {
                                                                     <div>{message || 'Không có dữ liệu chi tiết'}</div>
                                                                 )}
                                                                 <div className="d-flex justify-content-end mt-3">
-                                                                    <button className="btn btn-sm btn-primary me-2">Cập nhật</button>
-                                                                    <button className="btn btn-sm btn-success me-2">Lưu</button>
-                                                                    <button className="btn btn-sm btn-info me-2">In</button>
+                                                                    <button
+                                                                        className="btn btn-sm btn-success me-2"
+                                                                        onClick={() => updateOrderStatus(order.id)}
+                                                                    >
+                                                                        Lưu
+                                                                    </button>
+                                                                    <button className="btn btn-sm btn-info me-2">
+                                                                        In
+                                                                    </button>
                                                                     <button
                                                                         className="btn btn-sm btn-secondary"
                                                                         onClick={() => handleCancel(order.id)}

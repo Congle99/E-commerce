@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import StatsCard from './StatsCard.jsx';
 import ProductModal from './ProductModal.jsx';
-import '../Product/Product.scss';
+import './Product.scss';
 import Api from '~/components/Api';
 import * as XLSX from 'xlsx'; // Import thư viện xlsx
 

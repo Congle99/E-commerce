@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import '../OrderDetail/OrderDetailPage.scss';
+import './OrderDetailPage.scss';
 import Api from '~/components/Api.jsx';
 import { useParams, useNavigate } from 'react-router-dom';
 

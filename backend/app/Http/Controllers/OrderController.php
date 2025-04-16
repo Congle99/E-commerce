@@ -101,7 +101,7 @@ class OrderController extends Controller
         $validator = Validator::make($request->all(), [
             'user_id' => 'sometimes|exists:users,id',
             'total_price' => 'sometimes|numeric|min:0',
-            'status' => 'sometimes|in:pending,completed'
+            'status' => 'required|string|max:255'
         ]);
 
         if ($validator->fails()) {
