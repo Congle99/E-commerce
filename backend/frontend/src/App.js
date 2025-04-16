@@ -1,6 +1,8 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { publicRoute } from '~/routes';
 import { DefaultLayout } from '~/components/Layouts';
+import 'bootstrap/dist/css/bootstrap.min.css';
+
 function App() {
     return (
         <Router>

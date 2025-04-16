@@ -1,7 +1,7 @@
-import Home from "../pages/Home";
-import Product from "~/pages/Product/Product.jsx";
-import OrderPage from "~/pages/Order/OrderPage.jsx";
-import OrderDetailPage from "../pages/OrderDetail/OrderDetailPage.jsx";
+import Home from "~/pages/Admin/Home";
+import Product from "~/pages/Admin/Product/Product.jsx";
+import OrderPage from "~/pages/Admin/Order/OrderPage.jsx";
+import OrderDetailPage from "../pages/Admin/OrderDetail/OrderDetailPage.jsx";
 
 const publicRoute = [
     {path: '/', component: Home},

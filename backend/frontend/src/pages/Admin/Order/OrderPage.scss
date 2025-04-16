@@ -145,3 +145,28 @@ body {
 .page-link {
   cursor: pointer;
 }
+
+.compact-table {
+  tbody tr {
+    height: auto; // Đảm bảo chiều cao dòng không bị dư thừa
+  }
+
+  td, th {
+    padding: 0.5rem !important; // Giảm padding trong ô
+    vertical-align: middle; // Canh giữa theo chiều dọc
+  }
+  .collapse {
+    padding: 0.5rem !important;
+  }
+
+  .p-0 {
+    padding: 0 !important;
+  }
+  .form-select-sm {
+    padding: 0.25rem 0.5rem; // Dropdown nhỏ hơn
+  }
+
+  .btn-sm {
+    padding: 0.25rem 0.5rem; // Nút nhỏ hơn
+  }
+}

@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id(); 
             $table->unsignedBigInteger('user_id'); 
             $table->decimal('total_price', 10, 2);
-            $table->enum('status', ['pending', 'completed']); 
+            $table->string('status'); 
             $table->timestamp('created_at')->useCurrent(); 
             $table->timestamp('updated_at')->useCurrent(); 
 
