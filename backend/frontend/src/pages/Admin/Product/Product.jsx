@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import StatsCard from './StatsCard.jsx';
 import ProductModal from './ProductModal.jsx';
-import '../Product/Product.scss';
+import './Product.scss';
 import Api from '~/components/Api';
 import * as XLSX from 'xlsx'; // Import thư viện xlsx
 
@@ -20,14 +20,16 @@ const ProductsPage = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [selectedProduct, setSelectedProduct] = useState(null);
+    const [lastPage, setLastPage] = useState(1); // Tổng số trang
 
     const fetchProducts = async (page = 1) => {
         try {
             setLoading(true);
             const response = await http.get(`/product?page=${page}`);
-            setProducts(response.data.data);
-            setCurrentPage(response.data.current_page);
-            setTotalPages(response.data.last_page);
+            const { data, current_page, last_page } = response.data;
+            setProducts(data);
+            setCurrentPage(current_page);
+            setLastPage(last_page);
         } catch (error) {
             console.error('Lỗi khi lấy danh sách sản phẩm:', error);
         } finally {
@@ -55,20 +57,36 @@ const ProductsPage = () => {
     };
 
     useEffect(() => {
-        fetchProducts();
+        fetchProducts(currentPage);
         fetchStats();
-    }, []);
+    }, [currentPage]);
 
+    // Hàm chuyển trang
     const handlePageChange = (page) => {
-        fetchProducts(page);
+        if (page >= 1 && page <= lastPage) {
+            setCurrentPage(page);
+        }
+    };
+
+    // Tạo danh sách trang để hiển thị
+    const renderPagination = () => {
+        const pages = [];
+        for (let i = 1; i <= lastPage; i++) {
+            pages.push(
+                <li key={i} className={`page-item ${currentPage === i ? 'active' : ''}`}>
+                    <button className="page-link" onClick={() => handlePageChange(i)}>
+                        {i}
+                    </button>
+                </li>,
+            );
+        }
+        return pages;
     };
 
     const handleSaveProduct = (updatedProduct) => {
         if (selectedProduct) {
             setProducts((prevProducts) =>
-                prevProducts.map((product) =>
-                    product.id === updatedProduct.id ? updatedProduct : product
-                )
+                prevProducts.map((product) => (product.id === updatedProduct.id ? updatedProduct : product)),
             );
         } else {
             setProducts((prevProducts) => [...prevProducts, updatedProduct]);
@@ -103,7 +121,7 @@ const ProductsPage = () => {
             ID: product.id,
             'Tên sản phẩm': product.name,
             'Danh mục': product.category?.name || 'N/A',
-            'Giá': product.price,
+            Giá: product.price,
             'Tồn kho': product.inventory,
             'Trạng thái': product.status,
         }));
@@ -226,38 +244,29 @@ const ProductsPage = () => {
                                 </table>
                             )}
 
-                            <nav aria-label="Page navigation">
-                                <ul className="pagination justify-content-end">
-                                    <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
-                                        <button
-                                            className="page-link"
-                                            onClick={() => handlePageChange(currentPage - 1)}
-                                            disabled={currentPage === 1}
-                                        >
-                                            Trước
-                                        </button>
-                                    </li>
-                                    {[...Array(totalPages)].map((_, index) => (
-                                        <li
-                                            key={index + 1}
-                                            className={`page-item ${currentPage === index + 1 ? 'active' : ''}`}
-                                        >
-                                            <button className="page-link" onClick={() => handlePageChange(index + 1)}>
-                                                {index + 1}
+                            {lastPage > 1 && (
+                                <nav aria-label="Page navigation">
+                                    <ul className="pagination justify-content-end">
+                                        <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
+                                            <button
+                                                className="page-link"
+                                                onClick={() => handlePageChange(currentPage - 1)}
+                                            >
+                                                Trước
                                             </button>
                                         </li>
-                                    ))}
-                                    <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
-                                        <button
-                                            className="page-link"
-                                            onClick={() => handlePageChange(currentPage + 1)}
-                                            disabled={currentPage === totalPages}
-                                        >
-                                            Sau
-                                        </button>
-                                    </li>
-                                </ul>
-                            </nav>
+                                        {renderPagination()}
+                                        <li className={`page-item ${currentPage === lastPage ? 'disabled' : ''}`}>
+                                            <button
+                                                className="page-link"
+                                                onClick={() => handlePageChange(currentPage + 1)}
+                                            >
+                                                Sau
+                                            </button>
+                                        </li>
+                                    </ul>
+                                </nav>
+                            )}
                         </div>
                     </div>
                 </div>

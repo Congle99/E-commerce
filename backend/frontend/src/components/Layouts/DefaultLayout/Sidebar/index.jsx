@@ -37,9 +37,11 @@ const Sidebar = () => {
                     <FontAwesomeIcon icon={faUsers} className="icon" />
                     <span>Khách hàng</span>
                 </li>
-                <li className="nav-item">
-                    <FontAwesomeIcon icon={faShoppingCart} className="icon" />
-                    <span>Đơn hàng</span>
+                <li className={`nav-item ${location.pathname === '/Order' ? 'active' : ''}`}>
+                    <NavLink to="/Order" className="nav-link">
+                        <FontAwesomeIcon icon={faShoppingCart} className="icon" />
+                        <span>Đơn hàng</span>
+                    </NavLink>
                 </li>
                 <li className="nav-item">
                     <FontAwesomeIcon icon={faPercent} className="icon" />
