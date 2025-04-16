@@ -2,12 +2,12 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Order extends Model
 {
-    protected $table = 'orders';
+    use HasFactory;
 
     protected $fillable = [
         'user_id',
@@ -15,16 +15,16 @@ class Order extends Model
         'status',
     ];
 
+    // Định nghĩa ép kiểu cho trường status
     protected $casts = [
-        'total_price' => 'decimal:2',
-        'status' => 'string',
+        'status' => 'string', // Vì đây là ENUM ('pending', 'completed')
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
 
-    // Quan hệ với model User
-    public function user(): BelongsTo
+    // Quan hệ với User
+    public function user()
     {
-        return $this->belongsTo(User::class, 'user_id');
+        return $this->belongsTo(User::class, 'id');
     }
 }

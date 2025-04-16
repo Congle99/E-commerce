@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import './ProductModal.scss';
 import Api from '~/components/Api';
 
@@ -21,7 +20,6 @@ const ProductModal = ({ show, onClose, onSave, product }) => {
     const [imagePreview, setImagePreview] = useState(null);
     const [categories, setCategories] = useState([]);
     const [error, setError] = useState(null);
-    const navigate = useNavigate();
 
     // Khởi tạo formData khi chỉnh sửa sản phẩm
     useEffect(() => {

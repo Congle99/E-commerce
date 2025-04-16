@@ -4,10 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Category;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Product extends Model
 {
+    use HasFactory;
     // Tên bảng, nếu không chỉ định thì Laravel sẽ tự động lấy tên bảng dạng số nhiều của model (products)
     protected $table = 'products';
 
@@ -34,7 +36,7 @@ class Product extends Model
     // Định nghĩa quan hệ với model Category (dựa trên category_id)
     public function category(): BelongsTo
     {
-        return $this->belongsTo(Category::class, 'category_id');
+        return $this->belongsTo(Category::class, 'id');
     }
 
     // Nếu cần cast các kiểu dữ liệu

@@ -10,10 +10,11 @@ class ProductController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+    public function index()
     {
-        $perPage = $request->query('per_page', 10); // Mặc định 10 sản phẩm mỗi trang
-        $products = Product::with('category')->paginate($perPage);
+        $products = Product::with('category')
+        ->orderBy('created_at','desc')
+        ->paginate(10);
 
         return response()->json([
             'data' => $products->items(),
