@@ -4,6 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faFilter, faDownload, faEye, faEdit } from '@fortawesome/free-solid-svg-icons';
 import Api from '~/components/Api.jsx';
 import { useNavigate } from 'react-router-dom';
+import { Collapse } from 'react-bootstrap';
 
 const { http } = Api();
 
@@ -13,6 +14,8 @@ const QuanLyDonHang = () => {
     const [error, setError] = useState(null);
     const [currentPage, setCurrentPage] = useState(1);
     const [lastPage, setLastPage] = useState(1); // Tổng số trang
+    // State để quản lý trạng thái Collapse cho từng sản phẩm
+    const [collapseState, setCollapseState] = useState({});
 
     const fetchOrder = async (page = 1) => {
         try {
@@ -53,10 +56,25 @@ const QuanLyDonHang = () => {
         return pages;
     };
     //Chuyển trang chi tiết đơn hàng
-    const handleViewDetal = (id) => {
+    const handleViewDetail = (id) => {
         navigate(`order-details/${id}`);
     };
 
+    // Hàm toggle Collapse cho sản phẩm cụ thể
+    const toggleCollapse = (productId) => {
+        setCollapseState((prev) => ({
+            ...prev,
+            [productId]: !prev[productId],
+        }));
+    };
+
+      // Hàm xử lý cập nhật trạng thái đơn hàng
+  const handleUpdateStatus = (orderId, newStatus) => {
+    // Giả lập cập nhật trạng thái (thay bằng API call nếu cần)
+    console.log(`Cập nhật trạng thái đơn hàng ${orderId} thành ${newStatus}`);
+    toggleCollapse(orderId); // Đóng Collapse sau khi cập nhật
+  };
+  
     return (
         <div className="noi-dung-chinh">
             <div className="container-fluid">
@@ -119,26 +137,75 @@ const QuanLyDonHang = () => {
                                 <tbody>
                                     {Array.isArray(orders) && orders.length > 0 ? (
                                         orders.map((order) => (
-                                            <tr key={order.id}>
-                                                <td>{order.id}</td>
-                                                <td>{order.user?.email || 'N/A'}</td>
-                                                <td>{order.created_at}</td>
-                                                <td>{order.total_price}</td>
-                                                <td>
-                                                    <span className="badge bg-success">{order.status}</span>
-                                                </td>
-                                                <td>
-                                                    <button
-                                                        className="btn btn-sm btn-primary"
-                                                        onClick={() => handleViewDetal(order.id)}
-                                                    >
-                                                        <FontAwesomeIcon icon={faEye} />
-                                                    </button>
-                                                    <button className="btn btn-sm btn-warning ms-1">
-                                                        <FontAwesomeIcon icon={faEdit} />
-                                                    </button>
-                                                </td>
-                                            </tr>
+                                            <React.Fragment key={order.id}>
+                                                <tr>
+                                                    <td>{order.id}</td>
+                                                    <td>{order.user?.email || 'N/A'}</td>
+                                                    <td>{order.created_at}</td>
+                                                    <td>{order.total_price}</td>
+                                                    <td>
+                                                        <span className="badge bg-success">{order.status}</span>
+                                                    </td>
+                                                    <td>
+                                                        <button
+                                                            className="btn btn-sm btn-primary"
+                                                            onClick={() => handleViewDetail(order.id)}
+                                                        >
+                                                            <FontAwesomeIcon icon={faEye} />
+                                                        </button>
+                                                        <button
+                                                            className="btn btn-sm btn-warning ms-1"
+                                                            onClick={() => toggleCollapse(order.id)}
+                                                            aria-expanded={collapseState[order.id] || false}
+                                                            aria-controls={`collapse-${order.id}`}
+                                                        >
+                                                            <FontAwesomeIcon icon={faEdit} />
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                                {/* Collapse Form */}
+                                                <tr>
+                                                    <td colSpan="6">
+                                                        <Collapse in={collapseState[order.id]}>
+                                                            <div id={`collapse-${order.id}`} className="p-3">
+                                                                {/* Form chỉnh sửa trạng thái đơn hàng */}
+                                                                <form
+                                                                    onSubmit={(e) => {
+                                                                        e.preventDefault();
+                                                                        const newStatus = e.target.status.value;
+                                                                        handleUpdateStatus(order.id, newStatus);
+                                                                    }}
+                                                                >
+                                                                    <div className="mb-3">
+                                                                        <label className="form-label">Trạng thái</label>
+                                                                        <select
+                                                                            name="status"
+                                                                            className="form-select"
+                                                                            defaultValue={order.status}
+                                                                        >
+                                                                            <option value="Đang xử lý">
+                                                                                Đang xử lý
+                                                                            </option>
+                                                                            <option value="Đã giao">Đã giao</option>
+                                                                            <option value="Hủy">Hủy</option>
+                                                                        </select>
+                                                                    </div>
+                                                                    <button type="submit" className="btn btn-primary">
+                                                                        Lưu
+                                                                    </button>
+                                                                    <button
+                                                                        type="button"
+                                                                        className="btn btn-secondary ms-2"
+                                                                        onClick={() => toggleCollapse(order.id)}
+                                                                    >
+                                                                        Hủy
+                                                                    </button>
+                                                                </form>
+                                                            </div>
+                                                        </Collapse>
+                                                    </td>
+                                                </tr>
+                                            </React.Fragment>
                                         ))
                                     ) : (
                                         <tr>
