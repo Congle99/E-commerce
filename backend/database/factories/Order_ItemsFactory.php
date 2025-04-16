@@ -21,10 +21,16 @@ class Order_ItemsFactory extends Factory
     public function definition(): array
     {
         return [
-            'order_id' => Order::factory(), // Giả định bạn có model Order và factory
-            'product_id' => Product::factory(), // Giả định bạn có model Product và factory
-            'quantity' => $this->faker->numberBetween(1, 10), // Số lượng ngẫu nhiên từ 1 đến 10
-            'price' => $this->faker->randomFloat(2, 5, 500), // Giá ngẫu nhiên từ 5 đến 500
+            // Tạo hoặc tham chiếu đến một bản ghi trong bảng orders
+            'order_id' => Order::factory(),
+            // Tạo hoặc tham chiếu đến một bản ghi trong bảng products
+            'product_id' => Product::factory(),
+            // Số lượng: một số ngẫu nhiên từ 1 đến 10
+            'quantity' => $this->faker->numberBetween(1, 10),
+            // Giá: một số thập phân ngẫu nhiên từ 10.00 đến 500.00
+            'price' => $this->faker->randomFloat(2, 10, 500),
+            'created_at' => now(),
+            'updated_at' => now(),
         ];
     }
 }

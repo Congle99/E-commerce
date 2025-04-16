@@ -8,28 +8,29 @@ use Illuminate\Database\Eloquent\Model;
 class Order_Items extends Model
 {
     use HasFactory;
+    public $incrementing = false;
+
+    protected $primaryKey = ['order_id', 'product_id'];
+
     protected $table = 'order_items';
-    protected $fillable = [
-        'order_id',
-        'product_id',
-        'quantity',
-        'price',
-    ];
 
-    // Định nghĩa ép kiểu
-    protected $casts = [
-        'price' => 'decimal:2',
-    ];
+    protected $fillable = ['order_id', 'product_id', 'quantity', 'price'];
 
-    // Quan hệ với Order
     public function order()
     {
-        return $this->belongsTo(Order::class, 'id');
+        return $this->belongsTo(Order::class, 'order_id');
     }
 
-    // Quan hệ với Product
     public function product()
     {
-        return $this->belongsTo(Product::class, 'id');
+        return $this->belongsTo(Product::class, 'product_id');
+    }
+
+    public function getKey()
+    {
+        return [
+            'order_id' => $this->order_id,
+            'product_id' => $this->product_id,
+        ];
     }
 }

@@ -3,10 +3,12 @@ import '../Order/OrderPage.scss';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faFilter, faDownload, faEye, faEdit } from '@fortawesome/free-solid-svg-icons';
 import Api from '~/components/Api.jsx';
+import { useNavigate } from 'react-router-dom';
 
 const { http } = Api();
 
 const QuanLyDonHang = () => {
+    const navigate = useNavigate();
     const [orders, setOrder] = useState([]);
     const [error, setError] = useState(null);
     const [currentPage, setCurrentPage] = useState(1);
@@ -50,6 +52,10 @@ const QuanLyDonHang = () => {
         }
         return pages;
     };
+    //Chuyển trang chi tiết đơn hàng
+    const handleViewDetal = (id) => {
+        navigate(`order-details/${id}`);
+    };
 
     return (
         <div className="noi-dung-chinh">
@@ -69,11 +75,31 @@ const QuanLyDonHang = () => {
                                 <FontAwesomeIcon icon={faFilter} className="me-1" /> Lọc đơn hàng
                             </button>
                             <ul className="dropdown-menu">
-                                <li><a className="dropdown-item" href="#">Tất cả</a></li>
-                                <li><a className="dropdown-item" href="#">Chờ xác nhận</a></li>
-                                <li><a className="dropdown-item" href="#">Đang giao</a></li>
-                                <li><a className="dropdown-item" href="#">Đã giao</a></li>
-                                <li><a className="dropdown-item" href="#">Đã hủy</a></li>
+                                <li>
+                                    <a className="dropdown-item" href="#">
+                                        Tất cả
+                                    </a>
+                                </li>
+                                <li>
+                                    <a className="dropdown-item" href="#">
+                                        Chờ xác nhận
+                                    </a>
+                                </li>
+                                <li>
+                                    <a className="dropdown-item" href="#">
+                                        Đang giao
+                                    </a>
+                                </li>
+                                <li>
+                                    <a className="dropdown-item" href="#">
+                                        Đã giao
+                                    </a>
+                                </li>
+                                <li>
+                                    <a className="dropdown-item" href="#">
+                                        Đã hủy
+                                    </a>
+                                </li>
                             </ul>
                         </div>
                     </div>
@@ -102,7 +128,10 @@ const QuanLyDonHang = () => {
                                                     <span className="badge bg-success">{order.status}</span>
                                                 </td>
                                                 <td>
-                                                    <button className="btn btn-sm btn-primary">
+                                                    <button
+                                                        className="btn btn-sm btn-primary"
+                                                        onClick={() => handleViewDetal(order.id)}
+                                                    >
                                                         <FontAwesomeIcon icon={faEye} />
                                                     </button>
                                                     <button className="btn btn-sm btn-warning ms-1">
@@ -127,19 +156,13 @@ const QuanLyDonHang = () => {
                             <nav aria-label="Page navigation">
                                 <ul className="pagination justify-content-end">
                                     <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
-                                        <button
-                                            className="page-link"
-                                            onClick={() => handlePageChange(currentPage - 1)}
-                                        >
+                                        <button className="page-link" onClick={() => handlePageChange(currentPage - 1)}>
                                             Trước
                                         </button>
                                     </li>
                                     {renderPagination()}
                                     <li className={`page-item ${currentPage === lastPage ? 'disabled' : ''}`}>
-                                        <button
-                                            className="page-link"
-                                            onClick={() => handlePageChange(currentPage + 1)}
-                                        >
+                                        <button className="page-link" onClick={() => handlePageChange(currentPage + 1)}>
                                             Sau
                                         </button>
                                     </li>

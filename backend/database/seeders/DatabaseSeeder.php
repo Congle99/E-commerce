@@ -19,20 +19,21 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
 
-        // Tạo 10 người dùng bằng factory
         User::factory()->count(10)->create();
 
-        // Tạo một người dùng admin cụ thể
         User::factory()->create([
             'email' => 'admin@example.com',
             'password' => Hash::make('admin123'),
             'role' => 'admin',
         ]);
+
         Category::factory()->count(5)->create();
 
         Product::factory()->count(20)->create();
-        Order_Items::factory()->count(50)->create();
 
         Order::factory()->count(15)->create();
+
+        Order_Items::factory()->count(50)->create();
+
     }
 }
