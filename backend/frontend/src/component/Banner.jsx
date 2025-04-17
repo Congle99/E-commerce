@@ -2,8 +2,8 @@ import React from 'react';
 import banner1 from '../asset/img/banner/banner-1/banner1.jpg';
 import banner2 from '../asset/img/banner/banner-1/banner2.jpg';
 import banner3 from '../asset/img/banner/banner-1/banner3.jpg';
-import 'slick-carousel/slick/slick.css';
-import 'slick-carousel/slick/slick-theme.css';
+import '../../node_modules/slick-carousel/slick/slick.css'
+import '../../node_modules/slick-carousel/slick/slick-theme.css'
 import '../asset/css/style.css';
 import './SliderCustom.css';
 const Banner = () => {

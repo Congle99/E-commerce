@@ -26,60 +26,10 @@ const ShopBody = () => {
                                     <button><i className="fa fa-search"></i></button>
                                 </form>
                             </div>
-
+                            <ShopWidget title="Categories" items={['Accessories', 'Bags', 'Clothing', 'Shoes', 'Exclusive', 'Uncategorized', 'Women']} />
                             <ShopWidget title="Brand" items={['Apex', 'Bata', 'Puma', 'Nike', 'Likoda', 'Piolaba']} />
                             <ShopWidget title="Price filter" items={['£0.00 - £50.00', '£50.00 - £100.00', '£100.00 - £150.00', '£150.00 - £200.00', '£200.00+']} />
                             <ShopWidget title="Product Size" items={['L', 'M', 'X', 'XL', 'XXL']} />
-                            <ShopWidget title="Categories" items={['Accessories', 'Bags', 'Clothing', 'Shoes', 'Exclusive', 'Uncategorized', 'Women']} />
-
-                            <div className="shop-widget">
-                                <h3 className="shop-title">Tags</h3>
-                                <ul className="shop-tag">
-                                    {['Minimal', 'T-Shirts', 'Pants', 'Jeants', 'Winter', 'Latest', 'New', 'Sale'].map(tag => (
-                                        <li key={tag}><a href="/shop">{tag}</a></li>
-                                    ))}
-                                </ul>
-                            </div>
-
-                            <div className="shop-widget">
-                                <h3 className="shop-title">Color</h3>
-                                <ul className="shop-link">
-                                    {['blue', 'green', 'orange', 'navy', 'pinkish', 'vista'].map(color => (
-                                        <li key={color}>
-                                            <a href="/shop">
-                                                <span className={color}></span> {color.charAt(0).toUpperCase() + color.slice(1)}
-                                            </a>
-                                        </li>
-                                    ))}
-                                </ul>
-                            </div>
-
-                            <div className="shop-widget">
-                                <h3 className="shop-title">Recent Product</h3>
-                                <ul className="shop-sidebar-product">
-                                    {[1, 3, 2, 4].map(id => (
-                                        <li key={id}>
-                                            <div className="side-pro-img">
-                                                <a href="/product-details">
-                                                    <img src={require(`../asset/img/product/latest/shop-rsp${id}.jpg`)} alt="Product" />
-                                                </a>
-                                            </div>
-                                            <div className="side-pro-content">
-                                                <div className="side-pro-rating">
-                                                    {[...Array(5)].map((_, i) => (
-                                                        <i key={i} className="fas fa-star"></i>
-                                                    ))}
-                                                </div>
-                                                <h5><a href="/product-details">Raglan Baseball-Style</a></h5>
-                                                <div className="side-pro-price">
-                                                    <span>$119.00 USD</span>
-                                                </div>
-                                            </div>
-                                        </li>
-                                    ))}
-                                </ul>
-                            </div>
-
                             <div className="shop-widget">
                                 <div className="shop-sidebar-banner">
                                     <a href="/shop">
@@ -173,6 +123,16 @@ const ShopBody = () => {
                                             id: 4,
                                             img1: require('../asset/img/product/pro29.jpg'),
                                             img2: require('../asset/img/product/pro28.jpg')
+                                        },
+                                        {
+                                            id: 4,
+                                            img1: require('../asset/img/product/pro29.jpg'),
+                                            img2: require('../asset/img/product/pro28.jpg')
+                                        },
+                                        {
+                                            id: 4,
+                                            img1: require('../asset/img/product/pro29.jpg'),
+                                            img2: require('../asset/img/product/pro28.jpg')
                                         }
 
                                     ].map((product) => (
@@ -209,7 +169,7 @@ const ShopBody = () => {
                                                     </h4>
                                                     <div className="product-meta">
                                                         <div className="pro-price">
-                                                            <span>$119.00 USD</span>
+                                                            <span>$119.000000 USD</span>
                                                             <span className="old-price">$230.00 USD</span>
                                                         </div>
                                                     </div>

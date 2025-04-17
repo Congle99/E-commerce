@@ -6,19 +6,23 @@ import shape1 from '../asset/img/slider/shape1.png';
 import shape2 from '../asset/img/slider/shape2.png';
 import shape3 from '../asset/img/slider/shape3.png';
 import shape4 from '../asset/img/slider/shape4.png';
+import hinh1 from '../asset/images/sp1.jpg';
+import hinh2 from '../asset/images/sp2.jpg';
+import hinh3 from '../asset/images/sp3.jpg';
+import hinh4 from '../asset/images/sp4.jpg';
 
 import '../asset/css/style.css';
 
 const slides = [
   {
     background: slide1,
-    shape1: shape1,
-    shape2: shape2,
+    hinh1: hinh1,
+    hinh2: hinh2,
   },
   {
     background: slide1_1,
-    shape1: shape3,
-    shape2: shape4,
+    hinh1: hinh3,
+    hinh2: hinh4,
   }
 ];
 
@@ -87,10 +91,10 @@ const HeroSlider = () => {
                 </div>
                 <div className="col-xl-5">
                   <div className="slide-shape1 bounce-animate" style={{ animationDelay: '.9s' }}>
-                    <img src={slide.shape1} alt="shape1" />
+                    <img src={slide.hinh1} alt="hinh1" />
                   </div>
                   <div className="slide-shape2 bounce-animate" style={{ animationDelay: '1.2s' }}>
-                    <img src={slide.shape2} alt="shape2" />
+                    <img src={slide.hinh2} alt="hinh2" />
                   </div>
                 </div>
               </div>
