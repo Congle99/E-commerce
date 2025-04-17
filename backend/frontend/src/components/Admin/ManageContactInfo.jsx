@@ -12,7 +12,7 @@ const ManageContactInfo = () => {
     const [message, setMessage] = useState("");
 
     useEffect(() => {
-        fetch("http://localhost:8000/api/company-info")
+        fetch("http://localhost:8000/api/contact-info")
             .then((res) => res.json())
             .then((data) => {
                 if (data) setInfo(data);
@@ -30,19 +30,23 @@ const ManageContactInfo = () => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        fetch("http://localhost:8000/api/company-info", {
+        fetch("http://localhost:8000/api/contact-info", {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: {
+                "Content-Type": "application/json",
+            },
             body: JSON.stringify(info),
-        })
-            .then((res) => res.json())
-            .then((data) => {
+        }).then(async (res) => {
+            const text = await res.text();
+            console.log("Raw response:", text);
+            try {
+                const data = JSON.parse(text);
                 setMessage("Cập nhật thành công!");
-            })
-            .catch((err) => {
-                console.error("POST error:", err);
-                setMessage("Đã xảy ra lỗi khi lưu.");
-            });
+            } catch (err) {
+                console.error("JSON parse error:", err);
+                setMessage("Lỗi phản hồi không phải JSON.");
+            }
+        });
     };
 
     if (loading) return <p>Đang tải dữ liệu...</p>;

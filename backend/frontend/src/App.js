@@ -1,12 +1,11 @@
-
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Home from "./pages/Home";
+import Home from "../src/pages/Admin/Home/index";
 import ContactPage from "./pages/Contact";
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { publicRoute } from '~/routes';
-import { DefaultLayout } from '~/components/Layouts';
-import 'bootstrap/dist/css/bootstrap.min.css';
-
+import { publicRoute } from "~/routes";
+import { DefaultLayout } from "~/components/Layouts";
+import "bootstrap/dist/css/bootstrap.min.css";
+import ManageContactInfo from "./components/Admin/ManageContactInfo";
+import ContactInfo from "./pages/Admin/ContactInfo/ContactInfo";
 
 function App() {
     return (
@@ -15,7 +14,7 @@ function App() {
                 <Routes>
                     <Route path="/" element={<Home />} />
                     <Route path="/contact" element={<ContactPage />} />
-
+                    <Route path="/admin/contact" element={<ContactInfo />} />
                     {publicRoute.map((route, index) => {
                         const Layout = route.layout || DefaultLayout;
                         const Page = route.component;
