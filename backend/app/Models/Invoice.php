@@ -15,6 +15,7 @@ class Invoice extends Model
         'issued_at',
         'paid_at',
     ];
+    
 
     // Quan hệ với Order (mỗi hóa đơn thuộc về một đơn hàng)
     public function order()

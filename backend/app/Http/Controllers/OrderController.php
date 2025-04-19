@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Order;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
-
+use App\Models\Invoice; 
 class OrderController extends Controller
 {
     /**
@@ -87,38 +87,52 @@ class OrderController extends Controller
     /**
      * Update the specified order in storage.
      */
+// Nhớ thêm dòng này để dùng Invoice model
+
     public function update(Request $request, $id)
     {
         $order = Order::find($id);
-
+    
         if (!$order) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Order not found'
             ], 404);
         }
-
+    
         $validator = Validator::make($request->all(), [
             'user_id' => 'sometimes|exists:users,id',
             'total_price' => 'sometimes|numeric|min:0',
             'status' => 'required|string|max:255'
         ]);
-
+    
         if ($validator->fails()) {
             return response()->json([
                 'status' => 'error',
                 'errors' => $validator->errors()
             ], 422);
         }
-
+    
         $order->update($request->only(['user_id', 'total_price', 'status']));
-
+    
+        // Tạo hóa đơn khi trạng thái là "delivered"
+        if ($order->status === 'delivered' && !$order->invoice) {
+            Invoice::create([
+                'order_id' => $order->id,
+                'invoice_number' => 'INV-' . now()->format('YmdHis') . '-' . $order->id,
+                'total_amount' => $order->total_price, // Tính theo tổng giá trị của đơn hàng
+                'invoice_date' => now(),
+                'status' => 'unpaid', // Hoặc "paid" tùy theo bạn
+            ]);
+        }
+    
         return response()->json([
             'status' => 'success',
             'message' => 'Order updated successfully',
             'data' => $order
         ], 200);
     }
+    
 
     /**
      * Remove the specified order from storage.
@@ -141,4 +155,30 @@ class OrderController extends Controller
             'message' => 'Order deleted successfully'
         ], 200);
     }
+    public function getInvoice($orderId)
+{
+    $order = Order::find($orderId);
+
+    if (!$order) {
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Order not found'
+        ], 404);
+    }
+
+    $invoice = $order->invoice;  // Giả sử quan hệ giữa Order và Invoice đã được thiết lập
+
+    if (!$invoice) {
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Invoice not found'
+        ], 404);
+    }
+
+    return response()->json([
+        'status' => 'success',
+        'data' => $invoice
+    ], 200);
+}
+
 }
