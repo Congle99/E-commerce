@@ -12,13 +12,16 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('order_items', function (Blueprint $table) {
-            $table->id();
             $table->unsignedBigInteger('order_id');
             $table->unsignedBigInteger('product_id');
             $table->integer('quantity')->unsigned();
             $table->decimal('price', 10, 2);
+            $table->timestamps();
 
-            // Thêm các khóa ngoại
+            // Định nghĩa composite primary key
+            $table->primary(['order_id', 'product_id']);
+
+            // Thêm các khóa ngoại (nếu vẫn muốn giữ để đảm bảo referential integrity)
             $table->foreign('order_id')->references('id')->on('orders')->onDelete('cascade');
             $table->foreign('product_id')->references('id')->on('products')->onDelete('restrict');
         });
@@ -29,6 +32,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('order__items');
+        Schema::dropIfExists('order_items');
     }
 };
