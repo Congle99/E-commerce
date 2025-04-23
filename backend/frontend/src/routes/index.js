@@ -5,11 +5,13 @@ import OrderDetailPage from "../pages/Admin/OrderDetail/OrderDetailPage.jsx";
 
 import HomeUser from "../pages/User/HomeUser/HomeUser.jsx"
 import Shop from "../pages/User/Shop/Shop.jsx";
+import ProductDetail from "../pages/User/ProductDetail/ProductDetail.jsx";
 
 // Dành cho User
 const UserRoute = [
     {path: '/user', component: HomeUser},
     {path: '/ShopUser', component: Shop},
+    {path: '/ProductUser', component: ProductDetail},
 ]
 
 // Dành cho admin

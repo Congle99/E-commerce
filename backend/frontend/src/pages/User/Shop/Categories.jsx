@@ -1,21 +1,49 @@
 import "./Categories.scss";
 import Slider from "rc-slider";
 import "rc-slider/assets/index.css";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import Api from "~/components/Api"; // <-- Import file API của bạn
 
-const categories = ["Tất cả", "Áo thun", "Áo khoác", "Quần jeans", "Đầm", "Giày dép", "Phụ kiện"];
+const { http } = Api(); // <-- Sử dụng http đã cấu hình
 
 const formatCurrency = (value) =>
   value.toLocaleString("vi-VN", { style: "currency", currency: "VND" });
 
 const Categories = () => {
   const [priceRange, setPriceRange] = useState([2000000, 18000000]);
+  const [categories, setCategories] = useState([]); 
+  const [loading, setLoading] = useState(true); 
+  const [noData, setNoData] = useState(false); 
 
   const handleInputChange = (index, value) => {
     const newRange = [...priceRange];
     newRange[index] = parseInt(value) || 0;
     setPriceRange(newRange);
   };
+
+  // Fetch categories từ API
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await http.get("/categories"); 
+        const fetchedCategories = ["Tất cả", ...response.data];
+        setCategories(fetchedCategories);
+
+        // Kiểm tra xem có dữ liệu không
+        if (fetchedCategories.length <= 1) {
+          setNoData(true);
+        } else {
+          setNoData(false);
+        }
+      } catch (error) {
+        console.error("Lỗi khi tải danh mục:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCategories();
+  }, []);
 
   return (
     <div className="categories-page">
@@ -26,9 +54,17 @@ const Categories = () => {
       <h2 className="section-title">Categories</h2>
 
       <ul className="category-list">
-        {categories.map((cat, index) => (
-          <li key={index}>{cat}</li>
-        ))}
+        {loading ? (
+          <li>Đang tải...</li> // Hiển thị khi dữ liệu đang tải
+        ) : noData ? (
+          <li>Không có dữ liệu</li> // Hiển thị khi không có dữ liệu
+        ) : (
+          categories.map((cat, index) => (
+            <li key={index}>
+              {typeof cat === "string" ? cat : cat.name} {/* Hiển thị tên nếu là object */}
+            </li>
+          ))
+        )}
       </ul>
 
       <div className="price-range">
@@ -68,7 +104,7 @@ const Categories = () => {
           />
         </div>
 
-        <button className="search-btn">SEARCH</button>
+        <button className="search-btn">TÌM KIẾM</button>
       </div>
     </div>
   );
