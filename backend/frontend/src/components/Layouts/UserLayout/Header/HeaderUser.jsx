@@ -36,7 +36,7 @@ function HeaderUser() {
           <div className="header-icons">
             <a href="#" onClick={toggleSearch}><i className="fas fa-search"></i></a>
             <a href="/login"><i className="far fa-user"></i></a>
-            <a href="/cart" className="cart-icon">
+            <a href="/CartUser" className="cart-icon">
               <i className="fas fa-shopping-cart"></i>
               <span className="cart-count">3</span>
             </a>
