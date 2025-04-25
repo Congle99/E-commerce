@@ -48,7 +48,7 @@ const Products = () => {
                 <img
                   src={`http://localhost:8000/storage/${item.image}`}
                   alt={item.name}
-                  className="product-image"
+                  className="image"
                 />
                 <h3>{item.name}</h3>
                 <p>{item.price.toLocaleString("vi-VN")}₫</p>
