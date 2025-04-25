@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import './HeaderUser.scss';
-import logo from '../../../../assets/images/headeruser/logo.png';
+import logo from '../../../../../assets/images/headeruser/logo.png';
 
 function HeaderUser() {
   const [isSearchOpen, setSearchOpen] = useState(false);
