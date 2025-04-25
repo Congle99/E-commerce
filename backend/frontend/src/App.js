@@ -1,6 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { publicRoute } from '~/routes';
-import { DefaultLayout } from '~/components/Layouts';
+import { UserRoute, AdminRoute } from '~/routes';
+import { DefaultLayout, UserLayout } from '~/components/Layouts';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 function App() {
@@ -8,8 +8,26 @@ function App() {
         <Router>
             <div className="App">
                 <Routes>
-                    {publicRoute.map((route, index) => {
+                    {/* Admin Routes */}
+                    {AdminRoute.map((route, index) => {
                         const Layout = route.layout || DefaultLayout;
+                        const Page = route.component;
+                        return (
+                            <Route
+                                key={index}
+                                path={route.path}
+                                element={
+                                    <Layout>
+                                        <Page />
+                                    </Layout>
+                                }
+                            />
+                        );
+                    })}
+
+                    {/* User Routes */}
+                    {UserRoute.map((route, index) => {
+                        const Layout = route.layout || UserLayout; 
                         const Page = route.component;
                         return (
                             <Route

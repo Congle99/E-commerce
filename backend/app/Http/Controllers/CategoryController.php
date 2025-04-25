@@ -15,6 +15,11 @@ class CategoryController extends Controller
         return Category::all();
     }
 
+    public function indexUser()
+    {
+        return response()->json(Category::all());
+    }
+
     /**
      * Store a newly created resource in storage.
      */
