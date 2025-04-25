@@ -17,4 +17,7 @@ Route::prefix('api')->middleware(['api'])->group(function () {
     Route::get('category', [CategoryController::class, 'index']);
     Route::resource('order', OrderController::class);
     Route::resource('order/order-details', OrderDetailController::class);
+    //User
+    Route::get('/categories', [CategoryController::class, 'indexUser']);
+    Route::get('/product', [ProductController::class, 'index']);
 });
