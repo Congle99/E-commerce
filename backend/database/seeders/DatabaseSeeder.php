@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use App\Models\Category;
 use App\Models\Order;
 use App\Models\Order_Items;
 use App\Models\Product;
@@ -18,7 +17,9 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-
+        $this->call([
+            CategorySeeder::class,
+        ]);
         User::factory()->count(10)->create();
 
         User::factory()->create([
@@ -26,9 +27,6 @@ class DatabaseSeeder extends Seeder
             'password' => Hash::make('admin123'),
             'role' => 'admin',
         ]);
-
-        Category::factory()->count(5)->create();
-
         Product::factory()->count(20)->create();
 
         Order::factory()->count(15)->create();

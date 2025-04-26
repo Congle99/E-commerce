@@ -29,7 +29,7 @@ class ProductFactory extends Factory
             'description' => $this->faker->paragraph(), // Mô tả ngẫu nhiên
             'price' => $this->faker->randomFloat(2, 10, 1000), // Giá từ 10 đến 1000
             'discount_price' => $this->faker->randomFloat(2, 5, 900), // Giá giảm từ 5 đến 900
-            'category_id' => Category::factory(), // Giả định bạn có model Category và factory
+            'category_id' => $this->faker->numberBetween(1,5),
             'image' => $this->faker->imageUrl(640, 480, 'products'), // URL hình ảnh giả
             'status' => $this->faker->randomElement(['Còn hàng', 'Hết hàng']), // Trạng thái ngẫu nhiên
             'inventory' => $this->faker->numberBetween(0, 100), // Số lượng tồn kho từ 0 đến 100
