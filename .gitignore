@@ -15,6 +15,9 @@ package-lock.json
 *.apk
 *.pack
 .eslintcache
+node_modules/.cache/.eslintcache
+node_modules/.cache/default-development/
+
 
 # Project files, i.e. `.project`, `.actionScriptProperties` and `.flexProperties`
 # should NOT be excluded as they contain compiler settings and other important
