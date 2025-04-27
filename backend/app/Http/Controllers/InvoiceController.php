@@ -81,6 +81,24 @@ public function store(Request $req) {
   }
   
   
-
+  public function destroy($id)
+  {
+      $invoice = \App\Models\Invoice::find($id);
+  
+      if (!$invoice) {
+          return response()->json([
+              'status' => 'error',
+              'message' => 'Invoice not found'
+          ], 404);
+      }
+  
+      $invoice->delete();
+  
+      return response()->json([
+          'status' => 'success',
+          'message' => 'Invoice deleted successfully'
+      ]);
+  }
+  
   
 }

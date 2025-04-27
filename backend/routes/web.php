@@ -25,6 +25,8 @@ Route::get('/', function () {
     Route::post('invoices', [InvoiceController::class, 'store']);
     Route::put('/invoices/{id}', [InvoiceController::class, 'update']);
     Route::get('/invoices/{id}', [InvoiceController::class, 'show']);
+    Route::delete('invoices/{id}', [InvoiceController::class, 'destroy']);
+
 
 
 });
