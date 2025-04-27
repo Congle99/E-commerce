@@ -8,13 +8,8 @@ class Invoice extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
-        'order_id',
-        'amount',
-        'status',
-        'issued_at',
-        'paid_at',
-    ];
+    protected $fillable = ['order_id', 'invoice_number', 'total_amount', 'invoice_date', 'status'];
+
     
 
     // Quan hệ với Order (mỗi hóa đơn thuộc về một đơn hàng)
