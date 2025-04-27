@@ -31,6 +31,7 @@ class OrderController extends Controller
                 'error' => $e->getMessage(),
             ], 500);
         }
+        
     }
 
     /**
@@ -87,7 +88,7 @@ class OrderController extends Controller
     /**
      * Update the specified order in storage.
      */
-// Nhớ thêm dòng này để dùng Invoice model
+// // Nhớ thêm dòng này để dùng Invoice model
 
     public function update(Request $request, $id)
     {
@@ -132,8 +133,6 @@ class OrderController extends Controller
             'data' => $order
         ], 200);
     }
-    
-
     /**
      * Remove the specified order from storage.
      */
@@ -166,8 +165,7 @@ class OrderController extends Controller
         ], 404);
     }
 
-    $invoice = $order->invoice;  // Giả sử quan hệ giữa Order và Invoice đã được thiết lập
-
+    $invoice = $order->invoice;  
     if (!$invoice) {
         return response()->json([
             'status' => 'error',
@@ -180,5 +178,7 @@ class OrderController extends Controller
         'data' => $invoice
     ], 200);
 }
+
+
 
 }

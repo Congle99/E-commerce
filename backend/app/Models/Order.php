@@ -29,6 +29,7 @@ class Order extends Model
     }
     public function invoice()
     {
-        return $this->hasOne(Invoice::class);  // Đảm bảo quan hệ đúng, ví dụ: mỗi đơn hàng chỉ có một hóa đơn
+        return $this->hasOne(Invoice::class);
     }
+    
 }

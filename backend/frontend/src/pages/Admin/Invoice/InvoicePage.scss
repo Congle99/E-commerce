@@ -1,0 +1,31 @@
+.invoice-page {
+    padding: 1.5rem;
+    h2 {
+      margin-bottom: 1rem;
+    }
+    &.error {
+      color: red;
+      font-weight: bold;
+    }
+  }
+  
+  .invoice-table {
+    width: 100%;
+    border-collapse: collapse;
+    th, td {
+      padding: 0.75rem;
+      border: 1px solid #ddd;
+    }
+    th {
+      background: #f5f5f5;
+      text-align: left;
+    }
+    tbody tr:hover {
+      background: #fafafa;
+    }
+    .empty {
+      text-align: center;
+      font-style: italic;
+    }
+  }
+  

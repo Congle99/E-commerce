@@ -1,54 +1,74 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import "./InvoicePage.scss";
 import Api from '~/components/Api.jsx';
 
-const InvoicePage = () => {
-    const [invoices, setInvoices] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null); // Thêm state để lưu lỗi
-    const { http } = Api(); // Lấy instance http từ Api
+const { http } = Api();
+export default function InvoicePage() {
+  const [invoices, setInvoices] = useState([]);
+  const [loading, setLoading]     = useState(true);
+  const [error, setError]         = useState("");
 
-    useEffect(() => {
-      const fetchInvoices = async () => {
-          try {
-              const response = await http.get('invoices');
-              console.log(response.data); // Kiểm tra dữ liệu trả về
-              setInvoices(response.data);
-          } catch (error) {
-              console.error('Lỗi khi lấy hóa đơn:', error);
-          } finally {
-              setLoading(false);
-          }
-      };
-  
-      fetchInvoices();
+  useEffect(() => {
+    // IIFE async để dễ dùng try/catch/finally
+    (async () => {
+      try {
+        const res = await axios.get("http://localhost:8000/api/invoices");
+        console.log("API /invoices:", res.data);
+        // res.data = { data: [...], current_page, last_page, total }
+        setInvoices(res.data.data || []);  
+      } catch (err) {
+        console.error(err);
+        setError("Không tải được danh sách hoá đơn");
+      } finally {
+        setLoading(false);
+      }
+    })();
   }, []);
-  
-    if (loading) {
-        return <div>Loading...</div>; // Bạn có thể thay đổi "Loading..." thành một spinner nếu muốn
-    }
 
-    if (error) {
-        return <div>{error}</div>; // Hiển thị lỗi nếu có
-    }
+  if (loading) {
+    return <div className="invoice-page">Loading…</div>;
+  }
 
-    return (
-      <div>
-          <h1>Danh sách hóa đơn</h1>
-          {invoices.length === 0 ? (
-              <p>Không có hóa đơn nào</p>
+  if (error) {
+    return <div className="invoice-page error">{error}</div>;
+  }
+
+  return (
+    <div className="invoice-page">
+      <h2>Danh sách hoá đơn</h2>
+      <table className="invoice-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Số hoá đơn</th>
+            <th>Đơn hàng</th>
+            <th>Ngày tạo</th>
+            <th>Tổng tiền</th>
+            <th>Trạng thái</th>
+          </tr>
+        </thead>
+        <tbody>
+          {invoices.length > 0 ? (
+            invoices.map(inv => (
+              <tr key={inv.id}>
+                <td>{inv.id}</td>
+                <td>{inv.invoice_number}</td>
+                <td>#{inv.order_id}</td>
+                <td>{new Date(inv.invoice_date).toLocaleDateString()}</td>
+                <td>{inv.total_amount.toLocaleString()} VNĐ</td>
+                <td>{inv.status}</td>
+              </tr>
+            ))
           ) : (
-              <ul>
-                  {invoices.map(invoice => (
-                      <li key={invoice.id}>
-                          Hóa đơn {invoice.id}: {invoice.amount} VNĐ
-                      </li>
-                  ))}
-              </ul>
+            <tr>
+              <td colSpan="6" className="empty">Chưa có hoá đơn</td>
+            </tr>
           )}
-      </div>
+        </tbody>
+      </table>
+    </div>
+    
   );
   
-  
-};
-
-export default InvoicePage;
+}
