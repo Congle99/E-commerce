@@ -9,9 +9,6 @@ use App\Models\Invoice;
 
 class OrderController extends Controller
 {
-    /**
-     * Display a listing of the orders.
-     */
     public function index()
     {
         try {
@@ -33,15 +30,12 @@ class OrderController extends Controller
         }
     }
 
-    /**
-     * Store a newly created order in storage.
-     */
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'user_id' => 'required|exists:users,id',
             'total_price' => 'required|numeric|min:0',
-            'status' => 'required|in:pending,completed,delivered'
+            'status' => 'required|in:pending,completed,delivered,Đang giao,Đã giao'  // sửa lại thêm trạng thái
         ]);
 
         if ($validator->fails()) {
@@ -57,8 +51,8 @@ class OrderController extends Controller
             'status' => $request->status,
         ]);
 
-        // Tạo hóa đơn nếu trạng thái là delivered hoặc completed
-        if (in_array($order->status, ['delivered', 'completed'])) {
+        // Tạo hóa đơn nếu trạng thái là delivered, completed, Đang giao hoặc Đã giao
+        if (in_array($order->status, ['delivered', 'completed', 'Đang giao', 'Đã giao'])) {
             Invoice::create([
                 'order_id' => $order->id,
                 'invoice_number' => 'INV-' . now()->format('YmdHis') . '-' . $order->id,
@@ -75,9 +69,6 @@ class OrderController extends Controller
         ], 201);
     }
 
-    /**
-     * Display the specified order.
-     */
     public function show($id)
     {
         $order = Order::with('user')->find($id);
@@ -95,9 +86,6 @@ class OrderController extends Controller
         ], 200);
     }
 
-    /**
-     * Update the specified order in storage.
-     */
     public function update(Request $request, $id)
     {
         $order = Order::find($id);
@@ -128,8 +116,8 @@ class OrderController extends Controller
     
         $newStatus = $order->status;
     
-        // Ở đây thay đổi thành 'Đã giao' hoặc trạng thái bạn muốn tạo hóa đơn
-        if (in_array($newStatus, ['Đã giao']) 
+        // Tạo hóa đơn nếu trạng thái chuyển sang Đang giao hoặc Đã giao và chưa có invoice
+        if (in_array($newStatus, ['Đang giao', 'Đã giao']) 
             && $oldStatus !== $newStatus
             && !$order->invoice) {
             
@@ -151,11 +139,6 @@ class OrderController extends Controller
         ], 200);
     }
     
-    
-
-    /**
-     * Remove the specified order from storage.
-     */
     public function destroy($id)
     {
         $order = Order::find($id);
@@ -175,9 +158,6 @@ class OrderController extends Controller
         ], 200);
     }
 
-    /**
-     * Lấy hóa đơn của đơn hàng
-     */
     public function getInvoice($orderId)
     {
         $order = Order::find($orderId);

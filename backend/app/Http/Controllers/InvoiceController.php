@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Invoice;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
+
 
 class InvoiceController extends Controller
 {
@@ -52,5 +54,33 @@ public function store(Request $req) {
     $inv = Invoice::create($data);
     return response()->json(['data'=>$inv],201);
   }
+  
+  public function update(Request $request, $id)
+  {
+      $invoice = Invoice::find($id);
+      if (!$invoice) {
+          return response()->json(['status' => 'error', 'message' => 'Invoice not found'], 404);
+      }
+  
+      $validator = Validator::make($request->all(), [
+          'status' => 'required|string|in:unpaid,paid,cash_on_delivery,cancelled',
+      ]);
+  
+      if ($validator->fails()) {
+          return response()->json(['status' => 'error', 'errors' => $validator->errors()], 422);
+      }
+  
+      $invoice->status = $request->status;
+      $invoice->save();
+  
+      return response()->json([
+          'status' => 'success',
+          'message' => 'Invoice updated successfully',
+          'data' => $invoice
+      ], 200);
+  }
+  
+  
+
   
 }

@@ -23,6 +23,7 @@ Route::get('/', function () {
     Route::resource('order/order-details', OrderDetailController::class);
     Route::get('invoices', [InvoiceController::class, 'index']);
     Route::post('invoices', [InvoiceController::class, 'store']);
+    Route::put('/invoices/{id}', [InvoiceController::class, 'update']);
 
 
 
