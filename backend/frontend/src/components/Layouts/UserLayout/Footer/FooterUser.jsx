@@ -13,7 +13,7 @@ function FooterUser() {
             <div className="col-xl-3 col-lg-3 col-md-6">
               <div className="footer-widget">
                 <div className="footer-logo">
-                  <a href="/">Trinh Shop</a>
+                  <a href="/">E-Commerce Shop</a>
                 </div>
                 <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt.</p>
               </div>
@@ -65,7 +65,7 @@ function FooterUser() {
         <div className="container">
           <div className="row">
             <div className="col-12 text-center">
-              <p>Copyright © 2025 Trinh Shop. All Rights Reserved</p>
+              <p>Copyright © 2025 E-Commerce Shop. All Rights Reserved</p>
             </div>
           </div>
         </div>
