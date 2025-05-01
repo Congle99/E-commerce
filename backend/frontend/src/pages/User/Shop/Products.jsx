@@ -2,14 +2,14 @@ import React, { useState, useEffect } from "react";
 import "./Products.scss";
 import Api from "~/components/Api";
 import imageMd from "../../../assets/images/product/image.png";
+import { useNavigate } from "react-router-dom";
 
 const { http } = Api();
-
 const Products = ({
   searchTerm,
   selectedCategories,
   priceRange,
-  filterTriggered // ✅ nhận thêm prop này từ Shop.jsx
+  filterTriggered 
 }) => {
   const [products, setProducts] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -17,15 +17,12 @@ const Products = ({
   const [totalItems, setTotalItems] = useState(0);
   const [loading, setLoading] = useState(true);
   const [sortOrder, setSortOrder] = useState("");
-
+  const navigate = useNavigate();
   const itemsPerPage = 12;
-
-  // ✅ Khi filter được kích hoạt lại (tức khi nhấn nút), reset về trang đầu
   useEffect(() => {
     setCurrentPage(1);
   }, [filterTriggered]);
 
-  // ✅ Gọi API khi filter được kích hoạt hoặc người dùng chuyển trang / đổi sắp xếp
   useEffect(() => {
     const fetchProducts = async () => {
       try {
@@ -63,7 +60,7 @@ const Products = ({
     };
 
     fetchProducts();
-  }, [currentPage, sortOrder, filterTriggered]); // ✅ không còn phụ thuộc searchTerm, selectedCategories, priceRange
+  }, [currentPage, sortOrder, filterTriggered]); 
 
   const handlePageChange = (page) => {
     if (page >= 1 && page <= totalPages) {
@@ -92,7 +89,7 @@ const Products = ({
           >
             <div>
               <h2 style={{ fontSize: "22px", fontWeight: "bold" }}>
-                PHỤ KIỆN{" "}
+                SẢN PHẨM{" "}
                 <span style={{ fontWeight: "normal" }}>
                   ({totalItems} sản phẩm)
                 </span>
@@ -114,10 +111,15 @@ const Products = ({
               </select>
             </div>
           </div>
-
+          {/* Sản phẩm */}
           <div className="products-grid">
             {products.map((item) => (
-              <div key={item.id} className="product-card">
+              <div
+                key={item.id}
+                className="product-card"
+                onClick={() => navigate(`/ProductUser/${item.id}`)}
+                style={{ cursor: "pointer" }}
+              >
                 <img
                   src={
                     item.image && item.image !== ""
@@ -182,9 +184,8 @@ const Products = ({
                 isVisible && (
                   <button
                     key={page}
-                    className={`page-btn ${
-                      currentPage === page ? "active" : ""
-                    }`}
+                    className={`page-btn ${currentPage === page ? "active" : ""
+                      }`}
                     onClick={() => handlePageChange(page)}
                   >
                     {page}
@@ -194,9 +195,8 @@ const Products = ({
             })}
 
             <button
-              className={`page-btn ${
-                currentPage === totalPages ? "disabled" : ""
-              }`}
+              className={`page-btn ${currentPage === totalPages ? "disabled" : ""
+                }`}
               onClick={() => handlePageChange(currentPage + 1)}
             >
               Next

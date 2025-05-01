@@ -28,7 +28,6 @@ const Shop = () => {
               setFilterTriggered={setFilterTriggered} // ✅ gửi callback để khi nhấn lọc thì cập nhật
             />
           </div>
-
           {/* Cột hiển thị danh sách sản phẩm */}
           <div className="col-md-9">
             <Products
