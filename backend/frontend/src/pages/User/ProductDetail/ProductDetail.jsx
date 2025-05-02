@@ -27,62 +27,59 @@ const ProductDetail = () => {
   if (!product) return <div>Đang tải sản phẩm...</div>;
   return (
     <div className="product-detail container">
-    <div className="row">
-      {/* Cột hình ảnh */}
-      <div className="col-md-6 image-section">
-        <img
-          src={product.image ? `http://localhost:8000/storage/${product.image}` : imageMd}
-          alt={product.name}
-          onError={(e) => {
-            e.target.onerror = null;
-            e.target.src = imageMd;
-          }}
-          className="img-fluid"
-        />
-      </div>
-  
-      {/* Cột thông tin chi tiết */}
-      <div className="col-md-6 info-section">
-        <h1 className="product-name">{product.name}</h1>
-        <p className="product-category"><strong>Loại:</strong> {product.category?.name || "Chưa xác định"}</p>
-  
-        <div className="price">
-          {product.discount_price ? (
-            <>
-              <span className="discount">{product.discount_price.toLocaleString("vi-VN")}₫</span>
-              <span className="original">{product.price.toLocaleString("vi-VN")}₫</span>
-            </>
-          ) : (
-            <span className="discount">{product.price.toLocaleString("vi-VN")}₫</span>
-          )}
-        </div>
-  
-        <p className="description">{product.description}</p>
-  
-        <div className="d-flex align-items-center gap-3 mt-3">
-          <label>Số lượng:</label>
-          <input
-            type="number"
-            min="1"
-            max={product.inventory || 100}
-            value={quantity}
-            onChange={(e) =>
-              setQuantity(Math.max(1, Math.min(product.inventory || 100, +e.target.value)))
-            }
-            style={{ width: "80px" }}
+      <div className="row">
+        {/* Cột hình ảnh */}
+        <div className="col-md-6 image-section">
+          <img
+            src={product.image ? `http://localhost:8000/storage/${product.image}` : imageMd}
+            alt={product.name}
+            onError={(e) => {
+              e.target.onerror = null;
+              e.target.src = imageMd;
+            }}
+            className="img-fluid"
           />
         </div>
-  
-        <div className="action-buttons mt-4">
-          <button className="btn btn-primary me-2" onClick={handleAddToCart}>
-            Mua ngay
-          </button>
-          <button className="btn btn-outline-secondary">Thêm vào giỏ hàng</button>
+
+        {/* Cột thông tin chi tiết */}
+        <div className="col-md-6 info-section">
+          <p className="product-category"><strong>Loại:</strong> {product.category?.name || "Chưa xác định"}</p>
+          <h1 className="product-name">Tên: {product.name}</h1>
+
+          <div className="price">
+            {product.discount_price ? (
+              <>
+                <span className="discount">Giá: {product.discount_price.toLocaleString("vi-VN")}₫   </span>
+                <span className="original">{product.price.toLocaleString("vi-VN")}₫</span>
+              </>
+            ) : (
+              <span className="discount">{product.price.toLocaleString("vi-VN")}  ₫</span>
+            )}
+          </div>
+<h5>Mô tả: </h5>
+          <p className="description">{product.description}</p>
+
+          <div className="quantity-wrapper">
+            <div className="quantitybox">
+            <button className="qty-btn" onClick={() => setQuantity(Math.max(1, quantity - 1))}>-</button>
+            <span className="qty-number">{quantity}</span>
+            <button className="qty-btn" onClick={() => setQuantity(Math.min((product.inventory || 100), quantity + 1))}>+</button>
+            </div>
+            <button className="icon-btn">
+              <i className="fas fa-heart"></i>
+            </button>
+          </div>
+
+          <div className="action-buttons mt-4">
+            <button className="btn btn-primary me-2" onClick={handleAddToCart}>
+              Mua ngay
+            </button>
+            <button className="btn btn-outline-secondary">Thêm vào giỏ hàng</button>
+          </div>
         </div>
       </div>
     </div>
-  </div>
-  
+
   );
 };
 
