@@ -20,4 +20,6 @@ Route::prefix('api')->middleware(['api'])->group(function () {
     //User
     Route::get('/categories', [CategoryController::class, 'indexUser']);
     Route::get('/product', [ProductController::class, 'index']);
+    Route::get('/ProductUser/{id}', [ProductController::class, 'show']);
+
 });
