@@ -120,7 +120,13 @@ if ($request->has('sort')) {
      */
     public function show(string $id)
     {
-        //
+        $product = Product::with('category')->find($id);
+
+    if (!$product) {
+        return response()->json(['message' => 'Không tìm thấy sản phẩm'], 404);
+    }
+
+    return response()->json($product, 200);
     }
 
     /**

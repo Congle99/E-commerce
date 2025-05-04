@@ -6,12 +6,14 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\OrderDetailController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\StatsController;
+use App\Http\Controllers\ProductReviewController;
 
 Route::get('/', function () {
     return view('welcome');
 });
 
 Route::prefix('api')->middleware(['api'])->group(function () {
+    //Admin
     Route::resource('product', ProductController::class);
     Route::get('stats', [StatsController::class, 'index']);
     Route::get('category', [CategoryController::class, 'index']);
@@ -20,4 +22,15 @@ Route::prefix('api')->middleware(['api'])->group(function () {
     //User
     Route::get('/categories', [CategoryController::class, 'indexUser']);
     Route::get('/product', [ProductController::class, 'index']);
+    Route::get('/ProductUser/{id}', [ProductController::class, 'show']);
+
+    //comment+rating ( khi có đăng nhập)
+    // Route::middleware('auth:sanctum')->group(function () {
+    //     Route::post('/reviews', [ProductReviewController::class, 'store']);
+    // });
+    // Route::get('/reviews/{productId}', [ProductReviewController::class, 'index']);
+
+    // comment + rating
+    Route::post('/reviews', [ProductReviewController::class, 'store']); // bỏ middleware
+    Route::get('/reviews/{productId}', [ProductReviewController::class, 'index']);
 });
