@@ -1,0 +1,35 @@
+@media print {
+    /* Ẩn header, sidebar, footer, nút in... */
+    header,
+    nav,
+    aside,
+    .sidebar,
+    .navbar,
+    .btn-print,
+    .react-icons, /* nếu có dùng icon thư viện */
+    .pagination {
+      display: none !important;
+    }
+  
+    /* Chỉ hiển thị phần nội dung hóa đơn */
+    .print-area {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+    }
+  
+    body * {
+      visibility: hidden;
+    }
+  
+    .print-area, .print-area * {
+      visibility: visible;
+    }
+  
+    .print-area {
+      position: absolute;
+      left: 0;
+      top: 0;
+    }
+  }
+  
