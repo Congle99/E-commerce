@@ -2,6 +2,9 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Table, Button, Modal, Form, Spinner, Alert, Badge } from "react-bootstrap";
 import Api from '~/components/Api.jsx';
+import { Pagination } from "react-bootstrap";
+import { Card } from "react-bootstrap";
+
 
 const { http } = Api();
 
@@ -17,11 +20,19 @@ export default function InvoicePage() {
         invoice_date: ""
     });
     const [saving, setSaving] = useState(false);
+    const [pagination, setPagination] = useState({
+        current_page: 1,
+        last_page: 1,
+    });
 
-    const loadInvoices = async () => {
+    const loadInvoices = async (page = 1) => {
         try {
-            const res = await axios.get("http://localhost:8000/api/invoices");
+            const res = await axios.get(`http://localhost:8000/api/invoices?page=${page}`);
             setInvoices(res.data.data || []);
+            setPagination({
+                current_page: res.data.current_page,
+                last_page: res.data.last_page,
+            });
         } catch (err) {
             console.error(err);
             setError("Không tải được danh sách hoá đơn");
@@ -47,7 +58,7 @@ export default function InvoicePage() {
         setEditingInvoice(null);
         setFormData({ total_amount: "", status: "unpaid", invoice_date: "" });
     };
-    
+
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -77,7 +88,7 @@ export default function InvoicePage() {
 
     const handleDeleteInvoice = async (invoiceId) => {
         if (!window.confirm("Bạn chắc chắn muốn xoá hóa đơn này?")) return;
-    
+
         try {
             const res = await axios.delete(`http://localhost:8000/api/invoices/${invoiceId}`);
             if (res.data.status === "success") {
@@ -155,7 +166,7 @@ export default function InvoicePage() {
                                         >
                                             In hóa đơn
                                         </Button>
-                                     
+
                                         &nbsp;
                                         <Button
                                             variant="outline-danger"
@@ -176,6 +187,31 @@ export default function InvoicePage() {
                     )}
                 </tbody>
             </Table>
+            <div className="d-flex justify-content-end mt-2 pagination-container">
+                <Pagination className="mb-0">
+                    <Pagination.Prev
+                        disabled={pagination.current_page === 1}
+                        onClick={() => loadInvoices(pagination.current_page - 1)}
+                    />
+
+                    {Array.from({ length: pagination.last_page }, (_, idx) => idx + 1).map(page => (
+                        <Pagination.Item
+                            key={page}
+                            active={page === pagination.current_page}
+                            onClick={() => loadInvoices(page)}
+                        >
+                            {page}
+                        </Pagination.Item>
+                    ))}
+
+                    <Pagination.Next
+                        disabled={pagination.current_page === pagination.last_page}
+                        onClick={() => loadInvoices(pagination.current_page + 1)}
+                    />
+                </Pagination>
+            </div>
+
+
 
             <Modal show={!!editingInvoice} onHide={cancelEditing} centered>
                 <Modal.Header closeButton>
