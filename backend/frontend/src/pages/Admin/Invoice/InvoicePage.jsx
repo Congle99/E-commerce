@@ -47,6 +47,7 @@ export default function InvoicePage() {
         setEditingInvoice(null);
         setFormData({ total_amount: "", status: "unpaid", invoice_date: "" });
     };
+    
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -73,6 +74,25 @@ export default function InvoicePage() {
             setSaving(false);
         }
     };
+
+    const handleDeleteInvoice = async (invoiceId) => {
+        if (!window.confirm("Bạn chắc chắn muốn xoá hóa đơn này?")) return;
+    
+        try {
+            const res = await axios.delete(`http://localhost:8000/api/invoices/${invoiceId}`);
+            if (res.data.status === "success") {
+                alert("Đã xoá hóa đơn thành công");
+                await loadInvoices();
+            } else {
+                alert("Lỗi: " + (res.data.message || "Không rõ nguyên nhân"));
+            }
+        } catch (error) {
+            console.error(error);
+            alert("Lỗi kết nối đến server hoặc server lỗi");
+        }
+    };
+
+
 
     // Hàm hiển thị nhãn trạng thái với màu sắc
     const renderStatusBadge = (status) => {
@@ -123,17 +143,29 @@ export default function InvoicePage() {
                                 <td>{inv.total_amount.toLocaleString()} VNĐ</td>
                                 <td>{renderStatusBadge(inv.status)}</td>
                                 <td>
-                                    <Button variant="primary" size="sm" onClick={() => startEditing(inv)}>
-                                        Sửa
-                                    </Button>
-                                    &nbsp;
-                                    <Button
-                                        variant="info"
-                                        size="sm"
-                                        onClick={() => window.open(`/invoice/print/${inv.id}`, '_blank')}
-                                    >
-                                        In hóa đơn
-                                    </Button>
+                                    <td>
+                                        <Button variant="primary" size="sm" onClick={() => startEditing(inv)}>
+                                            Sửa
+                                        </Button>
+                                        &nbsp;
+                                        <Button
+                                            variant="info"
+                                            size="sm"
+                                            onClick={() => window.open(`/invoice/print/${inv.id}`, '_blank')}
+                                        >
+                                            In hóa đơn
+                                        </Button>
+                                     
+                                        &nbsp;
+                                        <Button
+                                            variant="outline-danger"
+                                            size="sm"
+                                            onClick={() => handleDeleteInvoice(inv.id)}
+                                        >
+                                            Xoá
+                                        </Button>
+                                    </td>
+
                                 </td>
                             </tr>
                         ))
