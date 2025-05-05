@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Spinner, Alert, Button } from "react-bootstrap";
+import './InvoicePrintPage.scss';
 
 export default function InvoicePrintPage({ invoiceId }) {
   const [invoice, setInvoice] = useState(null);
@@ -43,19 +44,20 @@ export default function InvoicePrintPage({ invoiceId }) {
   };
 
   return (
-    <div className="container mt-4" style={{ maxWidth: "800px" }}>
+    <div className="container mt-4 print-area" style={{ maxWidth: "800px" }}>
       <h2 className="mb-4">Hóa đơn #{invoice.invoice_number}</h2>
-
+  
       <div className="border p-3 mb-3" style={{ backgroundColor: "#f9f9f9" }}>
         <p><strong>Mã hóa đơn:</strong> {invoice.invoice_number}</p>
         <p><strong>Đơn hàng ID:</strong> #{invoice.order_id}</p>
         <p><strong>Ngày hóa đơn:</strong> {new Date(invoice.invoice_date).toLocaleDateString()}</p>
         <p><strong>Tổng tiền:</strong> {invoice.total_amount.toLocaleString()} VNĐ</p>
         <p><strong>Trạng thái:</strong> {getStatusText(invoice.status)}</p>
-
       </div>
-
-      <Button variant="primary" onClick={handlePrint}>In hóa đơn</Button>
+  
+      <Button variant="primary" className="btn-print" onClick={handlePrint}>
+        In hóa đơn
+      </Button>
     </div>
-  );
+  );  
 }
