@@ -10,7 +10,7 @@ import HomeUser from "../pages/User/HomeUser/HomeUser.jsx";
 import Shop from "../pages/User/Shop/Shop.jsx";
 import ProductDetail from "../pages/User/ProductDetail/ProductDetail.jsx";
 import Cart from "../pages/User/Cart/Cart.jsx";
-import PromotionPage from "../pages/Promotion/PromotionPage.jsx";
+import PromotionPage from "../pages/Admin/Promotion/PromotionPage.jsx";
 
 // Dành cho User
 const UserRoute = [
