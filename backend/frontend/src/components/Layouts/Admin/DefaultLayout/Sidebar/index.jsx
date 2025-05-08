@@ -8,7 +8,9 @@ import {
     faPercent,
     faStar,
     faChartBar,
+    faFileInvoice,
 } from '@fortawesome/free-solid-svg-icons';
+
 import './SidebarStyle.scss';
 import { NavLink, useLocation } from 'react-router-dom';
 
@@ -55,6 +57,14 @@ const Sidebar = () => {
                     <FontAwesomeIcon icon={faChartBar} className="icon" />
                     <span>Báo cáo</span>
                 </li>
+                <li className={`nav-item ${location.pathname === '/invoice' ? 'active' : ''}`}>
+                <NavLink to="/invoice" className="nav-link">
+                    <FontAwesomeIcon icon={faFileInvoice} className="icon" />
+                    <span>Hoá Đơn</span>
+                </NavLink>
+                </li>
+
+
             </ul>
 
             <div className="promotion-summary">
