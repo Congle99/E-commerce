@@ -17,11 +17,16 @@ const PromotionModal = ({ show, onClose, onSave, promotion }) => {
     // Khởi tạo formData khi chỉnh sửa mã khuyến mãi
     useEffect(() => {
         if (promotion) {
+            console.log("Promotion data:", promotion);
             setFormData({
                 code: promotion.code || "",
                 discount_percentage: promotion.discount_percentage || "",
-                valid_from: promotion.valid_from || "",
-                valid_to: promotion.valid_to || "",
+                valid_from: promotion.valid_from
+                    ? promotion.valid_from.split("T")[0] // Lấy phần ngày
+                    : "",
+                valid_to: promotion.valid_to
+                    ? promotion.valid_to.split("T")[0] // Lấy phần ngày
+                    : "",
                 usage_limit:
                     promotion.usage_limit !== null ? promotion.usage_limit : "",
             });
@@ -87,6 +92,7 @@ const PromotionModal = ({ show, onClose, onSave, promotion }) => {
             let response;
             if (promotion) {
                 // Cập nhật mã khuyến mãi
+                console.log("Updating promotion:", promotion);
                 response = await http.put(
                     `/promotion-codes/${promotion.id}`,
                     formData
