@@ -19,6 +19,7 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             CategorySeeder::class,
+            InvoiceSeeder::class
         ]);
         User::factory()->count(10)->create();
 
