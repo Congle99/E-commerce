@@ -36,4 +36,5 @@ Route::prefix('api')->middleware(['api'])->group(function () {
     Route::delete('invoices/{id}', [InvoiceController::class, 'destroy']);
 
     Route::get('/promotion-codes', [PromotionCodeController::class, 'index'])->name('promotion-codes.index');
+    Route::post('/promotion-codes', [PromotionCodeController::class, 'store'])->name('promotion-codes.store');
 });

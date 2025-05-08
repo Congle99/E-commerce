@@ -91,13 +91,14 @@ const PromotionModal = ({ show, onClose, onSave, promotion }) => {
                     `/promotion-codes/${promotion.id}`,
                     formData
                 );
+
                 setMessage("Cập nhật mã khuyến mãi thành công");
             } else {
                 // Thêm mã khuyến mãi mới
                 response = await http.post("/promotion-codes", formData);
                 setMessage("Tạo mã khuyến mãi thành công");
             }
-
+            console.log("Response:", response);
             onSave(response.data);
             setFormData({
                 code: "",
