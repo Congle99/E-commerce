@@ -1,24 +1,22 @@
 import React, { useState, useEffect } from "react";
 import "./PromotionPage.scss";
+import PromotionModal from "./PromotionModal";
+import Api from "~/components/Api";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFilter, faDownload } from "@fortawesome/free-solid-svg-icons";
-import Api from "~/components/Api.jsx";
-import { useNavigate } from "react-router-dom";
 import { Dropdown, Pagination } from "react-bootstrap";
-import PromotionModal from "./PromotionModal.jsx";
 
 const { http } = Api();
 
 const PromotionPage = () => {
-    const navigate = useNavigate();
     const [promotions, setPromotions] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [lastPage, setLastPage] = useState(1); // Tổng số trang
     const [message, setMessage] = useState(null);
     const [filterStatus, setFilterStatus] = useState("all"); // Bộ lọc trạng thái
-
     const [showModal, setShowModal] = useState(false);
     const [selectedPromotion, setSelectedPromotion] = useState(null);
+
     // Gọi API để lấy danh sách mã khuyến mãi
     const fetchPromotions = async (page = 1) => {
         try {
@@ -33,22 +31,7 @@ const PromotionPage = () => {
             setPromotions([]);
         }
     };
-    // Hiển thị modal để chỉnh sửa
-    const handleEditPromotion = (promotion) => {
-        setSelectedPromotion(promotion);
-        setShowModal(true);
-    };
 
-    // Lưu mã khuyến mãi
-    const handleSavePromotion = (savedPromotion) => {
-        setShowModal(false);
-        // Cập nhật danh sách mã khuyến mãi hoặc gọi lại API fetchPromotions
-    };
-    // Hiển thị modal để thêm mới
-    const handleAddPromotion = () => {
-        setSelectedPromotion(null);
-        setShowModal(true);
-    };
     useEffect(() => {
         fetchPromotions(currentPage);
     }, [currentPage]);
@@ -74,6 +57,37 @@ const PromotionPage = () => {
             } catch (err) {
                 setMessage("Xóa mã khuyến mãi thất bại");
             }
+        }
+    };
+
+    // Hiển thị modal để thêm mới
+    const handleAddPromotion = () => {
+        setSelectedPromotion(null);
+        setShowModal(true);
+    };
+
+    // Hiển thị modal để chỉnh sửa
+    const handleEditPromotion = (promotion) => {
+        setSelectedPromotion(promotion);
+        setShowModal(true);
+    };
+
+    const handleSavePromotion = (savedPromotion) => {
+        setShowModal(false);
+
+        if (selectedPromotion) {
+            // Nếu có selectedPromotion thì đang cập nhật
+            setPromotions((prevPromotions) =>
+                prevPromotions.map((promo) =>
+                    promo.id === savedPromotion.id ? savedPromotion : promo
+                )
+            );
+        } else {
+            // Nếu không có selectedPromotion thì đang thêm mới
+            setPromotions((prevPromotions) => [
+                ...prevPromotions,
+                savedPromotion,
+            ]);
         }
     };
 
@@ -103,7 +117,7 @@ const PromotionPage = () => {
                     </h1>
                     <button
                         className="btn btn-primary"
-                        onClick={() => handleAddPromotion()}
+                        onClick={handleAddPromotion}
                     >
                         Thêm mã khuyến mãi
                     </button>
@@ -270,6 +284,7 @@ const PromotionPage = () => {
                     </div>
                 </div>
             </div>
+            {/* Promotion Modal */}
             <PromotionModal
                 show={showModal}
                 onClose={() => setShowModal(false)}
