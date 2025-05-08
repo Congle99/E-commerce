@@ -5,6 +5,7 @@ import { faFilter, faDownload } from "@fortawesome/free-solid-svg-icons";
 import Api from "~/components/Api.jsx";
 import { useNavigate } from "react-router-dom";
 import { Dropdown, Pagination } from "react-bootstrap";
+import PromotionModal from "./PromotionModal.jsx";
 
 const { http } = Api();
 
@@ -16,6 +17,8 @@ const PromotionPage = () => {
     const [message, setMessage] = useState(null);
     const [filterStatus, setFilterStatus] = useState("all"); // Bộ lọc trạng thái
 
+    const [showModal, setShowModal] = useState(false);
+    const [selectedPromotion, setSelectedPromotion] = useState(null);
     // Gọi API để lấy danh sách mã khuyến mãi
     const fetchPromotions = async (page = 1) => {
         try {
@@ -30,7 +33,22 @@ const PromotionPage = () => {
             setPromotions([]);
         }
     };
+    // Hiển thị modal để chỉnh sửa
+    const handleEditPromotion = (promotion) => {
+        setSelectedPromotion(promotion);
+        setShowModal(true);
+    };
 
+    // Lưu mã khuyến mãi
+    const handleSavePromotion = (savedPromotion) => {
+        setShowModal(false);
+        // Cập nhật danh sách mã khuyến mãi hoặc gọi lại API fetchPromotions
+    };
+    // Hiển thị modal để thêm mới
+    const handleAddPromotion = () => {
+        setSelectedPromotion(null);
+        setShowModal(true);
+    };
     useEffect(() => {
         fetchPromotions(currentPage);
     }, [currentPage]);
@@ -85,7 +103,7 @@ const PromotionPage = () => {
                     </h1>
                     <button
                         className="btn btn-primary"
-                        onClick={() => navigate("/promotion-codes/create")}
+                        onClick={() => handleAddPromotion()}
                     >
                         Thêm mã khuyến mãi
                     </button>
@@ -174,8 +192,8 @@ const PromotionPage = () => {
                                                     <button
                                                         className="btn btn-sm btn-warning me-2"
                                                         onClick={() =>
-                                                            navigate(
-                                                                `/promotion-codes/edit/${promotion.id}`
+                                                            handleEditPromotion(
+                                                                promotion
                                                             )
                                                         }
                                                     >
@@ -252,6 +270,12 @@ const PromotionPage = () => {
                     </div>
                 </div>
             </div>
+            <PromotionModal
+                show={showModal}
+                onClose={() => setShowModal(false)}
+                onSave={handleSavePromotion}
+                promotion={selectedPromotion}
+            />
         </div>
     );
 };
