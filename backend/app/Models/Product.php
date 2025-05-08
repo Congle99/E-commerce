@@ -36,7 +36,7 @@ class Product extends Model
     // Định nghĩa quan hệ với model Category (dựa trên category_id)
     public function category(): BelongsTo
     {
-        return $this->belongsTo(Category::class, 'id');
+        return $this->belongsTo(Category::class, 'category_id');
     }
 
     // Nếu cần cast các kiểu dữ liệu
