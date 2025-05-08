@@ -11,14 +11,24 @@ class OrderController extends Controller
     /**
      * Display a listing of the orders.
      */
-    public function index()
+    public function index(Request $request)
     {
         try {
-            // Lấy đơn hàng với phân trang, 10 đơn hàng mỗi trang
-            $orders = Order::with('user') // Lấy thông tin user liên quan
-                ->orderBy('created_at', 'desc') // Sắp xếp theo ngày tạo mới nhất
-                ->paginate(10); // Phân trang, 10 đơn hàng/trang
-
+            // Lấy tham số status từ query string
+            $status = $request->query('status');
+    
+            // Bắt đầu query
+            $query = Order::with('user') // Lấy thông tin user liên quan
+                ->orderBy('created_at', 'desc'); // Sắp xếp theo ngày tạo mới nhất
+    
+            // Nếu có status và không phải 'all', thêm điều kiện lọc
+            if ($status && $status !== 'all') {
+                $query->where('status', $status);
+            }
+    
+            // Phân trang, 10 đơn hàng/trang
+            $orders = $query->paginate(10);
+    
             return response()->json([
                 'data' => $orders->items(), // Danh sách đơn hàng
                 'current_page' => $orders->currentPage(),

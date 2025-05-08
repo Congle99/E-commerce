@@ -5,12 +5,14 @@ import { faFilter, faDownload } from '@fortawesome/free-solid-svg-icons';
 import Api from '~/components/Api.jsx';
 import { useNavigate } from 'react-router-dom';
 import { Collapse } from 'react-bootstrap';
+import { Dropdown, Pagination } from 'react-bootstrap';
 
 const { http } = Api();
 
 const QuanLyDonHang = () => {
     const navigate = useNavigate();
     const [orders, setOrder] = useState([]);
+    const [filterStatus, setFilterStatus] = useState('all');
     const [orderDetailsMap, setOrderDetailsMap] = useState({});
     const [error, setError] = useState(null);
     const [currentPage, setCurrentPage] = useState(1);
@@ -21,16 +23,25 @@ const QuanLyDonHang = () => {
     const [message, setMessage] = useState(null);
     const [loadingMap, setLoadingMap] = useState({});
 
-    const fetchOrder = async (page = 1) => {
+    // Gọi API để lấy danh sách đơn hàng
+    const fetchOrder = async (status, page = 1) => {
+        setLoadingMap(true);
         try {
-            const response = await http.get(`/order?page=${page}`);
-            const { data, current_page, last_page } = response.data;
-            setOrder(Array.isArray(data) ? data : []);
-            setCurrentPage(current_page);
-            setLastPage(last_page);
+            const response = await http.get('order/', {
+                params: {
+                    status: status === 'all' ? '' : status,
+                    page,
+                },
+            });
+            setOrder(response.data.data);
+            setCurrentPage(response.data.current_page);
+            setLastPage(response.data.last_page);
+            setError(null);
         } catch (err) {
             setError('Không thể tải danh sách đơn hàng');
             setOrder([]);
+        } finally {
+            setLoadingMap(false);
         }
     };
 
@@ -55,10 +66,11 @@ const QuanLyDonHang = () => {
             setLoadingMap((prev) => ({ ...prev, [id]: false }));
         }
     };
-    
+
+    // Gọi API khi filterStatus hoặc currentPage thay đổi
     useEffect(() => {
-        fetchOrder(currentPage);
-    }, [currentPage]);
+        fetchOrder(filterStatus, currentPage);
+    }, [filterStatus, currentPage]);
 
     //Hàm cập nhật order
     const updateOrderStatus = async (orderId) => {
@@ -96,24 +108,23 @@ const QuanLyDonHang = () => {
             setCurrentPage(page);
         }
     };
+    // Xử lý khi chọn trạng thái trong dropdown
+    const handleFilter = (status) => {
+        setFilterStatus(status);
+        setCurrentPage(1); // Reset về trang 1 khi thay đổi bộ lọc
+    };
 
-    // Tạo danh sách trang để hiển thị
+    // Tạo danh sách trang cho phân trang
     const renderPagination = () => {
         const pages = [];
         for (let i = 1; i <= lastPage; i++) {
             pages.push(
-                <li key={i} className={`page-item ${currentPage === i ? 'active' : ''}`}>
-                    <button className="page-link" onClick={() => handlePageChange(i)}>
-                        {i}
-                    </button>
-                </li>,
+                <Pagination.Item key={i} active={i === currentPage} onClick={() => handlePageChange(i)}>
+                    {i}
+                </Pagination.Item>,
             );
         }
         return pages;
-    };
-    //Chuyển trang chi tiết đơn hàng
-    const handleViewDetail = (id) => {
-        navigate(`order-details/${id}`);
     };
 
     const handleRowClick = (orderId) => {
@@ -143,51 +154,118 @@ const QuanLyDonHang = () => {
             [orderId]: undefined,
         }));
     };
+    const handlePrint = (orderId) => {
+        // Kiểm tra xem dữ liệu chi tiết đơn hàng đã có chưa
+        if (!orderDetailsMap[orderId] || loadingMap[orderId]) {
+            setMessage('Vui lòng đợi dữ liệu chi tiết đơn hàng được tải');
+            setTimeout(() => setMessage(null), 3000);
+            return;
+        }
+
+        const printContent = document.getElementById(`print-order-${orderId}`);
+        if (!printContent) {
+            setMessage('Không tìm thấy nội dung để in');
+            setTimeout(() => setMessage(null), 3000);
+            return;
+        }
+
+        const printWindow = window.open('', '_blank');
+        if (!printWindow) {
+            setMessage('Không thể mở cửa sổ in. Vui lòng kiểm tra cài đặt trình duyệt.');
+            setTimeout(() => setMessage(null), 3000);
+            return;
+        }
+
+        printWindow.document.write(`
+            <html>
+                <head>
+                    <title>In Đơn Hàng #${orderId}</title>
+                    <style>
+                        body { 
+                            font-family: Arial, sans-serif; 
+                            margin: 20mm; 
+                            font-size: 12pt;
+                        }
+                        .print-container { 
+                            max-width: 210mm; /* Kích thước A4 */
+                            margin: 0 auto; 
+                        }
+                        .print-header { 
+                            text-align: center; 
+                            margin-bottom: 20mm; 
+                        }
+                        .print-table { 
+                            width: 100%; 
+                            border-collapse: collapse; 
+                            margin-top: 10mm; 
+                        }
+                        .print-table th, .print-table td { 
+                            border: 1px solid #000; 
+                            padding: 8px; 
+                            text-align: left; 
+                        }
+                        .print-table th { 
+                            background-color: #f2f2f2; 
+                            font-weight: bold; 
+                        }
+                        .print-details { 
+                            margin-bottom: 20mm; 
+                        }
+                        .print-details p { 
+                            margin: 5px 0; 
+                        }
+                        @media print {
+                            body { 
+                                margin: 0; 
+                                size: A4 portrait; 
+                            }
+                            .no-print { 
+                                display: none; 
+                            }
+                            @page { 
+                                margin: 20mm; 
+                            }
+                        }
+                    </style>
+                </head>
+                <body>
+                    ${printContent.innerHTML}
+                    <script>
+                        window.onload = function() { 
+                            setTimeout(() => { 
+                                window.print(); 
+                            }, 500); 
+                        }
+                    </script>
+                </body>
+            </html>
+        `);
+        printWindow.document.close();
+    };
 
     return (
         <div className="noi-dung-chinh">
             <div className="container-fluid">
                 <div className="d-sm-flex align-items-center justify-content-between mb-4">
                     <h1 className="h3 mb-0 text-gray-800">Quản lý đơn hàng</h1>
-                    <a href="#" className="d-none d-sm-inline-block btn btn-sm btn-dark shadow-sm">
-                        <FontAwesomeIcon icon={faDownload} className="text-white-50" /> Xuất báo cáo
-                    </a>
                 </div>
 
                 <div className="card shadow mb-4">
                     <div className="card-header py-3 d-flex justify-content-between align-items-center">
                         <h6 className="m-0 font-weight-bold text-dark">Danh sách đơn hàng</h6>
                         <div className="dropdown">
-                            <button className="btn btn-dark dropdown-toggle" type="button">
-                                <FontAwesomeIcon icon={faFilter} className="me-1" /> Lọc đơn hàng
-                            </button>
-                            <ul className="dropdown-menu">
-                                <li>
-                                    <a className="dropdown-item" href="#">
-                                        Tất cả
-                                    </a>
-                                </li>
-                                <li>
-                                    <a className="dropdown-item" href="#">
-                                        Chờ xác nhận
-                                    </a>
-                                </li>
-                                <li>
-                                    <a className="dropdown-item" href="#">
-                                        Đang giao
-                                    </a>
-                                </li>
-                                <li>
-                                    <a className="dropdown-item" href="#">
-                                        Đã giao
-                                    </a>
-                                </li>
-                                <li>
-                                    <a className="dropdown-item" href="#">
-                                        Đã hủy
-                                    </a>
-                                </li>
-                            </ul>
+                            <Dropdown>
+                                <Dropdown.Toggle variant="dark" id="dropdown-basic">
+                                    <FontAwesomeIcon icon={faFilter} className="me-1" /> Lọc đơn hàng
+                                </Dropdown.Toggle>
+                                <Dropdown.Menu>
+                                    <Dropdown.Item onClick={() => handleFilter('all')}>Tất cả</Dropdown.Item>
+                                    <Dropdown.Item onClick={() => handleFilter('Chờ xác nhận')}>Chờ xác nhận</Dropdown.Item>
+                                    <Dropdown.Item onClick={() => handleFilter('Đang giao')}>Đang giao</Dropdown.Item>
+                                    <Dropdown.Item onClick={() => handleFilter('Đã giao')}>Đã giao</Dropdown.Item>
+                                    <Dropdown.Item onClick={() => handleFilter('Hủy')}>Đã hủy</Dropdown.Item>
+                                </Dropdown.Menu>
+                            </Dropdown>
                         </div>
                     </div>
 
@@ -229,7 +307,9 @@ const QuanLyDonHang = () => {
                                                                     ? 'success'
                                                                     : order.status === 'Đang giao'
                                                                     ? 'warning'
-                                                                    : 'danger'
+                                                                    : order.status === 'Hủy' 
+                                                                    ? 'danger'
+                                                                    : 'info'
                                                             }`}
                                                         >
                                                             {order.status}
@@ -328,6 +408,9 @@ const QuanLyDonHang = () => {
                                                                                         )
                                                                                     }
                                                                                 >
+                                                                                    <option value="Chờ xác nhận">
+                                                                                    Chờ xác nhận
+                                                                                    </option>
                                                                                     <option value="Đã giao">
                                                                                         Đã giao
                                                                                     </option>
@@ -403,6 +486,53 @@ const QuanLyDonHang = () => {
                                                                                 )}
                                                                             </tbody>
                                                                         </table>
+                                                                        {/* Print-friendly content */}
+                                                                        <div id={`print-order-${order.id}`} style={{ display: 'none' }}>
+                                                                            <div className="print-container">
+                                                                                <div className="print-header">
+                                                                                    <h2>Đơn Hàng #{order.id}</h2>
+                                                                                </div>
+                                                                                <div className="print-details">
+                                                                                    <p><strong>Mã đơn:</strong> {orderDetailsMap[order.id][0]?.order?.id || order.id}</p>
+                                                                                    <p><strong>Khách hàng:</strong> {orderDetailsMap[order.id][0]?.order?.user?.email || order.user?.email || 'N/A'}</p>
+
+
+                                                                                    <p><strong>Ngày đặt:</strong> {orderDetailsMap[order.id][0]?.created_at || order.created_at}</p>
+                                                                                    <p><strong>Tổng tiền:</strong> {orderDetailsMap[order.id][0]?.order?.total_price || order.total_price}</p>
+                                                                                    <p><strong>Trạng thái:</strong> {orderDetailsMap[order.id][0]?.order?.status || order.status}</p>
+                                                                                    <p><strong>Địa chỉ giao hàng:</strong> {orderDetailsMap[order.id][0]?.address || '123 Đường ABC, Quận 1, TP.HCM'}</p>
+                                                                                </div>
+                                                                                <h3>Danh sách sản phẩm</h3>
+                                                                                <table className="print-table">
+                                                                                    <thead>
+                                                                                        <tr>
+                                                                                            <th>Tên sản phẩm</th>
+                                                                                            <th>Số lượng</th>
+                                                                                            <th>Giá</th>
+                                                                                            <th>Tổng</th>
+                                                                                        </tr>
+                                                                                    </thead>
+                                                                                    <tbody>
+                                                                                        {orderDetailsMap[order.id] &&
+                                                                                        Array.isArray(orderDetailsMap[order.id]) &&
+                                                                                        orderDetailsMap[order.id].length > 0 ? (
+                                                                                            orderDetailsMap[order.id].map((item, index) => (
+                                                                                                <tr key={index}>
+                                                                                                    <td>{item.product?.name || 'N/A'}</td>
+                                                                                                    <td>{item.quantity || 0}</td>
+                                                                                                    <td>{item.product?.price || 0}</td>
+                                                                                                    <td>{(item.quantity || 0) * (item.product?.price || 0)}</td>
+                                                                                                </tr>
+                                                                                            ))
+                                                                                        ) : (
+                                                                                            <tr>
+                                                                                                <td colSpan="4">Không có sản phẩm</td>
+                                                                                            </tr>
+                                                                                        )}
+                                                                                    </tbody>
+                                                                                </table>
+                                                                            </div>
+                                                                        </div>
                                                                     </>
                                                                 ) : (
                                                                     <div>{message || 'Không có dữ liệu chi tiết'}</div>
@@ -414,7 +544,10 @@ const QuanLyDonHang = () => {
                                                                     >
                                                                         Lưu
                                                                     </button>
-                                                                    <button className="btn btn-sm btn-info me-2">
+                                                                    <button
+                                                                        className="btn btn-sm btn-info me-2"
+                                                                        onClick={() => handlePrint(order.id)}
+                                                                    >
                                                                         In
                                                                     </button>
                                                                     <button
