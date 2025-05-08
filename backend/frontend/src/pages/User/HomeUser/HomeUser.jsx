@@ -2,6 +2,8 @@ import React from 'react';
 import CitiesSlider from './CitiesSlider';
 import BannerSection from './BannerSection';
 import BrandSection from './BrandSection';
+import NewProductsSection  from './NewProductsSection'
+import FeaturedProduct from './FeaturedProduct';
 
 // Dữ liệu slide ảnh nền
 const slides = [
@@ -37,7 +39,8 @@ const HomeUser = () => {
       <CitiesSlider slides={slides} />
       <BrandSection />
       <BannerSection />
-
+     <FeaturedProduct />
+     <NewProductsSection />
     </div>
   );
 };
