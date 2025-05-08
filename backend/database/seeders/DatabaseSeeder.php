@@ -29,11 +29,10 @@ class DatabaseSeeder extends Seeder
 
         Category::factory()->count(5)->create();
 
-        Product::factory()->count(20)->create();
-
         Order::factory()->count(15)->create();
 
         Order_Items::factory()->count(50)->create();
 
+        $this->call(ProductSeeder::class);
     }
 }

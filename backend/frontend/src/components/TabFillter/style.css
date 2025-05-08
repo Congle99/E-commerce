@@ -1,0 +1,87 @@
+/* Container cho TabFilter */
+.row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+    padding: 10px 0;
+}
+
+.product-showing {
+    font-size: 16px;
+    font-weight: bold;
+    color: #333;
+}
+
+.shop-tab {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+.shop-tab input[type="text"],
+.shop-tab input[type="number"],
+.shop-tab select {
+    padding: 8px 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+    color: #333;
+    width: auto;
+    min-width: 150px;
+    outline: none;
+    transition: all 0.3s ease;
+}
+
+.shop-tab input[type="text"]:focus,
+.shop-tab input[type="number"]:focus,
+.shop-tab select:focus {
+    border-color: #fe4536;
+    box-shadow: 0 0 5px rgba(254, 69, 54, 0.5);
+}
+
+.shop-tab button {
+    padding: 8px 16px;
+    background-color: #fe4536;
+    border: none;
+    color: #fff;
+    font-size: 14px;
+    font-weight: bold;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.shop-tab button:hover {
+    background-color: #d63a2e;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.shop-tab select {
+    cursor: pointer;
+}
+
+.shop-tab select option {
+    color: #333;
+    background-color: #fff;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .shop-tab {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .shop-tab input[type="text"],
+    .shop-tab input[type="number"],
+    .shop-tab select {
+        width: 100%;
+        max-width: none;
+        margin-bottom: 10px;
+    }
+
+    .shop-tab button {
+        width: 100%;
+    }
+}

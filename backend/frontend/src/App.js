@@ -6,6 +6,7 @@ import { DefaultLayout } from "~/components/Layouts";
 import "bootstrap/dist/css/bootstrap.min.css";
 import ManageContactInfo from "./components/Admin/ManageContactInfo";
 import ContactInfo from "./pages/Admin/ContactInfo/ContactInfo";
+import ProductPage from "./pages/ProductList";
 
 function App() {
     return (
@@ -14,6 +15,10 @@ function App() {
                 <Routes>
                     <Route path="/" element={<Home />} />
                     <Route path="/contact" element={<ContactPage />} />
+                    <Route
+                        path="/products"
+                        element={<ProductPage></ProductPage>}
+                    />
                     <Route path="/admin/contact" element={<ContactInfo />} />
                     {publicRoute.map((route, index) => {
                         const Layout = route.layout || DefaultLayout;

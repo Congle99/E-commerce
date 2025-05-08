@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+
 class ProductController extends Controller
 {
     /**
@@ -13,8 +14,8 @@ class ProductController extends Controller
     public function index()
     {
         $products = Product::with('category')
-        ->orderBy('created_at','desc')
-        ->paginate(10);
+            ->orderBy('created_at', 'desc')
+            ->paginate(10);
 
         return response()->json([
             'data' => $products->items(),
