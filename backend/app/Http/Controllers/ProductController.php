@@ -24,6 +24,16 @@ class ProductController extends Controller
     // }
     public function index(Request $request)
 {
+
+
+    if ($request->has('random')) {
+        $limit = (int) $request->input('random', 4);
+        $products = Product::inRandomOrder()->limit($limit)->get();
+        return response()->json([
+            'data' => $products,
+        ], 200);
+    }
+    
     $query = Product::with('category');
 
         // 🔍 Tìm kiếm theo từ khóa (tên sản phẩm)
