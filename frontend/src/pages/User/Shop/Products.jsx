@@ -9,7 +9,7 @@ const Products = ({
   searchTerm,
   selectedCategories,
   priceRange,
-  filterTriggered,
+  filterTriggered 
 }) => {
   const [products, setProducts] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -60,7 +60,7 @@ const Products = ({
     };
 
     fetchProducts();
-  }, [currentPage, sortOrder, filterTriggered]);
+  }, [currentPage, sortOrder, filterTriggered]); 
 
   const handlePageChange = (page) => {
     if (page >= 1 && page <= totalPages) {
@@ -107,9 +107,7 @@ const Products = ({
                 <option value="">-- Sắp xếp theo --</option>
                 <option value="asc">Giá: Thấp đến Cao</option>
                 <option value="desc">Giá: Cao đến Thấp</option>
-                <option value="discount_desc">
-                  Giảm giá: Cao đến Thấp (chưa){" "}
-                </option>
+                <option value="discount_desc">Giảm giá: Cao đến Thấp (chưa) </option>
               </select>
             </div>
           </div>
@@ -186,9 +184,8 @@ const Products = ({
                 isVisible && (
                   <button
                     key={page}
-                    className={`page-btn ${
-                      currentPage === page ? "active" : ""
-                    }`}
+                    className={`page-btn ${currentPage === page ? "active" : ""
+                      }`}
                     onClick={() => handlePageChange(page)}
                   >
                     {page}
@@ -198,9 +195,8 @@ const Products = ({
             })}
 
             <button
-              className={`page-btn ${
-                currentPage === totalPages ? "disabled" : ""
-              }`}
+              className={`page-btn ${currentPage === totalPages ? "disabled" : ""
+                }`}
               onClick={() => handlePageChange(currentPage + 1)}
             >
               Next

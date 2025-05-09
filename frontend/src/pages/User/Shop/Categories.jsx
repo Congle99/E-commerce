@@ -46,9 +46,7 @@ const Categories = ({
 
   const handleCategoryCheck = (id, checked) => {
     setSelectedCategories((prev) => {
-      const updated = checked
-        ? [...prev, id]
-        : prev.filter((cid) => cid !== id);
+      const updated = checked ? [...prev, id] : prev.filter((cid) => cid !== id);
       setFilterTriggered((p) => !p); // Auto lọc khi chọn category
       return updated;
     });
@@ -112,10 +110,7 @@ const Categories = ({
                   key={cat.id}
                   className="category-item"
                   onClick={() =>
-                    handleCategoryCheck(
-                      cat.id,
-                      !selectedCategories.includes(cat.id)
-                    )
+                    handleCategoryCheck(cat.id, !selectedCategories.includes(cat.id))
                   }
                 >
                   <span className="category-name">{cat.name}</span>

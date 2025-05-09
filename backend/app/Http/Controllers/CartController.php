@@ -12,7 +12,7 @@ class CartController extends Controller
     // Lấy danh sách sản phẩm trong giỏ hàng
     public function index()
     {
-        $userId = Auth::id(); // Lấy ID của người dùng đã đăng nhập
+        $userId = Auth::id() ?? 1;
 
         $cartItems = CartItem::with('product')
             ->where('user_id', $userId)

@@ -8,7 +8,7 @@ const Cart = () => {
   useEffect(() => {
     const fetchCartItems = async () => {
       try {
-        const response = await fetch("/api/cart", {
+        const response = await fetch("http://localhost:8000/api/cart", {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
@@ -38,7 +38,7 @@ const Cart = () => {
     const newQuantity = Math.max(1, updatedItem.quantity + delta);
 
     try {
-      const response = await fetch(`/api/cart/${id}`, {
+      const response = await fetch(`http://localhost:8000/api/cart/${id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -69,7 +69,7 @@ const Cart = () => {
   // Xóa sản phẩm khỏi giỏ hàng
   const handleRemove = async (id) => {
     try {
-      const response = await fetch(`/api/cart/${id}`, {
+      const response = await fetch(`http://localhost:8000/api/cart/${id}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`, // Nếu cần token
@@ -86,11 +86,14 @@ const Cart = () => {
     }
   };
 
-  const formatCurrency = (value) =>
-    value.toLocaleString("vi-VN", {
+  const formatCurrency = (value) => {
+    value = parseFloat(value);
+    if (typeof value !== "number") return "0 ₫"; // fallback giá trị
+    return value.toLocaleString("vi-VN", {
       style: "currency",
       currency: "VND",
     });
+  };
 
   return (
     <div className="cart-container">
@@ -108,12 +111,16 @@ const Cart = () => {
         </thead>
         <tbody>
           {cartItems.map((item) => (
-            <tr key={item.id}>
+            <tr key={item.product.id}>
               <td>
-                <img src={item.image} alt={item.name} className="cart-img" />
+                <img
+                  src={item.product.image}
+                  alt={item.name}
+                  className="cart-img"
+                />
               </td>
-              <td>{item.name}</td>
-              <td>{formatCurrency(item.price)}</td>
+              <td>{item.product.name}</td>
+              <td>{formatCurrency(item.product.price)}</td>
               <td>
                 <div className="qty-controls">
                   <button onClick={() => handleQuantityChange(item.id, -1)}>
@@ -125,7 +132,7 @@ const Cart = () => {
                   </button>
                 </div>
               </td>
-              <td>{formatCurrency(item.price * item.quantity)}</td>
+              <td>{formatCurrency(item.product.price * item.quantity)}</td>
               <td>
                 <button
                   className="btn-remove"
