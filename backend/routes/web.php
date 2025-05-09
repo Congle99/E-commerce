@@ -47,4 +47,5 @@ Route::prefix('api')->middleware(['api'])->group(function () {
     Route::get('/promotion-codes', [PromotionCodeController::class, 'index'])->name('promotion-codes.index');
     Route::post('/promotion-codes', [PromotionCodeController::class, 'store'])->name('promotion-codes.store');
     Route::put('/promotion-codes/{id}', [PromotionCodeController::class, 'update'])->name('promotion-codes.update');
+    Route::delete('/promotion-codes/{id}', [PromotionCodeController::class, 'destroy']);
 });
