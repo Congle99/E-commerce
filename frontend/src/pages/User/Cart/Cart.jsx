@@ -1,41 +1,89 @@
-import React, { useState } from "react";
-import "./Cart.scss"; 
-
-const initialCart = [
-  {
-    id: 1,
-    name: "Áo sơ mi trắng",
-    price: 250000,
-    quantity: 1,
-    image: "https://images.unsplash.com/photo-1523381210434-271e8be1f52b?auto=format&fit=crop&w=600&q=80",
-  },
-  {
-    id: 2,
-    name: "Quần jeans nam",
-    price: 450000,
-    quantity: 2,
-    image: "https://images.unsplash.com/photo-1618354691200-c13d736f62c4?auto=format&fit=crop&w=600&q=80",
-  },
-];
+import React, { useState, useEffect } from "react";
+import "./Cart.scss";
 
 const Cart = () => {
-  const [cartItems, setCartItems] = useState(initialCart);
+  const [cartItems, setCartItems] = useState([]);
 
-  const handleQuantityChange = (id, delta) => {
-    setCartItems((prev) =>
-      prev.map((item) =>
-        item.id === id
-          ? {
-              ...item,
-              quantity: Math.max(1, item.quantity + delta),
-            }
-          : item
-      )
-    );
+  // Lấy danh sách giỏ hàng từ API
+  useEffect(() => {
+    const fetchCartItems = async () => {
+      try {
+        const response = await fetch("/api/cart", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`, // Nếu cần token
+          },
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setCartItems(data);
+        } else {
+          console.error("Failed to fetch cart items");
+        }
+      } catch (error) {
+        console.error("Error fetching cart items:", error);
+      }
+    };
+
+    fetchCartItems();
+  }, []);
+
+  // Cập nhật số lượng sản phẩm
+  const handleQuantityChange = async (id, delta) => {
+    const updatedItem = cartItems.find((item) => item.id === id);
+    if (!updatedItem) return;
+
+    const newQuantity = Math.max(1, updatedItem.quantity + delta);
+
+    try {
+      const response = await fetch(`/api/cart/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`, // Nếu cần token
+        },
+        body: JSON.stringify({ quantity: newQuantity }),
+      });
+
+      if (response.ok) {
+        setCartItems((prev) =>
+          prev.map((item) =>
+            item.id === id
+              ? {
+                  ...item,
+                  quantity: newQuantity,
+                }
+              : item
+          )
+        );
+      } else {
+        console.error("Failed to update item quantity");
+      }
+    } catch (error) {
+      console.error("Error updating item quantity:", error);
+    }
   };
 
-  const handleRemove = (id) => {
-    setCartItems((prev) => prev.filter((item) => item.id !== id));
+  // Xóa sản phẩm khỏi giỏ hàng
+  const handleRemove = async (id) => {
+    try {
+      const response = await fetch(`/api/cart/${id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`, // Nếu cần token
+        },
+      });
+
+      if (response.ok) {
+        setCartItems((prev) => prev.filter((item) => item.id !== id));
+      } else {
+        console.error("Failed to remove item");
+      }
+    } catch (error) {
+      console.error("Error removing item:", error);
+    }
   };
 
   const formatCurrency = (value) =>
@@ -68,14 +116,23 @@ const Cart = () => {
               <td>{formatCurrency(item.price)}</td>
               <td>
                 <div className="qty-controls">
-                  <button onClick={() => handleQuantityChange(item.id, -1)}>-</button>
+                  <button onClick={() => handleQuantityChange(item.id, -1)}>
+                    -
+                  </button>
                   <span>{item.quantity}</span>
-                  <button onClick={() => handleQuantityChange(item.id, 1)}>+</button>
+                  <button onClick={() => handleQuantityChange(item.id, 1)}>
+                    +
+                  </button>
                 </div>
               </td>
               <td>{formatCurrency(item.price * item.quantity)}</td>
               <td>
-                <button className="btn-remove" onClick={() => handleRemove(item.id)}>Xóa</button>
+                <button
+                  className="btn-remove"
+                  onClick={() => handleRemove(item.id)}
+                >
+                  Xóa
+                </button>
               </td>
             </tr>
           ))}
