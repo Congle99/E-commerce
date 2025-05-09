@@ -13,6 +13,19 @@ class PromotionCodeController extends Controller
         $promotionCodes = PromotionCode::paginate(10);
         return response()->json($promotionCodes);
     }
+    public function store(Request $request)
+    {
+        $request->validate([
+            'code' => 'required|string|unique:promotion_codes',
+            'discount_percentage' => 'required|integer|min:1|max:100',
+            'valid_from' => 'required|date',
+            'valid_to' => 'required|date|after_or_equal:valid_from',
+            'usage_limit' => 'nullable|integer|min:1',
+        ]);
+
+        $promo = PromotionCode::create($request->all());
+        return response()->json($promo, 201);
+    }
     public function update(Request $request, $id)
     {
         // Lấy bản ghi hiện tại
