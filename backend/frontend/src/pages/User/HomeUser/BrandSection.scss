@@ -1,0 +1,52 @@
+.brand-section {
+    overflow: hidden;
+    background-color: #fff;
+    padding: 30px 0;
+  
+    .brand-track {
+      display: flex;
+      gap: 20px;
+      width: fit-content;
+      animation: scroll 40s linear infinite;
+    }
+  
+    .brand-logo {
+      flex: 0 0 auto;
+      width: 180px;
+      height: 100px;
+      border: 1px solid #eee;
+      border-radius: 12px;
+      box-shadow: 3px 5px 8px rgba(0, 0, 0, 0.08);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: #fafafa;
+      transition: transform 0.3s ease;
+  
+      img {
+        max-height: 50px;
+        max-width: 100%;
+        object-fit: contain;
+        filter: grayscale(100%);
+        transition: filter 0.3s ease;
+      }
+  
+      &:hover {
+        transform: scale(1.05);
+  
+        img {
+          filter: grayscale(0%);
+        }
+      }
+    }
+  
+    @keyframes scroll {
+      0% {
+        transform: translateX(0);
+      }
+      100% {
+        transform: translateX(-50%);
+      }
+    }
+  }
+  

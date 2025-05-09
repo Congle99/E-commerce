@@ -10,18 +10,84 @@ class ProductController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
-    {
-        $products = Product::with('category')
-        ->orderBy('created_at','desc')
-        ->paginate(10);
+    // public function index()
+    // {
+    //     $products = Product::with('category')
+    //     ->orderBy('created_at','desc')
+    //     ->paginate(12);
 
+    //     return response()->json([
+    //         'data' => $products->items(),
+    //         'current_page' => $products->currentPage(),
+    //         'last_page' => $products->lastPage(),
+    //     ], 200);
+    // }
+    public function index(Request $request)
+{
+
+
+    if ($request->has('random')) {
+        $limit = (int) $request->input('random', 4);
+        $products = Product::inRandomOrder()->limit($limit)->get();
         return response()->json([
-            'data' => $products->items(),
-            'current_page' => $products->currentPage(),
-            'last_page' => $products->lastPage(),
+            'data' => $products,
         ], 200);
     }
+    
+    $query = Product::with('category');
+
+        // 🔍 Tìm kiếm theo từ khóa (tên sản phẩm)
+        if ($request->has('keyword') && $request->keyword !== '') {
+            $query->where('name', 'like', '%' . $request->keyword . '%');
+        }
+    
+        // 📦 Lọc theo danh mục
+        if ($request->has('categories')) {
+            $categories = $request->categories;
+        
+            // Nếu là chuỗi, ví dụ '1,2,3', thì chuyển thành mảng
+            if (is_string($categories)) {
+                $categories = explode(',', $categories);
+            }
+        
+            $query->whereIn('category_id', $categories);
+        }
+        
+    
+        // 💰 Lọc theo giá
+        if ($request->has('min_price') && $request->has('max_price')) {
+            $query->whereBetween('price', [
+                (int) $request->min_price,
+                (int) $request->max_price,
+            ]);
+        }
+        
+    // Xử lý sắp xếp theo giá nếu có tham số sort
+if ($request->has('sort')) {
+    if ($request->sort === 'asc') {
+        $query->orderBy('price', 'asc');
+    } elseif ($request->sort === 'desc') {
+        $query->orderBy('price', 'desc');
+    } else {
+        // Mặc định nếu không hợp lệ thì sort theo created_at mới nhất
+        $query->orderBy('created_at', 'desc');
+    }
+} else {
+    // Nếu không có tham số sort, sort mặc định theo created_at mới nhất
+    $query->orderBy('created_at', 'desc');
+}
+
+
+    $products = $query->paginate(12);
+
+    return response()->json([
+        'data' => $products->items(),
+        'current_page' => $products->currentPage(),
+        'last_page' => $products->lastPage(),
+        'total' => $products->total(),
+    ], 200);
+}
+
 
     /**
      * Store a newly created resource in storage.
@@ -64,7 +130,13 @@ class ProductController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $product = Product::with('category')->find($id);
+
+    if (!$product) {
+        return response()->json(['message' => 'Không tìm thấy sản phẩm'], 404);
+    }
+
+    return response()->json($product, 200);
     }
 
     /**

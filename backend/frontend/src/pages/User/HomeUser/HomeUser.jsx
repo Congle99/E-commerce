@@ -1,6 +1,11 @@
 import React from 'react';
-import CitiesSlider from './CitiesSlider'; // Component bạn tách riêng
+import CitiesSlider from './CitiesSlider';
+import BannerSection from './BannerSection';
+import BrandSection from './BrandSection';
+import NewProductsSection  from './NewProductsSection'
+import FeaturedProduct from './FeaturedProduct';
 
+// Dữ liệu slide ảnh nền
 const slides = [
   {
     city: 'Paris',
@@ -30,30 +35,12 @@ const slides = [
 
 const HomeUser = () => {
   return (
-    <div id="app">
+    <div id="app" className="bg-gray-50">
       <CitiesSlider slides={slides} />
-      <a
-        href="https://dribbble.com/shots/3774469-T-R-A-V-E-L-E-R"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="icon-link"
-      >
-        <img
-          src="http://icons.iconarchive.com/icons/uiconstock/socialmedia/256/Dribbble-icon.png"
-          alt="Dribbble"
-        />
-      </a>
-      <a
-        href="https://twitter.com/NikolayTalanov"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="icon-link icon-link--twitter"
-      >
-        <img
-          src="https://cdn1.iconfinder.com/data/icons/logotypes/32/twitter-128.png"
-          alt="Twitter"
-        />
-      </a>
+      <BrandSection />
+      <BannerSection />
+     <FeaturedProduct />
+     <NewProductsSection />
     </div>
   );
 };

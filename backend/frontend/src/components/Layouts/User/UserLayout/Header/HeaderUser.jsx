@@ -20,7 +20,7 @@ function HeaderUser() {
           <div className="logo">
             <a href="/">
               <img src={logo} alt="Logo" />
-              <span className="shop-name">Trinh Shop</span>
+              <span className="shop-name">E-Commerce Shop</span>
             </a>
           </div>
 
