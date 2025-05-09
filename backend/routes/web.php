@@ -50,4 +50,5 @@ Route::prefix('api')->middleware(['api'])->group(function () {
     Route::delete('/promotion-codes/{id}', [PromotionCodeController::class, 'destroy']);
 
     Route::get('/cart', [CartController::class, 'index']);
+    Route::put('/cart/{id}', [CartController::class, 'update']);
 });
