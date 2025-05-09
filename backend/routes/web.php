@@ -7,7 +7,10 @@ use App\Http\Controllers\OrderDetailController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\StatsController;
 use App\Http\Controllers\InvoiceController;
+
 use App\Http\Controllers\ProductReviewController;
+use App\Http\Controllers\PromotionCodeController;
+
 
 
 
@@ -17,15 +20,16 @@ Route::get('/', function () {
 
 Route::prefix('api')->middleware(['api'])->group(function () {
     //Admin
+
     Route::resource('product', ProductController::class);
     Route::get('stats', [StatsController::class, 'index']);
     Route::get('category', [CategoryController::class, 'index']);
     Route::resource('order', OrderController::class);
     Route::resource('order/order-details', OrderDetailController::class);
-	//User
+    //User
     Route::get('/categories', [CategoryController::class, 'indexUser']);
     Route::get('/product', [ProductController::class, 'index']);
- 	Route::get('/ProductUser/{id}', [ProductController::class, 'show']);
+    Route::get('/ProductUser/{id}', [ProductController::class, 'show']);
 
 
 
@@ -36,7 +40,10 @@ Route::prefix('api')->middleware(['api'])->group(function () {
     Route::get('/invoices/{id}', [InvoiceController::class, 'show']);
     Route::delete('invoices/{id}', [InvoiceController::class, 'destroy']);
 
-	Route::post('/reviews', [ProductReviewController::class, 'store']); // bỏ middleware
+
+    Route::post('/reviews', [ProductReviewController::class, 'store']); // bỏ middleware
     Route::get('/reviews/{productId}', [ProductReviewController::class, 'index']);
 
+    Route::get('/promotion-codes', [PromotionCodeController::class, 'index'])->name('promotion-codes.index');
+    Route::put('/promotion-codes/{id}', [PromotionCodeController::class, 'update'])->name('promotion-codes.update');
 });
