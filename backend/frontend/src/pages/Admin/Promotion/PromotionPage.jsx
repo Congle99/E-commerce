@@ -51,11 +51,21 @@ const PromotionPage = () => {
             )
         ) {
             try {
-                await http.delete(`promotion-codes/${promotionId}`);
-                setMessage("Xóa mã khuyến mãi thành công");
-                fetchPromotions(currentPage);
+                const response = await http.delete(
+                    `promotion-codes/${promotionId}`
+                );
+                console.log(response);
+                if (response.status === 200) {
+                    setMessage("Xóa mã khuyến mãi thành công");
+                    fetchPromotions(currentPage); // Tải lại danh sách
+                } else {
+                    setMessage(
+                        `Xóa mã khuyến mãi thất bại: ${response.statusText}`
+                    );
+                }
             } catch (err) {
                 setMessage("Xóa mã khuyến mãi thất bại");
+                console.error("Error details:", err);
             }
         }
     };
