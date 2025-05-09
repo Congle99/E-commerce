@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import Api from "~/components/Api";
@@ -22,15 +21,17 @@ const ProductDetail = () => {
   const fakeUserId = 1; // Tạm thời dùng ID cố định để test gửi đánh giá
 
   useEffect(() => {
-    http.get(`/reviews/${id}`)
-      .then(res => setReviews(res.data))
-      .catch(err => console.error("Lỗi khi tải đánh giá:", err));
+    http
+      .get(`/reviews/${id}`)
+      .then((res) => setReviews(res.data))
+      .catch((err) => console.error("Lỗi khi tải đánh giá:", err));
   }, [id]);
 
   useEffect(() => {
-    http.get(`/ProductUser/${id}`)
-      .then(res => setProduct(res.data))
-      .catch(err => console.error("Lỗi khi tải chi tiết sản phẩm:", err));
+    http
+      .get(`/ProductUser/${id}`)
+      .then((res) => setProduct(res.data))
+      .catch((err) => console.error("Lỗi khi tải chi tiết sản phẩm:", err));
   }, [id]);
 
   useEffect(() => {
@@ -43,62 +44,40 @@ const ProductDetail = () => {
       setImageSrc(imageMd);
     }
   }, [product]);
-=======
-import React, { useState } from "react";
-import "./ProductDetail.scss"; // Tạo file CSS riêng để style
-
-const ProductDetail = () => {
-  // Dữ liệu giả lập
-  const product = {
-    id: 1,
-    name: "Áo thun nam tay ngắn",
-    slug: "ao-thun-nam-tay-ngan",
-    description:
-      "Áo thun cotton cao cấp, mềm mại, thoáng mát, phù hợp cho mùa hè.",
-    price: 300000,
-    discount_price: 250000,
-    category_id: 2,
-    image: "https://via.placeholder.com/400x500", // hình giả
-    status: "Còn hàng",
-    inventory: 50,
-    sizes: ["S", "M", "L", "XL"],
-  };
-
-  const [selectedSize, setSelectedSize] = useState("M");
-  const [quantity, setQuantity] = useState(1);
->>>>>>> feature/promotion_code-admin-update
 
   const handleAddToCart = () => {
     alert(`Đã thêm ${quantity} sản phẩm size ${selectedSize} vào giỏ hàng`);
   };
 
-<<<<<<< HEAD
   const handleSubmitReview = () => {
     if (!newComment.trim()) return alert("Vui lòng nhập nội dung đánh giá.");
 
-    http.post("/reviews", {
-      user_id: fakeUserId,
-      product_id: id,
-      rating: newRating,
-      comment: newComment,
-    })
-    .then(() => {
-      alert("Gửi đánh giá thành công!");
-      setNewComment("");
-      return http.get(`/reviews/${id}`);
-    })
-    .then(res => setReviews(res.data))
-    .catch(err => {
-      console.error("Lỗi khi gửi đánh giá:", err);
-      alert("Gửi đánh giá thất bại.");
-    });
+    http
+      .post("/reviews", {
+        user_id: fakeUserId,
+        product_id: id,
+        rating: newRating,
+        comment: newComment,
+      })
+      .then(() => {
+        alert("Gửi đánh giá thành công!");
+        setNewComment("");
+        return http.get(`/reviews/${id}`);
+      })
+      .then((res) => setReviews(res.data))
+      .catch((err) => {
+        console.error("Lỗi khi gửi đánh giá:", err);
+        alert("Gửi đánh giá thất bại.");
+      });
   };
 
   const renderStars = (rating) => {
     return Array.from({ length: 5 }, (_, i) => (
       <i
         key={i}
-        className={`fa-star ${i < rating ? "fas text-warning" : "far text-secondary"}`}
+        className={`fa-star ${
+          i < rating ? "fas text-warning" : "far text-secondary"
+        }`}
       ></i>
     ));
   };
@@ -107,7 +86,9 @@ const ProductDetail = () => {
     return Array.from({ length: 5 }, (_, i) => (
       <i
         key={i}
-        className={`fa-star ${i < newRating ? "fas text-warning" : "far text-secondary"} me-1 star-clickable`}
+        className={`fa-star ${
+          i < newRating ? "fas text-warning" : "far text-secondary"
+        } me-1 star-clickable`}
         onClick={() => setNewRating(i + 1)}
         style={{ cursor: "pointer", fontSize: "20px" }}
       ></i>
@@ -180,9 +161,21 @@ const ProductDetail = () => {
 
           <div className="quantity-wrapper">
             <div className="quantitybox">
-              <button className="qty-btn" onClick={() => setQuantity(Math.max(1, quantity - 1))}>-</button>
+              <button
+                className="qty-btn"
+                onClick={() => setQuantity(Math.max(1, quantity - 1))}
+              >
+                -
+              </button>
               <span className="qty-number">{quantity}</span>
-              <button className="qty-btn" onClick={() => setQuantity(Math.min(product.inventory || 100, quantity + 1))}>+</button>
+              <button
+                className="qty-btn"
+                onClick={() =>
+                  setQuantity(Math.min(product.inventory || 100, quantity + 1))
+                }
+              >
+                +
+              </button>
             </div>
             <button className="icon-btn">
               <i className="fas fa-heart"></i>
@@ -190,8 +183,12 @@ const ProductDetail = () => {
           </div>
 
           <div className="action-buttons mt-4">
-            <button className="btn btn-primary me-2" onClick={handleAddToCart}>Mua ngay</button>
-            <button className="btn btn-outline-secondary">Thêm vào giỏ hàng</button>
+            <button className="btn btn-primary me-2" onClick={handleAddToCart}>
+              Mua ngay
+            </button>
+            <button className="btn btn-outline-secondary">
+              Thêm vào giỏ hàng
+            </button>
           </div>
         </div>
       </div>
@@ -229,49 +226,6 @@ const ProductDetail = () => {
             Gửi đánh giá
           </button>
         </div>
-=======
-  return (
-    <div className="product-detail">
-      <div className="left">
-        <img src={product.image} alt={product.name} />
-      </div>
-
-      <div className="right">
-        <h1 className="name">{product.name}</h1>
-
-        <div className="price">
-          <span className="discount">{product.discount_price.toLocaleString("vi-VN")}₫</span>
-          <span className="original">{product.price.toLocaleString("vi-VN")}₫</span>
-        </div>
-
-        <p className="description">{product.description}</p>
-
-        <div className="size-select">
-          <label>Size:</label>
-          <select value={selectedSize} onChange={(e) => setSelectedSize(e.target.value)}>
-            {product.sizes.map((size) => (
-              <option key={size} value={size}>
-                {size}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div className="quantity-select">
-          <label>Số lượng:</label>
-          <input
-            type="number"
-            min="1"
-            max={product.inventory}
-            value={quantity}
-            onChange={(e) => setQuantity(Math.max(1, Math.min(product.inventory, +e.target.value)))}
-          />
-        </div>
-
-        <button className="add-to-cart" onClick={handleAddToCart}>
-          Thêm vào giỏ hàng
-        </button>
->>>>>>> feature/promotion_code-admin-update
       </div>
     </div>
   );

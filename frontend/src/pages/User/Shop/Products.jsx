@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import "./Products.scss";
-<<<<<<< HEAD
 import Api from "~/components/Api";
 import imageMd from "../../../assets/images/product/image.png";
 import { useNavigate } from "react-router-dom";
@@ -10,7 +9,7 @@ const Products = ({
   searchTerm,
   selectedCategories,
   priceRange,
-  filterTriggered 
+  filterTriggered,
 }) => {
   const [products, setProducts] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -23,24 +22,11 @@ const Products = ({
   useEffect(() => {
     setCurrentPage(1);
   }, [filterTriggered]);
-=======
-import Api from "~/components/Api"; // Giống trang Admin
-
-const { http } = Api(); // Dùng instance axios giống Admin
-
-const Products = () => {
-  const [products, setProducts] = useState([]);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [loading, setLoading] = useState(true);
-  const itemsPerPage = 12;
->>>>>>> feature/promotion_code-admin-update
 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
         setLoading(true);
-<<<<<<< HEAD
 
         const params = {
           page: currentPage,
@@ -66,11 +52,6 @@ const Products = () => {
         setProducts(response.data.data);
         setTotalPages(response.data.last_page);
         setTotalItems(response.data.total);
-=======
-        const response = await http.get(`/product?page=${currentPage}`);
-        setProducts(response.data.data);
-        setTotalPages(response.data.last_page);
->>>>>>> feature/promotion_code-admin-update
       } catch (error) {
         console.error("Lỗi khi tải sản phẩm:", error);
       } finally {
@@ -79,11 +60,7 @@ const Products = () => {
     };
 
     fetchProducts();
-<<<<<<< HEAD
-  }, [currentPage, sortOrder, filterTriggered]); 
-=======
-  }, [currentPage]);
->>>>>>> feature/promotion_code-admin-update
+  }, [currentPage, sortOrder, filterTriggered]);
 
   const handlePageChange = (page) => {
     if (page >= 1 && page <= totalPages) {
@@ -99,7 +76,6 @@ const Products = () => {
         <div className="no-data">Không có sản phẩm nào</div>
       ) : (
         <>
-<<<<<<< HEAD
           <div
             className="product-header-row"
             style={{
@@ -131,7 +107,9 @@ const Products = () => {
                 <option value="">-- Sắp xếp theo --</option>
                 <option value="asc">Giá: Thấp đến Cao</option>
                 <option value="desc">Giá: Cao đến Thấp</option>
-                <option value="discount_desc">Giảm giá: Cao đến Thấp (chưa) </option>
+                <option value="discount_desc">
+                  Giảm giá: Cao đến Thấp (chưa){" "}
+                </option>
               </select>
             </div>
           </div>
@@ -154,18 +132,10 @@ const Products = () => {
                     e.target.onerror = null;
                     e.target.src = imageMd;
                   }}
-=======
-          <div className="products-grid">
-            {products.map((item) => (
-              <div key={item.id} className="product-card">
-                <img
-                  src={`http://localhost:8000/storage/${item.image}`}
->>>>>>> feature/promotion_code-admin-update
                   alt={item.name}
                   className="image"
                 />
                 <h3>{item.name}</h3>
-<<<<<<< HEAD
                 <div className="price-wrapper">
                   {item.discount_price ? (
                     <>
@@ -182,9 +152,6 @@ const Products = () => {
                     </span>
                   )}
                 </div>
-=======
-                <p>{item.price.toLocaleString("vi-VN")}₫</p>
->>>>>>> feature/promotion_code-admin-update
               </div>
             ))}
           </div>
@@ -196,7 +163,6 @@ const Products = () => {
             >
               Prev
             </button>
-<<<<<<< HEAD
 
             {[...Array(totalPages)].map((_, index) => {
               const page = index + 1;
@@ -220,8 +186,9 @@ const Products = () => {
                 isVisible && (
                   <button
                     key={page}
-                    className={`page-btn ${currentPage === page ? "active" : ""
-                      }`}
+                    className={`page-btn ${
+                      currentPage === page ? "active" : ""
+                    }`}
                     onClick={() => handlePageChange(page)}
                   >
                     {page}
@@ -231,21 +198,9 @@ const Products = () => {
             })}
 
             <button
-              className={`page-btn ${currentPage === totalPages ? "disabled" : ""
-                }`}
-=======
-            {[...Array(totalPages)].map((_, index) => (
-              <button
-                key={index + 1}
-                className={`page-btn ${currentPage === index + 1 ? "active" : ""}`}
-                onClick={() => handlePageChange(index + 1)}
-              >
-                {index + 1}
-              </button>
-            ))}
-            <button
-              className={`page-btn ${currentPage === totalPages ? "disabled" : ""}`}
->>>>>>> feature/promotion_code-admin-update
+              className={`page-btn ${
+                currentPage === totalPages ? "disabled" : ""
+              }`}
               onClick={() => handlePageChange(currentPage + 1)}
             >
               Next
