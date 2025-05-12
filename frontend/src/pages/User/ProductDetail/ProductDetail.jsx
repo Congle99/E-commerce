@@ -21,15 +21,17 @@ const ProductDetail = () => {
   const fakeUserId = 1; // Tạm thời dùng ID cố định để test gửi đánh giá
 
   useEffect(() => {
-    http.get(`/reviews/${id}`)
-      .then(res => setReviews(res.data))
-      .catch(err => console.error("Lỗi khi tải đánh giá:", err));
+    http
+      .get(`/reviews/${id}`)
+      .then((res) => setReviews(res.data))
+      .catch((err) => console.error("Lỗi khi tải đánh giá:", err));
   }, [id]);
 
   useEffect(() => {
-    http.get(`/ProductUser/${id}`)
-      .then(res => setProduct(res.data))
-      .catch(err => console.error("Lỗi khi tải chi tiết sản phẩm:", err));
+    http
+      .get(`/ProductUser/${id}`)
+      .then((res) => setProduct(res.data))
+      .catch((err) => console.error("Lỗi khi tải chi tiết sản phẩm:", err));
   }, [id]);
 
   useEffect(() => {
@@ -44,35 +46,50 @@ const ProductDetail = () => {
   }, [product]);
 
   const handleAddToCart = () => {
-    alert(`Đã thêm ${quantity} sản phẩm size ${selectedSize} vào giỏ hàng`);
+    http
+      .post("/cart", {
+        user_id: fakeUserId, // Tạm thời dùng ID cố định
+        product_id: id,
+        quantity: quantity,
+      })
+      .then(() => {
+        alert(`Đã thêm ${quantity} sản phẩm vào giỏ hàng thành công!`);
+      })
+      .catch((err) => {
+        console.error("Lỗi khi thêm vào giỏ hàng:", err);
+        alert("Lỗi khi thêm sản phẩm vào giỏ hàng.");
+      });
   };
 
   const handleSubmitReview = () => {
     if (!newComment.trim()) return alert("Vui lòng nhập nội dung đánh giá.");
 
-    http.post("/reviews", {
-      user_id: fakeUserId,
-      product_id: id,
-      rating: newRating,
-      comment: newComment,
-    })
-    .then(() => {
-      alert("Gửi đánh giá thành công!");
-      setNewComment("");
-      return http.get(`/reviews/${id}`);
-    })
-    .then(res => setReviews(res.data))
-    .catch(err => {
-      console.error("Lỗi khi gửi đánh giá:", err);
-      alert("Gửi đánh giá thất bại.");
-    });
+    http
+      .post("/reviews", {
+        user_id: fakeUserId,
+        product_id: id,
+        rating: newRating,
+        comment: newComment,
+      })
+      .then(() => {
+        alert("Gửi đánh giá thành công!");
+        setNewComment("");
+        return http.get(`/reviews/${id}`);
+      })
+      .then((res) => setReviews(res.data))
+      .catch((err) => {
+        console.error("Lỗi khi gửi đánh giá:", err);
+        alert("Gửi đánh giá thất bại.");
+      });
   };
 
   const renderStars = (rating) => {
     return Array.from({ length: 5 }, (_, i) => (
       <i
         key={i}
-        className={`fa-star ${i < rating ? "fas text-warning" : "far text-secondary"}`}
+        className={`fa-star ${
+          i < rating ? "fas text-warning" : "far text-secondary"
+        }`}
       ></i>
     ));
   };
@@ -81,7 +98,9 @@ const ProductDetail = () => {
     return Array.from({ length: 5 }, (_, i) => (
       <i
         key={i}
-        className={`fa-star ${i < newRating ? "fas text-warning" : "far text-secondary"} me-1 star-clickable`}
+        className={`fa-star ${
+          i < newRating ? "fas text-warning" : "far text-secondary"
+        } me-1 star-clickable`}
         onClick={() => setNewRating(i + 1)}
         style={{ cursor: "pointer", fontSize: "20px" }}
       ></i>
@@ -154,9 +173,21 @@ const ProductDetail = () => {
 
           <div className="quantity-wrapper">
             <div className="quantitybox">
-              <button className="qty-btn" onClick={() => setQuantity(Math.max(1, quantity - 1))}>-</button>
+              <button
+                className="qty-btn"
+                onClick={() => setQuantity(Math.max(1, quantity - 1))}
+              >
+                -
+              </button>
               <span className="qty-number">{quantity}</span>
-              <button className="qty-btn" onClick={() => setQuantity(Math.min(product.inventory || 100, quantity + 1))}>+</button>
+              <button
+                className="qty-btn"
+                onClick={() =>
+                  setQuantity(Math.min(product.inventory || 100, quantity + 1))
+                }
+              >
+                +
+              </button>
             </div>
             <button className="icon-btn">
               <i className="fas fa-heart"></i>
@@ -164,8 +195,13 @@ const ProductDetail = () => {
           </div>
 
           <div className="action-buttons mt-4">
-            <button className="btn btn-primary me-2" onClick={handleAddToCart}>Mua ngay</button>
-            <button className="btn btn-outline-secondary">Thêm vào giỏ hàng</button>
+            <button className="btn btn-primary me-2">Mua ngay</button>
+            <button
+              className="btn btn-outline-secondary"
+              onClick={handleAddToCart}
+            >
+              Thêm vào giỏ hàng
+            </button>
           </div>
         </div>
       </div>

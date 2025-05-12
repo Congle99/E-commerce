@@ -19,7 +19,10 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             CategorySeeder::class,
-            InvoiceSeeder::class
+            // InvoiceSeeder::class
+        ]);
+        $this->call([
+            PromotionCodeSeeder::class,
         ]);
         User::factory()->count(10)->create();
 
@@ -33,6 +36,8 @@ class DatabaseSeeder extends Seeder
         Order::factory()->count(15)->create();
 
         Order_Items::factory()->count(50)->create();
-
+        $this->call([
+            CartItemSeeder::class,
+        ]);
     }
 }
