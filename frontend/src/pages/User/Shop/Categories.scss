@@ -1,0 +1,184 @@
+.categories-page {
+  background: #fff;
+  padding:20px 30px;
+  border-radius: 16px;
+  box-shadow: 4 10px 28px rgba(0, 0, 0, 0.05);
+  max-width: 600px;
+  margin: 40px auto;
+  font-family: "Segoe UI", sans-serif;
+  border: 1px solid rgb(128, 121, 121);
+}
+
+.section-title {
+  font-size: 24px;
+  font-weight: 600;
+  color: #222;
+  margin-bottom: 20px;
+}
+
+.category-list-wrapper {
+  max-height: 400px;
+  overflow-y: auto;
+  margin-bottom: 30px;
+  padding-right: 5px; /* Để không cắt mất scrollbar */
+}
+
+.category-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+
+  .category-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    font-size: 16px;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+    transition: color 0.2s ease;
+
+    &:hover {
+      color: #007bff;
+    }
+
+    .category-name {
+      flex: 1;
+      text-align: left;
+      padding-right: 10px;
+    }
+
+    input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+    }
+  }
+}
+
+.price-range {
+  margin-bottom: 20px;
+
+  h4 {
+    font-size: 18px;
+    margin-bottom: 10px;
+    color: #333;
+  }
+
+  .rc-slider {
+    margin: 10px 0 20px;
+    height: 6px;
+
+    .rc-slider-rail {
+      background-color: #ddd;
+      height: 6px;
+      border-radius: 3px;
+    }
+
+    .rc-slider-track {
+      background-color: #007bff;
+      height: 6px;
+      border-radius: 3px;
+    }
+
+    .rc-slider-handle {
+      width: 18px;
+      height: 18px;
+      margin-top: -6px;
+      background-color: #007bff;
+      border: none;
+      box-shadow: 0 0 2px rgba(0, 0, 0, 0.2);
+      cursor: pointer;
+
+      &:hover {
+        box-shadow: 0 0 0 5px rgba(0, 123, 255, 0.2);
+      }
+    }
+  }
+
+  .price-display {
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+    color: #444;
+    margin-bottom: 15px;
+    padding: 0 5px;
+  }
+
+  .inputs {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 15px;
+
+    input {
+      width: 45%;
+      padding: 10px 12px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      transition: 0.2s;
+
+      &:focus {
+        border-color: #007bff;
+        outline: none;
+      }
+    }
+
+    span {
+      font-size: 18px;
+      color: #888;
+      line-height: 1;
+    }
+  }
+}
+
+.search-bar {
+  display: flex;
+  justify-content: center; // Thêm dòng này để căn giữa
+  margin-top: 20px;
+  width: 100%; // Đảm bảo nó chiếm toàn bộ chiều rộng của container
+
+  input {
+    width: 100%;
+    max-width: 300px; // Giới hạn độ rộng ô input
+    padding: 14px 20px;
+    font-size: 16px;
+    border-radius: 12px 0 0 12px;
+    border: 1px solid #ccc;
+    border-right: none;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
+    transition: 0.3s ease;
+
+    &:focus {
+      outline: none;
+      border-color: #007bff;
+      box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
+    }
+  }
+
+  button {
+    width: 60px;
+    background: #007bff;
+    color: #fff;
+    border: 1px solid #007bff;
+    border-radius: 0 12px 12px 0;
+    cursor: pointer;
+    transition: 0.3s;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &:hover {
+      background: #2d0cc2;
+    }
+
+    svg {
+      font-size: 22px;
+      padding: 2px 3px;
+      margin: 4px 7px;
+    }
+  }
+}
+
