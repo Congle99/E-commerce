@@ -1,0 +1,75 @@
+/* Hiệu ứng mờ dần cho hình nền */
+@keyframes fadeIn {
+    0% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
+  
+  /* Hiệu ứng di chuyển từ dưới lên cho văn bản */
+  @keyframes slideUp {
+    0% {
+      transform: translateY(20px);
+      opacity: 0;
+    }
+    100% {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+  
+  /* Áp dụng hiệu ứng cho phần tử */
+  .banner {
+    position: relative;
+    width: 100%;
+    height: 350px;
+    overflow: hidden;
+    border-radius: 1rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    animation: fadeIn 1s ease-in-out;
+  }
+  
+  .banner img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    animation: fadeIn 1.5s ease-in-out;
+  }
+  
+  .banner-content {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 2rem;
+    background: rgba(0, 0, 0, 0.3);
+    color: white;
+    animation: slideUp 1s ease-out;
+  }
+  
+  .banner h2 {
+    font-size: 2.5rem;
+    font-weight: bold;
+    margin-bottom: 1rem;
+  }
+  
+  .banner h2 .highlight {
+    color: #00c853;
+  }
+  
+  .banner p {
+    font-size: 1rem;
+    background-color: white;
+    color: #00c853;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    margin-top: 1rem;
+  }
+  

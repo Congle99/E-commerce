@@ -2,23 +2,36 @@
 
 namespace Database\Seeders;
 
+use App\Models\Order;
+use App\Models\Order_Items;
+use App\Models\Product;
+use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
     /**
      * Seed the application's database.
-     *
-     * @return void
      */
-    public function run()
+    public function run(): void
     {
-        // \App\Models\User::factory(10)->create();
+        $this->call([
+            CategorySeeder::class,
+        ]);
+        User::factory()->count(10)->create();
 
-        // \App\Models\User::factory()->create([
-        //     'name' => 'Test User',
-        //     'email' => 'test@example.com',
-        // ]);
+        User::factory()->create([
+            'email' => 'admin@example.com',
+            'password' => Hash::make('admin123'),
+            'role' => 'admin',
+        ]);
+        Product::factory()->count(20)->create();
+
+        Order::factory()->count(15)->create();
+
+        Order_Items::factory()->count(50)->create();
+
     }
 }

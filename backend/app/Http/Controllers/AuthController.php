@@ -4,63 +4,51 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
-    public function register(Request $request)
-    {
-        // Validate input
-        $validated = $request->validate([
-            'email' => 'required|string|email|max:255|unique:users,email', // Kiểm tra email duy nhất
-            'password' => 'required|string|min:8|confirmed',
-            'role' => 'required|string|max:10|in:user,admin',
-        ]);
-
-        // Kiểm tra xem email đã tồn tại trong cơ sở dữ liệu hay chưa
-        if (User::where('email', $validated['email'])->exists()) {
-            return response()->json(['message' => 'Email đã tồn tại.'], 400);
-        }
-
-        // Tạo người dùng mới nếu email chưa tồn tại
-        $user = User::create([
-            'email' => $validated['email'],
-            'password' => Hash::make($validated['password']),
-            'role' => $validated['role'] ?? 'user',
-        ]);
-
-        // Tạo token cho người dùng vừa đăng ký
-        $token = $user->createToken('auth_token')->plainTextToken;
-
-        return response()->json([
-            'user' => $user,
-            'token' => $token,
-        ], 201);
-    }
-
     public function login(Request $request)
     {
-        $credentials = $request->validate([
-            'email' => 'required|string|email',
-            'password' => 'required|string',
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required',
         ]);
 
-        if (Auth::attempt($credentials + ['deleted_at' => null])) {
-            $user = Auth::user();
-            $token = $user->createToken('auth_token')->plainTextToken;
+        $credentials = $request->only('email', 'password');
 
+        if (Auth::attempt($credentials)) {
+            $user = Auth::user();
             return response()->json([
-                'user' => $user,
-                'token' => $token,
+                'success' => true,
+                'role' => $user->role,
+                'message' => 'Đăng nhập thành công.',
             ]);
         }
 
-        return response()->json(['message' => 'Invalid credentials or account deleted'], 401);
+        return response()->json([
+            'success' => false,
+            'message' => 'Đăng nhập thất bại. Kiểm tra lại email hoặc mật khẩu.',
+        ]);
     }
 
-    public function profile(Request $request)
+    public function register(Request $request)
     {
-        return response()->json($request->user());
+        $request->validate([
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|min:6',
+        ]);
+
+        $user = User::create([
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+            'role' => 'user' // Mặc định role là user
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Đăng ký thành công.',
+        ]);
     }
 }
