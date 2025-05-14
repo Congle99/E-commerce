@@ -27,10 +27,13 @@ class StatsController extends Controller
             default => $now->copy()->subMonths(6),
         };
 
-        // Get revenue data
+        // Get revenue data with status consideration
         $revenueData = Order::select(
             DB::raw('DATE_FORMAT(created_at, "%Y-%m-%d") as date'),
-            DB::raw('SUM(total_price) as total')
+            DB::raw('SUM(CASE 
+                WHEN status = "Hủy" THEN -total_price 
+                ELSE total_price 
+            END) as total')
         )
             ->where('created_at', '>=', $startDate)
             ->groupBy('date')
@@ -66,10 +69,18 @@ class StatsController extends Controller
         // Get current totals
         $totalProducts = Product::count();
         $totalCategories = Category::count();
+        
+        // Calculate monthly orders total considering status
         $monthlyOrders = Order::whereMonth('created_at', $now->month)
             ->whereYear('created_at', $now->year)
-            ->sum('total_price');
-        $pendingOrders = Order::where('status', 'pending')->count();
+            ->select(DB::raw('SUM(CASE 
+                WHEN status = "Hủy" THEN -total_price 
+                ELSE total_price 
+            END) as total'))
+            ->value('total') ?? 0;
+
+        // Count pending orders with "pending confirmation" status
+        $pendingOrders = Order::where('status', 'Chờ xác nhận')->count();
 
         return response()->json([
             'labels' => $labels,
