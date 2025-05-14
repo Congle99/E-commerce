@@ -4,7 +4,7 @@ import Api from "~/components/Api";
 import imageMd from "../../../assets/images/product/image.png";
 import "./ProductDetail.scss";
 import Banner from "../Shop/Banner";
-import ReactImageMagnify from "react-image-magnify";
+import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 
 const { http } = Api();
 
@@ -18,7 +18,7 @@ const ProductDetail = () => {
   const [reviews, setReviews] = useState([]);
   const [newRating, setNewRating] = useState(5);
   const [newComment, setNewComment] = useState("");
-  const fakeUserId = 1; // Tạm thời dùng ID cố định để test gửi đánh giá
+  const [fakeUserId] = useState(1); // Tạm thời dùng ID cố định để test gửi đánh giá
 
   useEffect(() => {
     http
@@ -48,7 +48,7 @@ const ProductDetail = () => {
   const handleAddToCart = () => {
     http
       .post("/cart", {
-        user_id: fakeUserId, // Tạm thời dùng ID cố định
+        user_id: fakeUserId,
         product_id: id,
         quantity: quantity,
       })
@@ -114,31 +114,38 @@ const ProductDetail = () => {
       <div className="row">
         {/* Hình ảnh sản phẩm */}
         <div className="col-md-6 image-section">
-          <div className="magnify-wrapper">
-            <ReactImageMagnify
-              {...{
-                smallImage: {
-                  alt: product.name || "Sản phẩm",
-                  isFluidWidth: true,
-                  src: imageSrc,
-                },
-                largeImage: {
-                  src: imageSrc,
-                  width: 1200,
-                  height: 1200,
-                },
-                enlargedImageContainerStyle: {
-                  zIndex: 100,
+          <div className="magnify-wrapper" style={{ position: "relative", zIndex: 100 }}>
+            <TransformWrapper
+              initialScale={1}
+              minScale={0.5}
+              maxScale={3}
+              wheel={{ step: 0.1 }}
+              pinch={{ step: 0.1 }}
+            >
+              <TransformComponent
+                wrapperStyle={{
+                  width: "100%",
+                  height: "auto",
                   background: "#fff",
                   borderRadius: "12px",
                   overflow: "hidden",
                   boxShadow: "0 4px 20px rgba(0,0,0,0.1)",
-                },
-                lensStyle: {
-                  backgroundColor: "rgba(0,0,0,.2)",
-                },
-              }}
-            />
+                }}
+                contentStyle={{
+                  width: "100%",
+                }}
+              >
+                <img
+                  src={imageSrc}
+                  alt={product.name || "Sản phẩm"}
+                  style={{
+                    width: "100%",
+                    height: "auto",
+                    objectFit: "contain",
+                  }}
+                />
+              </TransformComponent>
+            </TransformWrapper>
           </div>
         </div>
 

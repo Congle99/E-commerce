@@ -5,6 +5,7 @@ import InvoicePage from "~/pages/Admin/Invoice/InvoicePage.jsx";
 import OrderDetailPage from "../pages/Admin/OrderDetail/OrderDetailPage.jsx";
 import CompletedOrdersPage from "~/pages/Admin/Invoice/InvoicePage.jsx";
 import InvoicePrintPageWrapper from "~/pages/Admin/Invoice/InvoicePrintPageWrapper.jsx";
+import Statistics from "~/pages/Admin/Statistics/Statistics.jsx";
 
 import HomeUser from "../pages/User/HomeUser/HomeUser.jsx";
 import Shop from "../pages/User/Shop/Shop.jsx";
@@ -22,9 +23,8 @@ const UserRoute = [
 
 // Dành cho admin
 const AdminRoute = [
-  { path: "/", component: Home },
+  { path: "/", component: Statistics },
   { path: "/product", component: Product },
-
   { path: "/order", component: OrderPage },
   { path: "/invoice", component: InvoicePage },
   { path: "/invoice/print/:id", component: InvoicePrintPageWrapper },
