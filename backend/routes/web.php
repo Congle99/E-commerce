@@ -13,12 +13,20 @@ use App\Http\Controllers\ProductReviewController;
 
 use App\Http\Controllers\CartController;
 
+use App\Http\Controllers\AuthController;
+
 
 Route::get('/', function () {
     return view('welcome');
 });
 
 Route::prefix('api')->middleware(['api'])->group(function () {
+    // Auth routes
+    Route::post('/login', [AuthController::class, 'login']);
+    Route::post('/register', [AuthController::class, 'register']);
+    Route::get('/test-route-works', function () {
+        return response()->json(['message' => 'Route test works!']);
+    });
 
     Route::resource('product', ProductController::class);
     Route::get('stats', [StatsController::class, 'index']);
