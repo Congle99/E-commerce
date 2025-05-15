@@ -1,0 +1,120 @@
+@import 'normalize.css';
+
+.footer-user {
+    background-color: #f8f8f8;
+    padding: 60px 0;
+    font-family: Arial, sans-serif;
+  
+    .footer-area {
+      margin-bottom: 30px;
+  
+      .footer-widget {
+        margin-bottom: 40px;
+  
+        .footer-logo a {
+          font-size: 24px;
+          font-weight: bold;
+          color: #333;
+          text-decoration: none;
+          transition: color 0.3s;
+          &:hover {
+            color: #ff6f61;
+          }
+        }
+  
+        p {
+          font-size: 14px;
+          color: #555;
+          margin-top: 15px;
+        }
+  
+        h3 {
+          font-size: 18px;
+          color: #333;
+          margin-bottom: 15px;
+          font-weight: 600;
+        }
+  
+        .footer-link {
+          list-style: none;
+          padding: 0;
+          margin: 0;
+  
+          li {
+            margin-bottom: 10px;
+  
+            a {
+              font-size: 14px;
+              color: #555;
+              text-decoration: none;
+              transition: color 0.3s;
+              &:hover {
+                color: #ff6f61;
+              }
+            }
+          }
+        }
+  
+        .footer-icons {
+          display: flex;
+          gap: 15px;
+  
+          .social-icon {
+            font-size: 20px;
+            color: #333;
+            text-decoration: none;
+            transition: color 0.3s;
+  
+            &:hover {
+              color: #ff6f61;
+            }
+          }
+        }
+  
+        form {
+          display: flex;
+          gap: 10px;
+          margin-top: 15px;
+  
+          input {
+            width: 80%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            outline: none;
+  
+            &:focus {
+              border-color: #ff6f61;
+            }
+          }
+  
+          button {
+            padding: 10px 20px;
+            background-color: #ff6f61;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 14px;
+            cursor: pointer;
+  
+            &:hover {
+              background-color: #ff4a41;
+            }
+          }
+        }
+      }
+    }
+  
+    .copyright-area {
+      background-color: #333;
+      color: white;
+      padding: 15px 0;
+  
+      p {
+        font-size: 14px;
+        margin: 0;
+      }
+    }
+  }
+  

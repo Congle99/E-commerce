@@ -335,7 +335,6 @@ class Validator implements ValidatorContract
      * @param  array  $rules
      * @param  array  $messages
      * @param  array  $attributes
-     * @return void
      */
     public function __construct(
         Translator $translator,
@@ -1042,9 +1041,11 @@ class Validator implements ValidatorContract
      */
     protected function attributesThatHaveMessages()
     {
-        return (new Collection($this->messages()->toArray()))->map(function ($message, $key) {
-            return explode('.', $key)[0];
-        })->unique()->flip()->all();
+        return (new Collection($this->messages()->toArray()))
+            ->map(fn ($message, $key) => explode('.', $key)[0])
+            ->unique()
+            ->flip()
+            ->all();
     }
 
     /**
@@ -1217,9 +1218,11 @@ class Validator implements ValidatorContract
      */
     public function setRules(array $rules)
     {
-        $rules = (new Collection($rules))->mapWithKeys(function ($value, $key) {
-            return [str_replace('\.', '__dot__'.static::$placeholderHash, $key) => $value];
-        })->toArray();
+        $rules = (new Collection($rules))
+            ->mapWithKeys(function ($value, $key) {
+                return [str_replace('\.', '__dot__'.static::$placeholderHash, $key) => $value];
+            })
+            ->toArray();
 
         $this->initialRules = $rules;
 

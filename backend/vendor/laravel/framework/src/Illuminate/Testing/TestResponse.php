@@ -71,7 +71,6 @@ class TestResponse implements ArrayAccess
      *
      * @param  TResponse  $response
      * @param  \Illuminate\Http\Request|null  $request
-     * @return void
      */
     public function __construct($response, $request = null)
     {
@@ -989,11 +988,18 @@ class TestResponse implements ArrayAccess
 
         $jsonErrors = Arr::get($this->json(), $responseKey) ?? [];
 
-        $expectedErrorKeys = collect($errors)->map(fn ($value, $key) => is_int($key) ? $value : $key)->all();
+        $expectedErrorKeys = (new Collection($errors))
+            ->map(fn ($value, $key) => is_int($key) ? $value : $key)
+            ->all();
 
         $unexpectedErrorKeys = Arr::except($jsonErrors, $expectedErrorKeys);
 
-        PHPUnit::withResponse($this)->assertTrue(count($unexpectedErrorKeys) === 0, 'Response has unexpected validation errors: '.collect($unexpectedErrorKeys)->keys()->map(fn ($key) => "'{$key}'")->join(', '));
+        PHPUnit::withResponse($this)->assertTrue(
+            count($unexpectedErrorKeys) === 0,
+            'Response has unexpected validation errors: '.(new Collection($unexpectedErrorKeys))->keys()->map(fn ($key) => "'{$key}'")->join(', ')
+        );
+
+        return $this;
     }
 
     /**
@@ -1396,14 +1402,15 @@ class TestResponse implements ArrayAccess
             ->getBag($errorBag)
             ->getMessages();
 
-        $expectedErrorKeys = collect($errors)
-            ->map(fn ($value, $key) => is_int($key) ? $value : $key)->all();
+        $expectedErrorKeys = (new Collection($errors))
+            ->map(fn ($value, $key) => is_int($key) ? $value : $key)
+            ->all();
 
         $unexpectedErrorKeys = Arr::except($sessionErrors, $expectedErrorKeys);
 
         PHPUnit::withResponse($this)->assertTrue(
             count($unexpectedErrorKeys) === 0,
-            'Response has unexpected validation errors: '.collect($unexpectedErrorKeys)->keys()->map(fn ($key) => "'{$key}'")->join(', ')
+            'Response has unexpected validation errors: '.(new Collection($unexpectedErrorKeys))->keys()->map(fn ($key) => "'{$key}'")->join(', ')
         );
 
         return $this;

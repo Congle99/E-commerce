@@ -13,18 +13,43 @@ use App\Http\Controllers\ProductReviewController;
 
 use App\Http\Controllers\CartController;
 
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ProfileController;
+
 
 Route::get('/', function () {
     return view('welcome');
 });
 
 Route::prefix('api')->middleware(['api'])->group(function () {
+    // Thêm route test
+    Route::get('/test-route-works', function () {
+        return response()->json(['message' => 'Route test works!']);
+    });
+
+    // Auth routes
+    Route::post('/register', [AuthController::class, 'register']);
+    Route::post('/login', [AuthController::class, 'login']);
+
+    // User profile routes với prefix
+    Route::prefix('user')->group(function () {
+        Route::post('/profile', [ProfileController::class, 'getUserProfile']);
+        Route::get('/orders', [ProfileController::class, 'getUserOrders']);
+        Route::get('/payments', [ProfileController::class, 'getUserPayments']);
+    });
+
+    // Test route
+    Route::get('/test-route', function () {
+        return 'Hello from API route!';
+    });
 
     Route::resource('product', ProductController::class);
     Route::get('stats', [StatsController::class, 'index']);
     Route::get('category', [CategoryController::class, 'index']);
     Route::resource('order', OrderController::class);
     Route::resource('order/order-details', OrderDetailController::class);
+
+    
     //User
     Route::get('/categories', [CategoryController::class, 'indexUser']);
     Route::get('/product', [ProductController::class, 'index']);
