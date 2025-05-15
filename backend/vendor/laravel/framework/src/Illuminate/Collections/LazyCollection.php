@@ -39,7 +39,6 @@ class LazyCollection implements CanBeEscapedWhenCastToString, Enumerable
      * Create a new lazy collection instance.
      *
      * @param  \Illuminate\Contracts\Support\Arrayable<TKey, TValue>|iterable<TKey, TValue>|(Closure(): \Generator<TKey, TValue, mixed, void>)|self<TKey, TValue>|array<TKey, TValue>|null  $source
-     * @return void
      */
     public function __construct($source = null)
     {
@@ -1432,7 +1431,7 @@ class LazyCollection implements CanBeEscapedWhenCastToString, Enumerable
      * Chunk the collection into chunks with a callback.
      *
      * @param  callable(TValue, TKey, Collection<TKey, TValue>): bool  $callback
-     * @return static<int, static<int, TValue>>
+     * @return static<int, static<TKey, TValue>>
      */
     public function chunkWhile(callable $callback)
     {

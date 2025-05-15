@@ -331,13 +331,7 @@ class MySqlGrammar extends Grammar
         }
     }
 
-    /**
-     * Compile a rename column command.
-     *
-     * @param  \Illuminate\Database\Schema\Blueprint  $blueprint
-     * @param  \Illuminate\Support\Fluent  $command
-     * @return array|string
-     */
+    /** @inheritDoc */
     public function compileRenameColumn(Blueprint $blueprint, Fluent $command)
     {
         $isMaria = $this->connection->isMaria();
@@ -381,9 +375,11 @@ class MySqlGrammar extends Grammar
             'collation' => $column['collation'],
             'comment' => $column['comment'],
             'virtualAs' => ! is_null($column['generation']) && $column['generation']['type'] === 'virtual'
-                ? $column['generation']['expression'] : null,
+                ? $column['generation']['expression']
+                : null,
             'storedAs' => ! is_null($column['generation']) && $column['generation']['type'] === 'stored'
-                ? $column['generation']['expression'] : null,
+                ? $column['generation']['expression']
+                : null,
         ]));
 
         return sprintf('alter table %s change %s %s %s',
@@ -394,13 +390,7 @@ class MySqlGrammar extends Grammar
         );
     }
 
-    /**
-     * Compile a change column command into a series of SQL statements.
-     *
-     * @param  \Illuminate\Database\Schema\Blueprint  $blueprint
-     * @param  \Illuminate\Support\Fluent  $command
-     * @return array|string
-     */
+    /** @inheritDoc */
     public function compileChange(Blueprint $blueprint, Fluent $command)
     {
         $column = $command->column;
@@ -648,7 +638,7 @@ class MySqlGrammar extends Grammar
     /**
      * Compile the SQL needed to drop all tables.
      *
-     * @param  array  $tables
+     * @param  array<string>  $tables
      * @return string
      */
     public function compileDropAllTables($tables)
@@ -659,7 +649,7 @@ class MySqlGrammar extends Grammar
     /**
      * Compile the SQL needed to drop all views.
      *
-     * @param  array  $views
+     * @param  array<string>  $views
      * @return string
      */
     public function compileDropAllViews($views)
@@ -705,8 +695,8 @@ class MySqlGrammar extends Grammar
     /**
      * Quote-escape the given tables, views, or types.
      *
-     * @param  array  $names
-     * @return array
+     * @param  array<string>  $names
+     * @return array<string>
      */
     public function escapeNames($names)
     {
