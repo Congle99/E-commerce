@@ -3,10 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import Api from '~/components/Api.jsx';
 import './Register.scss';
 
-const { http } = Api();
-
 const Register = () => {
     const navigate = useNavigate();
+    const { http } = Api();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
@@ -70,7 +69,7 @@ const Register = () => {
         };
 
         try {
-            const response = await http.post('/api/register', userData);
+            const response = await http.post('/register', userData);
             if (response.data.success) {
                 alert('Đăng ký thành công!');
                 navigate('/login');

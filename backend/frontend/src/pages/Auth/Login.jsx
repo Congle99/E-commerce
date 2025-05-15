@@ -3,14 +3,14 @@ import { useNavigate } from 'react-router-dom';
 import Api from '~/components/Api.jsx';
 import './Login.scss';
 
-const { http } = Api();
-
 const Login = () => {
     const navigate = useNavigate();
+    const { http } = Api();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+    const [remember, setRemember] = useState(false);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -18,11 +18,19 @@ const Login = () => {
         setError('');
 
         try {
-            const response = await http.post('/api/login', { email, password });
+            const response = await http.post('/login', { 
+                email, 
+                password,
+                remember: remember 
+            });
+            
             if (response.data.success) {
-                const role = response.data.role;
+                // Lưu thông tin user vào localStorage
+                localStorage.setItem('user', JSON.stringify(response.data.user));
+                
+                const role = response.data.user.role;
                 if (role === 'admin') {
-                    navigate('/'); // Chuyển đến trang admin
+                    navigate('/admin'); // Chuyển đến trang admin
                 } else {
                     navigate('/user'); // Chuyển đến trang người dùng
                 }
@@ -83,7 +91,12 @@ const Login = () => {
                                     />
                                     <div className="login-action mb-20 fix">
                                         <span className="log-rem f-left">
-                                            <input id="remember" type="checkbox" />
+                                            <input 
+                                                id="remember" 
+                                                type="checkbox" 
+                                                checked={remember}
+                                                onChange={(e) => setRemember(e.target.checked)}
+                                            />
                                             <label htmlFor="remember">Remember me!</label>
                                         </span>
                                         <span className="forgot-login f-right">

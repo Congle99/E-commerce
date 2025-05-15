@@ -3,10 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import Api from '~/components/Api.jsx';
 import './ProfileUser.scss';
 
-const { http } = Api();
-
 const ProfileUser = () => {
     const navigate = useNavigate();
+    const { http } = Api();
     const [userData, setUserData] = useState({
         email: '',
         role: ''
@@ -21,11 +20,33 @@ const ProfileUser = () => {
     useEffect(() => {
         const fetchUserData = async () => {
             try {
-                const response = await http.get('/api/user');
+                // Lấy user_id từ localStorage
+                const userInfo = JSON.parse(localStorage.getItem('user'));
+                if (!userInfo) {
+                    // Nếu không có thông tin user, chuyển hướng về trang login
+                    navigate('/login');
+                    return;
+                }
+                
+                // Trong quá trình phát triển, sử dụng dữ liệu giả
+                // Sau này, khi API sẵn sàng, sử dụng code bên dưới để gọi API thực tế
+                /*
+                const response = await http.post('/user/profile', { user_id: userInfo.id });
                 setUserData(response.data);
+                */
+                
+                // Dữ liệu giả mạo
+                setUserData({
+                    id: userInfo.id,
+                    email: userInfo.email,
+                    role: userInfo.role
+                });
+                
+                setLoading(false);
             } catch (err) {
                 setError('Failed to fetch user data');
                 console.error(err);
+                setLoading(false);
             }
         };
 
@@ -36,8 +57,27 @@ const ProfileUser = () => {
     useEffect(() => {
         const fetchOrders = async () => {
             try {
-                const response = await http.get('/api/user/orders');
+                // Sử dụng dữ liệu giả cho orders
+                /*
+                const response = await http.get('/user/orders');
                 setOrders(response.data);
+                */
+                
+                // Dữ liệu giả mạo
+                setOrders([
+                    {
+                        id: 1,
+                        total_price: 1500000,
+                        status: 'Completed',
+                        created_at: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString()
+                    },
+                    {
+                        id: 2,
+                        total_price: 750000,
+                        status: 'Processing',
+                        created_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString()
+                    }
+                ]);
             } catch (err) {
                 setError('Failed to fetch orders');
                 console.error(err);
@@ -53,8 +93,29 @@ const ProfileUser = () => {
     useEffect(() => {
         const fetchPayments = async () => {
             try {
-                const response = await http.get('/api/user/payments');
+                // Sử dụng dữ liệu giả cho payments
+                /*
+                const response = await http.get('/user/payments');
                 setPayments(response.data);
+                */
+                
+                // Dữ liệu giả mạo
+                setPayments([
+                    {
+                        payment_id: 1,
+                        order_id: 1,
+                        payment_method: 'Credit Card',
+                        payment_status: 1,
+                        payment_date: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString()
+                    },
+                    {
+                        payment_id: 2,
+                        order_id: 2,
+                        payment_method: 'Bank Transfer',
+                        payment_status: 0,
+                        payment_date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString()
+                    }
+                ]);
             } catch (err) {
                 setError('Failed to fetch payments');
                 console.error(err);
@@ -67,7 +128,7 @@ const ProfileUser = () => {
     }, [activeTab]);
 
     const handleLogout = () => {
-        localStorage.removeItem('token');
+        localStorage.removeItem('user');
         navigate('/login');
     };
 

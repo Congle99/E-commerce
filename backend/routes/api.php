@@ -2,35 +2,38 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\ProfileController;
 
 /*
 |--------------------------------------------------------------------------
 | API Routes
 |--------------------------------------------------------------------------
 |
-| Đây là nơi bạn có thể đăng ký các API routes cho ứng dụng của bạn.
+| Here is where you can register API routes for your application. These
+| routes are loaded by the RouteServiceProvider and all of them will
+| be assigned to the "api" middleware group.
 |
 */
 
-// Auth routes
-Route::post('/login', [AuthController::class, 'login']);
-Route::post('/register', [AuthController::class, 'register']);
+// Thêm route test
+Route::get('/test-route-works', function () {
+    return response()->json(['message' => 'Route test works!']);
+});
 
-// Routes được bảo vệ bằng auth:sanctum middleware
-Route::middleware('auth:sanctum')->group(function () {
-    Route::post('/logout', [AuthController::class, 'logout']);
-    Route::get('/user', [AuthController::class, 'user']);
-    
-    // Routes dành cho admin
-    Route::middleware('role:admin')->group(function () {
-        // Thêm các routes chỉ admin mới truy cập được ở đây
-        // Ví dụ: Route::get('/admin/dashboard', [AdminController::class, 'dashboard']);
-    });
-    
-    // Routes dành cho user thông thường
-    Route::middleware('role:user')->group(function () {
-        // Thêm các routes chỉ user thông thường mới truy cập được ở đây
-        // Ví dụ: Route::get('/user/orders', [UserController::class, 'orders']);
-    });
+// Auth routes
+Route::post('/register', [AuthController::class, 'register']);
+Route::post('/login', [AuthController::class, 'login']);
+
+// User profile routes với prefix
+Route::prefix('user')->group(function () {
+    Route::post('/profile', [ProfileController::class, 'getUserProfile']);
+    Route::get('/orders', [ProfileController::class, 'getUserOrders']);
+    Route::get('/payments', [ProfileController::class, 'getUserPayments']);
+});
+
+// Test route
+Route::get('/test-route', function () {
+    return 'Hello from API route!';
 });
