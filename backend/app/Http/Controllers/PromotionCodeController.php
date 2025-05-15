@@ -61,4 +61,60 @@ class PromotionCodeController extends Controller
             return response()->json(['message' => 'Không thể xóa mã khuyến mãi.', 'error' => $e->getMessage()], 500);
         }
     }
+    // Xác thực mã khuyến mãi (chỉ trả về thông tin)
+    public function validatePromotionCode(Request $request)
+    {
+        $request->validate([
+            'code' => 'required|string',
+        ]);
+
+        $promotionCode = PromotionCode::where('code', $request->code)
+            ->where('valid_from', '<=', now())
+            ->where('valid_to', '>=', now())
+            ->first();
+
+        if (!$promotionCode) {
+            return response()->json(['message' => 'Mã khuyến mãi không hợp lệ hoặc đã hết hạn.'], 400);
+        }
+
+        if ($promotionCode->usage_limit !== null && $promotionCode->usage_limit <= 0) {
+            return response()->json(['message' => 'Mã khuyến mãi đã đạt giới hạn sử dụng.'], 400);
+        }
+
+        return response()->json([
+            'message' => 'Mã khuyến mãi hợp lệ.',
+            'discount_percentage' => $promotionCode->discount_percentage,
+        ], 200);
+    }
+
+    //Xác nhận thanh toán và trừ mã khuyến mãi
+    public function confirmPayment(Request $request)
+    {
+        $request->validate([
+            'code' => 'required|string',
+        ]);
+
+        $promotionCode = PromotionCode::where('code', $request->code)
+            ->where('valid_from', '<=', now())
+            ->where('valid_to', '>=', now())
+            ->first();
+
+        if (!$promotionCode) {
+            return response()->json(['message' => 'Mã khuyến mãi không hợp lệ hoặc đã hết hạn.'], 400);
+        }
+
+        if ($promotionCode->usage_limit !== null && $promotionCode->usage_limit <= 0) {
+            return response()->json(['message' => 'Mã khuyến mãi đã đạt giới hạn sử dụng.'], 400);
+        }
+
+        // Trừ số lượng sử dụng
+        if ($promotionCode->usage_limit !== null) {
+            $promotionCode->decrement('usage_limit');
+        }
+
+        return response()->json([
+            'message' => 'Xác nhận thanh toán thành công. Mã khuyến mãi đã được áp dụng.',
+            'discount_percentage' => $promotionCode->discount_percentage,
+        ], 200);
+    }
 }
