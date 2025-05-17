@@ -117,6 +117,7 @@ trait HasAttributes
         'int',
         'integer',
         'json',
+        'json:unicode',
         'object',
         'real',
         'string',
@@ -550,6 +551,10 @@ trait HasAttributes
             return;
         }
 
+        if ($this->attemptToAutoloadRelation($key)) {
+            return $this->relations[$key];
+        }
+
         if ($this->preventsLazyLoading) {
             $this->handleLazyLoadingViolation($key);
         }
@@ -837,6 +842,7 @@ trait HasAttributes
                 return $this->fromJson($value, true);
             case 'array':
             case 'json':
+            case 'json:unicode':
                 return $this->fromJson($value);
             case 'collection':
                 return new BaseCollection($this->fromJson($value));
@@ -1178,7 +1184,7 @@ trait HasAttributes
 
         $value = $this->asJson($this->getArrayAttributeWithValue(
             $path, $key, $value
-        ));
+        ), $this->getJsonCastFlags($key));
 
         $this->attributes[$key] = $this->isEncryptedCastable($key)
             ? $this->castAttributeAsEncryptedString($key, $value)
@@ -1313,7 +1319,7 @@ trait HasAttributes
      */
     protected function castAttributeAsJson($key, $value)
     {
-        $value = $this->asJson($value);
+        $value = $this->asJson($value, $this->getJsonCastFlags($key));
 
         if ($value === false) {
             throw JsonEncodingException::forAttribute(
@@ -1325,14 +1331,32 @@ trait HasAttributes
     }
 
     /**
+     * Get the JSON casting flags for the given attribute.
+     *
+     * @param  string  $key
+     * @return int
+     */
+    protected function getJsonCastFlags($key)
+    {
+        $flags = 0;
+
+        if ($this->hasCast($key, ['json:unicode'])) {
+            $flags |= JSON_UNESCAPED_UNICODE;
+        }
+
+        return $flags;
+    }
+
+    /**
      * Encode the given value as JSON.
      *
      * @param  mixed  $value
+     * @param  int  $flags
      * @return string
      */
-    protected function asJson($value)
+    protected function asJson($value, $flags = 0)
     {
-        return Json::encode($value);
+        return Json::encode($value, $flags);
     }
 
     /**
@@ -1669,7 +1693,7 @@ trait HasAttributes
      */
     protected function isJsonCastable($key)
     {
-        return $this->hasCast($key, ['array', 'json', 'object', 'collection', 'encrypted:array', 'encrypted:collection', 'encrypted:json', 'encrypted:object']);
+        return $this->hasCast($key, ['array', 'json', 'json:unicode', 'object', 'collection', 'encrypted:array', 'encrypted:collection', 'encrypted:json', 'encrypted:object']);
     }
 
     /**
@@ -1982,6 +2006,27 @@ trait HasAttributes
 
         foreach (is_array($attributes) ? $attributes : func_get_args() as $attribute) {
             $results[$attribute] = $this->getAttribute($attribute);
+        }
+
+        return $results;
+    }
+
+    /**
+     * Get all attributes except the given ones.
+     *
+     * @param  array|mixed  $attributes
+     * @return array
+     */
+    public function except($attributes)
+    {
+        $attributes = is_array($attributes) ? $attributes : func_get_args();
+
+        $results = [];
+
+        foreach ($this->getAttributes() as $key => $value) {
+            if (! in_array($key, $attributes)) {
+                $results[$key] = $this->getAttribute($key);
+            }
         }
 
         return $results;

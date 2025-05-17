@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import './HeaderUser.scss';
 import logo from '../../../../../assets/images/headeruser/logo.png';
 
@@ -35,7 +36,7 @@ function HeaderUser() {
 
           <div className="header-icons">
             <a href="#" onClick={toggleSearch}><i className="fas fa-search"></i></a>
-            <a href="/login"><i className="far fa-user"></i></a>
+            <Link to="/login"><i className="far fa-user"></i></Link>
             <a href="/CartUser" className="cart-icon">
               <i className="fas fa-shopping-cart"></i>
               <span className="cart-count">3</span>

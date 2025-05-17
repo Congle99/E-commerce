@@ -109,7 +109,7 @@ const ProductModal = ({ show, onClose, onSave, product }) => {
                 setMessage('Giá bán phải lớn hơn 0!');
                 return;
             }
-            if (isNaN(discountPrice) || discountPrice >= price) {
+            if (isNaN(discountPrice) || discountPrice > price) {
                 setMessage('Giá giảm phải nhỏ hơn giá bán!');
                 return;
             }

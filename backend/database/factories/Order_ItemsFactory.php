@@ -31,6 +31,6 @@ class Order_ItemsFactory extends Factory
             'price' => $this->faker->randomFloat(2, 10, 500),
             'created_at' => now(),
             'updated_at' => now(),
-        ];   
+        ];
     }
 }

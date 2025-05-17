@@ -71,7 +71,6 @@ class Dispatcher implements DispatcherContract
      * Create a new event dispatcher instance.
      *
      * @param  \Illuminate\Contracts\Container\Container|null  $container
-     * @return void
      */
     public function __construct(?ContainerContract $container = null)
     {
@@ -344,7 +343,8 @@ class Dispatcher implements DispatcherContract
     protected function broadcastWhen($event)
     {
         return method_exists($event, 'broadcastWhen')
-            ? $event->broadcastWhen() : true;
+            ? $event->broadcastWhen()
+            : true;
     }
 
     /**

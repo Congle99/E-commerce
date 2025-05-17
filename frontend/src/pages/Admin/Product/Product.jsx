@@ -207,14 +207,18 @@ const ProductsPage = () => {
                                                     <td>
                                                         <span
                                                             className={`badge bg-${
-                                                                product.status === 'Còn hàng'
+                                                                product.inventory > 10
                                                                     ? 'success'
-                                                                    : product.status === 'Sắp hết'
+                                                                    : product.inventory > 0
                                                                     ? 'warning'
                                                                     : 'danger'
                                                             }`}
                                                         >
-                                                            {product.status}
+                                                            {product.inventory > 10
+                                                                ? 'Còn hàng'
+                                                                : product.inventory > 0
+                                                                ? 'Sắp hết'
+                                                                : 'Hết hàng'}
                                                         </span>
                                                     </td>
                                                     <td>
