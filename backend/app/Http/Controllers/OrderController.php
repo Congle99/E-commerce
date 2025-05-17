@@ -234,7 +234,7 @@ class OrderController extends Controller
     }
     public function createOrder(Request $request)
     {
-        $userId = Auth::id() ?? 1;
+        $userId = Auth::id();
 
         $request->validate([
             'cart_items' => 'required|array',
