@@ -80,4 +80,6 @@ Route::prefix('api')->middleware(['api'])->group(function () {
     Route::post('/cart', [CartController::class, 'store']);
     Route::put('/cart/{id}', [CartController::class, 'update']);
     Route::delete('/cart/{id}', [CartController::class, 'destroy']);
+
+    Route::post('/checkout', [OrderController::class, 'createOrder'])->name('orders.createOrder');
 });
