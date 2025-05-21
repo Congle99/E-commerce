@@ -711,7 +711,7 @@ class Collection extends BaseCollection implements QueueableCollection
      */
     public function partition($key, $operator = null, $value = null)
     {
-        return parent::partition($key, $operator, $value)->toBase();
+        return parent::partition(...func_get_args())->toBase();
     }
 
     /**
@@ -761,7 +761,7 @@ class Collection extends BaseCollection implements QueueableCollection
 
         foreach ($this as $model) {
             if (! $model->hasRelationAutoloadCallback()) {
-                $model->autoloadRelationsUsing($callback);
+                $model->autoloadRelationsUsing($callback, $this);
             }
         }
 
