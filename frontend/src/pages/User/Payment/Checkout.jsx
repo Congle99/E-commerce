@@ -22,7 +22,33 @@ const Checkout = () => {
   const [discount, setDiscount] = useState(0);
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-
+  const [formErrors, setFormErrors] = useState({});
+  const validationRules = {
+    firstName: {
+      regex: /^[a-zA-ZÀ-ỹ\s]{2,30}$/,
+      message: "Tên không hợp lệ",
+    },
+    lastName: {
+      regex: /^[a-zA-ZÀ-ỹ\s]{2,30}$/,
+      message: "Họ không hợp lệ",
+    },
+    phone: {
+      regex: /^(0|\+84)[0-9]{9,10}$/,
+      message: "Số điện thoại không hợp lệ",
+    },
+    email: {
+      regex: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+      message: "Email không hợp lệ",
+    },
+    postcode: {
+      regex: /^[0-9]{5,6}$/,
+      message: "Mã bưu điện phải có 5-6 chữ số",
+    },
+    address: {
+      regex: /^.{5,}$/,
+      message: "Địa chỉ quá ngắn",
+    },
+  };
   // Fetch danh sách sản phẩm từ giỏ hàng
   useEffect(() => {
     const fetchCartItems = async () => {
