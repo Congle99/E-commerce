@@ -54,19 +54,6 @@ const Login = () => {
     }
   };
 
-  if (loggedIn) {
-    return (
-      <main className="login-area pt-100 pb-100">
-        <div className="container text-center">
-          <h2>Bạn đã đăng nhập rồi.</h2>
-          <button className="btn theme-btn mt-3" onClick={() => navigate("/")}>
-            Quay về trang chủ
-          </button>
-        </div>
-      </main>
-    );
-  }
-
   return (
     <main>
       <section
