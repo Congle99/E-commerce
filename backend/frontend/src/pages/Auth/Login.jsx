@@ -13,7 +13,7 @@ const Login = () => {
     const [remember, setRemember] = useState(false);
 
     const handleSubmit = async (e) => {
-        e.preventDefault();
+        e.preventDefault(); // Ngăn chặn reload trang
         setLoading(true);
         setError('');
 
@@ -21,19 +21,18 @@ const Login = () => {
             const response = await http.post('/login', { 
                 email, 
                 password,
-                remember: remember 
+                remember 
             });
-            
+
             if (response.data.success) {
-                // Lưu thông tin user vào localStorage
+                // Lưu token vào localStorage
+                localStorage.setItem('token', response.data.token);
+                // Lưu thông tin người dùng nếu cần
                 localStorage.setItem('user', JSON.stringify(response.data.user));
-                
+
+                // Chuyển hướng dựa trên vai trò
                 const role = response.data.user.role;
-                if (role === 'admin') {
-                    navigate('/admin'); // Chuyển đến trang admin
-                } else {
-                    navigate('/user'); // Chuyển đến trang người dùng
-                }
+                role === 'admin' ? navigate('/admin') : navigate('/user');
             } else {
                 setError(response.data.message || 'Đăng nhập thất bại.');
             }
