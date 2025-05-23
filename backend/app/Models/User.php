@@ -10,7 +10,7 @@ use Laravel\Sanctum\HasApiTokens; // Nếu bạn sử dụng Sanctum
 
 class User extends Authenticatable
 {
-     use HasApiTokens, Notifiable;
+     use HasApiTokens, HasFactory, Notifiable, SoftDeletes;
     // use HasApiTokens; // Thêm nếu bạn sử dụng Sanctum
 
     /**
@@ -26,9 +26,12 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $fillable = [
-        'email',
-        'password',
-        'role',
+     'email',
+     'username',
+     'password',
+     'phone',  
+     'questionpassword',  
+     'role',
     ];
 
     /**
@@ -38,7 +41,7 @@ class User extends Authenticatable
      */
     protected $hidden = [
         'password',
-        'remember_token',
+        //'remember_token',
     ];
 
     /**
@@ -47,7 +50,7 @@ class User extends Authenticatable
      * @var array<string, string>
      */
     protected $casts = [
-        'email_verified_at' => 'datetime',
+        //'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
 }

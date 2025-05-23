@@ -56,20 +56,44 @@
         }
 
         .login-action {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+    display: flex;
+    justify-content: space-between;
+    align-items: center; // Đảm bảo các phần tử căn giữa theo chiều dọc
+    margin-bottom: 20px;
 
-            .log-rem {
-                display: flex;
-                align-items: center;
-            }
+    .log-rem {
+        display: flex;
+     // Căn giữa checkbox và nhãn
 
-            .forgot-login a {
-                color: #007bff;
-                text-decoration: none;
+        input[type="checkbox"] {
+            margin-right: 8px; // Khoảng cách giữa checkbox và nhãn
+            accent-color: #4CAF50;
+            // Thêm chiều rộng và chiều cao cho checkbox nếu cần
+            width: 16px;
+            height: 16px;
+        }
+
+        label {
+            font-size: 14px;
+            color: #333;
+            cursor: pointer;
+        }
+    }
+
+    .forgot-login {
+        a {
+            font-size: 14px;
+            color: #007BFF;
+            text-decoration: none;
+            transition: color 0.3s;
+
+            &:hover {
+                color: #0056b3;
+                text-decoration: underline;
             }
         }
+    }
+}
 
         .btn {
             padding: 10px;

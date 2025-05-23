@@ -84,21 +84,40 @@
                 border-bottom: 1px solid #eee;
             }
             
-            .user-info {
-                .info-item {
-                    margin-bottom: 15px;
-                    
-                    label {
-                        font-weight: 600;
-                        display: inline-block;
-                        width: 100px;
-                    }
-                    
-                    span {
-                        color: #555;
-                    }
+        .user-info {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 20px 40px;
+
+            .info-item {
+                    display: flex;
+                    flex-direction: column;
+
+            label {
+                    font-weight: 600;
+                    margin-bottom: 5px;
+                    color: #333;
+                }
+
+        span, input {
+            font-size: 15px;
+            color: #555;
+        }
+
+        input {
+            padding: 8px 12px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            outline: none;
+
+            &:focus {
+                border-color: #007bff;
+                box-shadow: 0 0 0 2px rgba(0,123,255,0.1);
                 }
             }
+        }
+    }
+
             
             .table {
                 width: 100%;

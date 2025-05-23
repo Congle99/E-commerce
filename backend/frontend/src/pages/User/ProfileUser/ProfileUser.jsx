@@ -7,45 +7,53 @@ const ProfileUser = () => {
     const navigate = useNavigate();
     const { http } = Api();
     const [userData, setUserData] = useState({
+        id: '',
+        username: '',
         email: '',
-        role: ''
+        role: '',
+        phone: '',
+        created_at: ''
     });
+    const [editData, setEditData] = useState({});
     const [orders, setOrders] = useState([]);
     const [payments, setPayments] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+    const [success, setSuccess] = useState('');
     const [activeTab, setActiveTab] = useState('profile');
+    const [isEditing, setIsEditing] = useState(false);
 
-    // Fetch user data
+    // 🔧 Câu hỏi bảo mật
+    const [questionInput, setQuestionInput] = useState('');
+    const [questionMsg, setQuestionMsg] = useState('');
+
     useEffect(() => {
         const fetchUserData = async () => {
             try {
-                // Lấy user_id từ localStorage
                 const userInfo = JSON.parse(localStorage.getItem('user'));
                 if (!userInfo) {
-                    // Nếu không có thông tin user, chuyển hướng về trang login
                     navigate('/login');
                     return;
                 }
-                
-                // Trong quá trình phát triển, sử dụng dữ liệu giả
-                // Sau này, khi API sẵn sàng, sử dụng code bên dưới để gọi API thực tế
-                /*
-                const response = await http.post('/user/profile', { user_id: userInfo.id });
-                setUserData(response.data);
-                */
-                
-                // Dữ liệu giả mạo
+
                 setUserData({
                     id: userInfo.id,
-                    email: userInfo.email,
-                    role: userInfo.role
+                    username: userInfo.username || 'nguoimau',
+                    email: userInfo.email || '',
+                    role: userInfo.role || 'user',
+                    phone: userInfo.phone || '0123-456-789',
+                    created_at: userInfo.created_at || new Date().toISOString()
                 });
-                
+
+                setEditData({
+                    username: userInfo.username || '',
+                    email: userInfo.email || '',
+                    phone: userInfo.phone || ''
+                });
+
                 setLoading(false);
             } catch (err) {
-                setError('Failed to fetch user data');
-                console.error(err);
+                setError('Lỗi khi tải thông tin người dùng');
                 setLoading(false);
             }
         };
@@ -53,77 +61,43 @@ const ProfileUser = () => {
         fetchUserData();
     }, []);
 
-    // Fetch orders
     useEffect(() => {
-        const fetchOrders = async () => {
-            try {
-                // Sử dụng dữ liệu giả cho orders
-                /*
-                const response = await http.get('/user/orders');
-                setOrders(response.data);
-                */
-                
-                // Dữ liệu giả mạo
-                setOrders([
-                    {
-                        id: 1,
-                        total_price: 1500000,
-                        status: 'Completed',
-                        created_at: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString()
-                    },
-                    {
-                        id: 2,
-                        total_price: 750000,
-                        status: 'Processing',
-                        created_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString()
-                    }
-                ]);
-            } catch (err) {
-                setError('Failed to fetch orders');
-                console.error(err);
-            }
-        };
-
         if (activeTab === 'orders') {
-            fetchOrders();
+            setOrders([
+                {
+                    id: 1,
+                    total_price: 1500000,
+                    status: 'Completed',
+                    created_at: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString()
+                },
+                {
+                    id: 2,
+                    total_price: 750000,
+                    status: 'Processing',
+                    created_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString()
+                }
+            ]);
         }
     }, [activeTab]);
 
-    // Fetch payments
     useEffect(() => {
-        const fetchPayments = async () => {
-            try {
-                // Sử dụng dữ liệu giả cho payments
-                /*
-                const response = await http.get('/user/payments');
-                setPayments(response.data);
-                */
-                
-                // Dữ liệu giả mạo
-                setPayments([
-                    {
-                        payment_id: 1,
-                        order_id: 1,
-                        payment_method: 'Credit Card',
-                        payment_status: 1,
-                        payment_date: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString()
-                    },
-                    {
-                        payment_id: 2,
-                        order_id: 2,
-                        payment_method: 'Bank Transfer',
-                        payment_status: 0,
-                        payment_date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString()
-                    }
-                ]);
-            } catch (err) {
-                setError('Failed to fetch payments');
-                console.error(err);
-            }
-        };
-
         if (activeTab === 'payments') {
-            fetchPayments();
+            setPayments([
+                {
+                    payment_id: 1,
+                    order_id: 1,
+                    payment_method: 'Credit Card',
+                    payment_status: 1,
+                    payment_date: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString()
+                },
+                {
+                    payment_id: 2,
+                    order_id: 2,
+                    payment_method: 'Bank Transfer',
+                    payment_status: 0,
+                    payment_date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString()
+                }
+            ]);
         }
     }, [activeTab]);
 
@@ -132,101 +106,215 @@ const ProfileUser = () => {
         navigate('/login');
     };
 
+    const handleUpdate = async () => {
+        try {
+            const response = await http.put('/user/update', {
+                id: userData.id,
+                username: editData.username,
+                email: editData.email,
+                phone: editData.phone
+            });
+
+            if (response.data.success) {
+                setSuccess('Cập nhật thành công!');
+                setUserData(prev => ({
+                    ...prev,
+                    username: editData.username,
+                    email: editData.email,
+                    phone: editData.phone
+                }));
+                localStorage.setItem('user', JSON.stringify({
+                    ...userData,
+                    username: editData.username,
+                    email: editData.email,
+                    phone: editData.phone
+                }));
+                setIsEditing(false);
+                setTimeout(() => setSuccess(''), 3000);
+            } else {
+                setError('Cập nhật thất bại!');
+            }
+        } catch (err) {
+            setError('Có lỗi khi cập nhật: ' + (err.response?.data?.message || err.message));
+        }
+    };
+
+    // ✅ Lưu câu hỏi bảo mật
+    const handleQuestionSave = () => {
+        // Mô phỏng lưu vào local hoặc gửi về API
+        localStorage.setItem('secret_question', questionInput);
+        setQuestionMsg('Đã lưu thành công!');
+        setTimeout(() => setQuestionMsg(''), 2000);
+    };
+
+    // 🧩 Các phần render (không thay đổi)
+    // --> Giữ nguyên `renderProfile`, `renderOrders`, `renderPayments`, `renderContent`
+
+
+    const renderProfile = () => (
+        <div className="profile-content">
+            <h3 className="mb-4">Thông tin cá nhân</h3>
+            {error && <div className="alert alert-danger">{error}</div>}
+            {success && <div className="alert alert-success">{success}</div>}
+            <div className="user-info">
+                <div className="info-item">
+                    <label>Tên đăng nhập:</label>
+                    {isEditing ? (
+                        <input
+                            type="text"
+                            value={editData.username}
+                            onChange={(e) => setEditData({ ...editData, username: e.target.value })}
+                        />
+                    ) : (
+                        <span>{userData.username}</span>
+                    )}
+                </div>
+                <div className="info-item">
+                    <label>Email:</label>
+                    {isEditing ? (
+                        <input
+                            type="email"
+                            value={editData.email}
+                            onChange={(e) => setEditData({ ...editData, email: e.target.value })}
+                        />
+                    ) : (
+                        <span>{userData.email}</span>
+                    )}
+                </div>
+                <div className="info-item">
+                    <label>Số điện thoại:</label>
+                    {isEditing ? (
+                        <input
+                            type="text"
+                            value={editData.phone}
+                            onChange={(e) => setEditData({ ...editData, phone: e.target.value })}
+                        />
+                    ) : (
+                        <span>{userData.phone}</span>
+                    )}
+                </div>
+                <div className="info-item">
+                    <label>Vai trò:</label>
+                    <span>{userData.role === 'admin' ? 'Quản trị viên' : 'Người dùng'}</span>
+                </div>
+                <div className="info-item">
+                    <label>Ngày tạo:</label>
+                    <span>{new Date(userData.created_at).toLocaleDateString()}</span>
+                </div>
+                <div className="info-item">
+                    <label>Nơi du lịch bạn thích nhất:</label>
+                    <div className="d-flex align-items-center">
+                        <input
+                            type="text"
+                            value={questionInput}
+                            onChange={(e) => setQuestionInput(e.target.value)}
+                            placeholder="Nhập địa điểm"
+                            className="me-2 form-control"
+                        />
+                        <button className="btn btn-sm btn-success" onClick={handleQuestionSave}>
+                            Lưu
+                        </button>
+                    </div>
+                    {questionMsg && <small className="text-success">{questionMsg}</small>}
+                </div>
+                <div className="text-end mt-3">
+                    {isEditing ? (
+                        <>
+                            <button className="btn btn-success me-2" onClick={handleUpdate}>Lưu thay đổi</button>
+                            <button className="btn btn-secondary" onClick={() => setIsEditing(false)}>Hủy</button>
+                        </>
+                    ) : (
+                        <button className="btn btn-primary" onClick={() => setIsEditing(true)}>Cập nhật thông tin</button>
+                    )}
+                </div>
+            </div>
+        </div>
+    );
+
+    const renderOrders = () => (
+        <div className="profile-content">
+            <h3 className="mb-4">Lịch sử đơn hàng</h3>
+            {orders.length === 0 ? (
+                <p>Bạn chưa có đơn hàng nào</p>
+            ) : (
+                <div className="table-responsive">
+                    <table className="table">
+                        <thead>
+                            <tr>
+                                <th>Mã đơn hàng</th>
+                                <th>Tổng tiền</th>
+                                <th>Trạng thái</th>
+                                <th>Ngày tạo</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {orders.map(order => (
+                                <tr key={order.id}>
+                                    <td>{order.id}</td>
+                                    <td>{order.total_price.toLocaleString()} VNĐ</td>
+                                    <td>
+                                        <span className={`status-badge ${order.status.toLowerCase()}`}>
+                                            {order.status}
+                                        </span>
+                                    </td>
+                                    <td>{new Date(order.created_at).toLocaleDateString()}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            )}
+        </div>
+    );
+
+    const renderPayments = () => (
+        <div className="profile-content">
+            <h3 className="mb-4">Lịch sử thanh toán</h3>
+            {payments.length === 0 ? (
+                <p>Bạn chưa có giao dịch thanh toán nào</p>
+            ) : (
+                <div className="table-responsive">
+                    <table className="table">
+                        <thead>
+                            <tr>
+                                <th>Mã thanh toán</th>
+                                <th>Mã đơn hàng</th>
+                                <th>Phương thức</th>
+                                <th>Trạng thái</th>
+                                <th>Ngày thanh toán</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {payments.map(payment => (
+                                <tr key={payment.payment_id}>
+                                    <td>{payment.payment_id}</td>
+                                    <td>{payment.order_id}</td>
+                                    <td>{payment.payment_method}</td>
+                                    <td>
+                                        {payment.payment_status === 1 ? (
+                                            <span className="status-badge success">Thành công</span>
+                                        ) : (
+                                            <span className="status-badge failed">Thất bại</span>
+                                        )}
+                                    </td>
+                                    <td>{new Date(payment.payment_date).toLocaleString()}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            )}
+        </div>
+    );
+
     const renderContent = () => {
         switch (activeTab) {
             case 'profile':
-                return (
-                    <div className="profile-content">
-                        <h3 className="mb-4">Thông tin cá nhân</h3>
-                        {error && <div className="alert alert-danger">{error}</div>}
-                        <div className="user-info">
-                            <div className="info-item">
-                                <label>Email:</label>
-                                <span>{userData.email}</span>
-                            </div>
-                            <div className="info-item">
-                                <label>Vai trò:</label>
-                                <span>{userData.role === 'admin' ? 'Quản trị viên' : 'Người dùng'}</span>
-                            </div>
-                        </div>
-                    </div>
-                );
+                return renderProfile();
             case 'orders':
-                return (
-                    <div className="profile-content">
-                        <h3 className="mb-4">Lịch sử đơn hàng</h3>
-                        {orders.length === 0 ? (
-                            <p>Bạn chưa có đơn hàng nào</p>
-                        ) : (
-                            <div className="table-responsive">
-                                <table className="table">
-                                    <thead>
-                                        <tr>
-                                            <th>Mã đơn hàng</th>
-                                            <th>Tổng tiền</th>
-                                            <th>Trạng thái</th>
-                                            <th>Ngày tạo</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {orders.map(order => (
-                                            <tr key={order.id}>
-                                                <td>{order.id}</td>
-                                                <td>{order.total_price.toLocaleString()} VNĐ</td>
-                                                <td>
-                                                    <span className={`status-badge ${order.status.toLowerCase()}`}>
-                                                        {order.status}
-                                                    </span>
-                                                </td>
-                                                <td>{new Date(order.created_at).toLocaleDateString()}</td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            </div>
-                        )}
-                    </div>
-                );
+                return renderOrders();
             case 'payments':
-                return (
-                    <div className="profile-content">
-                        <h3 className="mb-4">Lịch sử thanh toán</h3>
-                        {payments.length === 0 ? (
-                            <p>Bạn chưa có giao dịch thanh toán nào</p>
-                        ) : (
-                            <div className="table-responsive">
-                                <table className="table">
-                                    <thead>
-                                        <tr>
-                                            <th>Mã thanh toán</th>
-                                            <th>Mã đơn hàng</th>
-                                            <th>Phương thức</th>
-                                            <th>Trạng thái</th>
-                                            <th>Ngày thanh toán</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {payments.map(payment => (
-                                            <tr key={payment.payment_id}>
-                                                <td>{payment.payment_id}</td>
-                                                <td>{payment.order_id}</td>
-                                                <td>{payment.payment_method}</td>
-                                                <td>
-                                                    {payment.payment_status === 1 ? (
-                                                        <span className="status-badge success">Thành công</span>
-                                                    ) : (
-                                                        <span className="status-badge failed">Thất bại</span>
-                                                    )}
-                                                </td>
-                                                <td>{new Date(payment.payment_date).toLocaleString()}</td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            </div>
-                        )}
-                    </div>
-                );
+                return renderPayments();
             default:
                 return null;
         }
@@ -257,35 +345,21 @@ const ProfileUser = () => {
                             <div className="profile-sidebar">
                                 <div className="profile-user text-center mb-4">
                                     <div className="profile-avatar">
-                                        <img 
-                                            src="https://via.placeholder.com/150" 
-                                            alt="Avatar" 
-                                            className="rounded-circle"
-                                            width="100"
-                                        />
+                                        <img src="https://via.placeholder.com/150" alt="Avatar" className="rounded-circle" width="100" />
                                     </div>
-                                    <h4 className="mt-3">{userData.email}</h4>
+                                    <h4 className="mt-3">{userData.username}</h4>
                                     <p className="text-muted">{userData.role === 'admin' ? 'Quản trị viên' : 'Người dùng'}</p>
                                 </div>
-                                
+
                                 <nav className="profile-menu">
                                     <ul>
-                                        <li 
-                                            className={activeTab === 'profile' ? 'active' : ''}
-                                            onClick={() => setActiveTab('profile')}
-                                        >
+                                        <li className={activeTab === 'profile' ? 'active' : ''} onClick={() => setActiveTab('profile')}>
                                             <i className="fas fa-user"></i> Thông tin cá nhân
                                         </li>
-                                        <li 
-                                            className={activeTab === 'orders' ? 'active' : ''}
-                                            onClick={() => setActiveTab('orders')}
-                                        >
+                                        <li className={activeTab === 'orders' ? 'active' : ''} onClick={() => setActiveTab('orders')}>
                                             <i className="fas fa-shopping-bag"></i> Đơn hàng
                                         </li>
-                                        <li 
-                                            className={activeTab === 'payments' ? 'active' : ''}
-                                            onClick={() => setActiveTab('payments')}
-                                        >
+                                        <li className={activeTab === 'payments' ? 'active' : ''} onClick={() => setActiveTab('payments')}>
                                             <i className="fas fa-credit-card"></i> Thanh toán
                                         </li>
                                         <li onClick={handleLogout}>
@@ -295,7 +369,7 @@ const ProfileUser = () => {
                                 </nav>
                             </div>
                         </div>
-                        
+
                         <div className="col-lg-9">
                             <div className="profile-main">
                                 {loading ? (
@@ -317,3 +391,8 @@ const ProfileUser = () => {
 };
 
 export default ProfileUser;
+
+
+
+
+

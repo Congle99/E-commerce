@@ -28,6 +28,7 @@ class UserController extends Controller
         ]);
     }
 
+    
     /**
      * Lấy danh sách đơn hàng của người dùng
      */
@@ -75,4 +76,21 @@ class UserController extends Controller
             ],
         ]);
     }
+        /**
+     * Cập nhật câu hỏi bảo mật của người dùng
+     */
+    public function updateQuestion(Request $request)
+    {
+        $request->validate([
+            'id' => 'required|exists:user,id',
+            'questionpassword' => 'nullable|string|max:255',
+        ]);
+
+        $user = User::find($request->id);
+        $user->questionpassword = $request->questionpassword;
+        $user->save();
+
+        return response()->json(['success' => true]);
+    }
+
 }
