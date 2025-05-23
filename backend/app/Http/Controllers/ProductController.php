@@ -41,7 +41,7 @@ class ProductController extends Controller
             $query->where('name', 'like', '%' . $request->keyword . '%');
         }
     
-        // 📦 Lọc theo danh mục
+        //  Lọc theo danh mục
         if ($request->has('categories')) {
             $categories = $request->categories;
         
