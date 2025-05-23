@@ -79,7 +79,7 @@ export default function InvoicePage() {
                 alert("Lỗi: " + JSON.stringify(res.data.errors || res.data.message));
             }
         } catch (error) {
-            alert("Lỗi mạng hoặc server");
+            alert("Đơn hàng không tồn tại hoặc đã bị xoá");
             console.error(error);
         } finally {
             setSaving(false);
