@@ -22,6 +22,7 @@ const UserRoute = [
   { path: "/user", component: HomeUser },
   { path: "/ShopUser", component: Shop },
   { path: "/ProductUser/:id", component: ProductDetail },
+  { path: "/reviews/:id", component: ProductDetail },
   { path: "/CartUser", component: Cart },
   { path: "/login", component: Login }, // Thêm route cho trang Login
   { path: "/register", component: Register }, // Thêm route cho trang Register

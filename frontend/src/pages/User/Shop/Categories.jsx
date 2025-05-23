@@ -22,6 +22,9 @@ const Categories = ({
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [noData, setNoData] = useState(false);
+  const [priceError, setPriceError] = useState(false);
+
+  const [min, max] = priceRange;
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -38,16 +41,29 @@ const Categories = ({
     fetchCategories();
   }, []);
 
+  useEffect(() => {
+    setPriceError(min > max);
+  }, [min, max]);
+
   const handleInputChange = (index, value) => {
+    let newValue = parseInt(value) || 0;
+    if (index === 0 && newValue < 0) newValue = 0;
+    if (index === 1 && newValue > 10000) newValue = 10000;
+
     const newRange = [...priceRange];
-    newRange[index] = parseInt(value) || 0;
+    newRange[index] = newValue;
     setPriceRange(newRange);
   };
+
+  const handleSliderChange = (newRange) => {
+    setPriceRange(newRange);
+  };
+
 
   const handleCategoryCheck = (id, checked) => {
     setSelectedCategories((prev) => {
       const updated = checked ? [...prev, id] : prev.filter((cid) => cid !== id);
-      setFilterTriggered((p) => !p); // Auto lọc khi chọn category
+      setFilterTriggered((p) => !p);
       return updated;
     });
   };
@@ -61,22 +77,37 @@ const Categories = ({
     } else {
       setSelectedCategories(categories.map((cat) => cat.id));
     }
-    setFilterTriggered((p) => !p); // Auto lọc khi chọn Tất cả
+    setFilterTriggered((p) => !p);
   };
 
   const handleSearchTermChange = (e) => {
     setSearchTerm(e.target.value);
-    setFilterTriggered((p) => !p); // Auto lọc khi thay đổi từ khóa
+    setFilterTriggered((p) => !p);
   };
 
   const handlePriceSearch = () => {
-    console.log("Lọc theo giá:", priceRange);
-    setFilterTriggered((p) => !p); // Chỉ lọc khi nhấn nút
+    if (!priceError) {
+      console.log("Lọc theo giá:", [min, max]);
+      setFilterTriggered((p) => !p);
+    }
   };
+
+  const getSliderStyles = () => {
+    const color = priceError ? "red" : "#007bff";
+    return {
+      trackStyle: [{ backgroundColor: color, height: 6 }],
+      handleStyle: [
+        { backgroundColor: color, borderColor: color },
+        { backgroundColor: color, borderColor: color },
+      ],
+      railStyle: { backgroundColor: "#ddd", height: 6 },
+    };
+  };
+
+  const sliderStyles = getSliderStyles();
 
   return (
     <div className="categories-page">
-      {/* Tìm kiếm theo từ khóa */}
       <div className="search-bar">
         <input
           type="text"
@@ -92,7 +123,6 @@ const Categories = ({
       <br />
       <h2 className="section-title">Categories</h2>
 
-      {/* Danh sách danh mục */}
       <div className="category-list-wrapper">
         <ul className="category-list">
           {loading ? (
@@ -126,7 +156,6 @@ const Categories = ({
         </ul>
       </div>
 
-      {/* Lọc theo giá */}
       <div className="price-range">
         <h4>GIÁ</h4>
         <Slider
@@ -134,14 +163,12 @@ const Categories = ({
           min={0}
           max={1000}
           step={10}
-          value={priceRange}
-          onChange={setPriceRange}
-          trackStyle={[{ backgroundColor: "#007bff", height: 6 }]}
-          handleStyle={[
-            { backgroundColor: "#007bff", borderColor: "#007bff" },
-            { backgroundColor: "#007bff", borderColor: "#007bff" },
-          ]}
-          railStyle={{ backgroundColor: "#ddd", height: 6 }}
+          value={[min, max]}
+          onChange={handleSliderChange}
+          allowCross={false}
+          trackStyle={sliderStyles.trackStyle}
+          handleStyle={sliderStyles.handleStyle}
+          railStyle={sliderStyles.railStyle}
         />
 
         <div
@@ -154,14 +181,19 @@ const Categories = ({
           }}
         >
           <span style={{ fontWeight: "bold", fontSize: "14px" }}>
-            {formatCurrency(priceRange[0])}
+            {formatCurrency(min)}
           </span>
           <span style={{ fontWeight: "bold", fontSize: "14px" }}>
-            {formatCurrency(priceRange[1])}
+            {formatCurrency(max)}
           </span>
         </div>
 
-        {/* Nhập khoảng giá bằng tay */}
+        {priceError && (
+          <div style={{ color: "red", fontSize: "13px", marginTop: "6px" }}>
+            Giá trị bắt đầu không được lớn hơn giá trị kết thúc.
+          </div>
+        )}
+
         <div
           className="inputs"
           style={{
@@ -173,28 +205,33 @@ const Categories = ({
         >
           <input
             type="number"
+            min={0}
+            max={1000}
             value={priceRange[0]}
             onChange={(e) => handleInputChange(0, e.target.value)}
           />
           <span>–</span>
           <input
             type="number"
+            min={0}
+            max={1000}
             value={priceRange[1]}
             onChange={(e) => handleInputChange(1, e.target.value)}
           />
+
         </div>
 
-        {/* Nút tìm kiếm theo giá */}
         <div style={{ marginTop: "12px", textAlign: "center" }}>
           <button
             onClick={handlePriceSearch}
+            disabled={priceError}
             style={{
               padding: "8px 16px",
-              backgroundColor: "#007bff",
+              backgroundColor: priceError ? "#ccc" : "#007bff",
               color: "#fff",
               border: "none",
               borderRadius: "4px",
-              cursor: "pointer",
+              cursor: priceError ? "not-allowed" : "pointer",
               fontWeight: "bold",
             }}
           >

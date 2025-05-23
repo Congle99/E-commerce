@@ -45,7 +45,6 @@
 
   .main-nav {
     margin-top: 10px;
-    line-height: -20px;
 
     ul {
       display: flex;
@@ -112,9 +111,34 @@
         border-radius: 50%;
       }
     }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+
+      .hello-user {
+        font-size: 16px;
+        font-weight: 500;
+        color: #333;
+      }
+
+      .logout-btn {
+        background: none;
+        border: none;
+        color: #333;
+        font-size: 18px;
+        cursor: pointer;
+        transition: color 0.3s;
+        margin: 0px 10px;
+
+        &:hover {
+          color: #ff6f61;
+        }
+      }
+    }
   }
 
-  // Fullscreen search overlay
   .search-overlay {
     position: fixed;
     top: 0;
@@ -172,7 +196,6 @@
     }
   }
 
-  // Animations
   @keyframes fadeIn {
     from {
       opacity: 0;

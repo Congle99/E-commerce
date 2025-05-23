@@ -8,7 +8,7 @@ const Shop = () => {
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [priceRange, setPriceRange] = useState([0, 1000]);
 
-  // ✅ Dùng để báo cho Products biết khi nào cần lọc lại dữ liệu
+  //  Dùng để báo cho Products biết khi nào cần lọc lại dữ liệu
   const [filterTriggered, setFilterTriggered] = useState(false);
 
   return (
@@ -25,7 +25,7 @@ const Shop = () => {
               setSelectedCategories={setSelectedCategories}
               priceRange={priceRange}
               setPriceRange={setPriceRange}
-              setFilterTriggered={setFilterTriggered} // ✅ gửi callback để khi nhấn lọc thì cập nhật
+              setFilterTriggered={setFilterTriggered} //  gửi callback để khi nhấn lọc thì cập nhật
             />
           </div>
           {/* Cột hiển thị danh sách sản phẩm */}
@@ -34,7 +34,7 @@ const Shop = () => {
               searchTerm={searchTerm}
               selectedCategories={selectedCategories}
               priceRange={priceRange}
-              filterTriggered={filterTriggered} // ✅ truyền state trigger lọc
+              filterTriggered={filterTriggered} //  truyền state trigger lọc
             />
           </div>
         </div>

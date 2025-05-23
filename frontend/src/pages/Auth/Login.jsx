@@ -36,6 +36,10 @@ const Login = () => {
         // Lưu thông tin user vào localStorage
         localStorage.setItem("user", JSON.stringify(response.data.user));
         localStorage.setItem("token", JSON.stringify(response.data.token));
+
+        // 🔔 Phát sự kiện login để các component khác biết
+        window.dispatchEvent(new Event("userLoggedIn"));
+
         console.log("User data:", response);
         const role = response.data.user.role;
         if (role === "admin") {
