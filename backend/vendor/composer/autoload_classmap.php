@@ -20,6 +20,7 @@ return array(
     'App\\Http\\Controllers\\PromotionCodeController' => $baseDir . '/app/Http/Controllers/PromotionCodeController.php',
     'App\\Http\\Controllers\\StatsController' => $baseDir . '/app/Http/Controllers/StatsController.php',
     'App\\Http\\Controllers\\UserController' => $baseDir . '/app/Http/Controllers/UserController.php',
+    'App\\Http\\Kernel' => $baseDir . '/app/Http/Kernel.php',
     'App\\Http\\Resources\\OrderDetailResource' => $baseDir . '/app/Http/Resources/OrderDetailResource.php',
     'App\\Models\\Bank_Account' => $baseDir . '/app/Models/Bank_Account.php',
     'App\\Models\\CartItem' => $baseDir . '/app/Models/CartItem.php',

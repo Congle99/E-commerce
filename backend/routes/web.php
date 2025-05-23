@@ -8,7 +8,6 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\StatsController;
 use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\PromotionCodeController;
-
 use App\Http\Controllers\ProductReviewController;
 
 use App\Http\Controllers\CartController;
@@ -76,10 +75,13 @@ Route::prefix('api')->middleware(['api'])->group(function () {
     Route::post('/promotion-codes/validate', [PromotionCodeController::class, 'validatePromotionCode'])->name('promotion-codes.validate');
     Route::post('/promotion-codes/confirm', [PromotionCodeController::class, 'confirmPayment'])->name('promotion-codes.confirm');
 
-    Route::get('/cart', [CartController::class, 'index']);
-    Route::post('/cart', [CartController::class, 'store']);
-    Route::put('/cart/{id}', [CartController::class, 'update']);
-    Route::delete('/cart/{id}', [CartController::class, 'destroy']);
 
-    Route::post('/checkout', [OrderController::class, 'createOrder'])->name('orders.createOrder');
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::get('/cart', [CartController::class, 'index']);
+        Route::post('/cart', [CartController::class, 'store']);
+        Route::put('/cart/{id}', [CartController::class, 'update']);
+        Route::delete('/cart/{id}', [CartController::class, 'destroy']);
+    });
+        Route::post('/checkout', [OrderController::class, 'createOrder'])->name('orders.createOrder');
+
 });

@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { UserRoute, AdminRoute } from '~/routes';
 import { DefaultLayout, UserLayout } from '~/components/Layouts';
+import Login from '~/pages/Auth/Login'; // Nhập component Login
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 function App() {
@@ -8,6 +9,9 @@ function App() {
         <Router>
             <div className="App">
                 <Routes>
+                    {/* Route cho Đăng Nhập */}
+                    <Route path="/login" element={<Login />} />
+
                     {/* Admin Routes */}
                     {AdminRoute.map((route, index) => {
                         const Layout = route.layout || DefaultLayout;

@@ -535,6 +535,7 @@ class ComposerStaticInit015e02e23a490fcf9d86230851cba120
         'App\\Http\\Controllers\\PromotionCodeController' => __DIR__ . '/../..' . '/app/Http/Controllers/PromotionCodeController.php',
         'App\\Http\\Controllers\\StatsController' => __DIR__ . '/../..' . '/app/Http/Controllers/StatsController.php',
         'App\\Http\\Controllers\\UserController' => __DIR__ . '/../..' . '/app/Http/Controllers/UserController.php',
+        'App\\Http\\Kernel' => __DIR__ . '/../..' . '/app/Http/Kernel.php',
         'App\\Http\\Resources\\OrderDetailResource' => __DIR__ . '/../..' . '/app/Http/Resources/OrderDetailResource.php',
         'App\\Models\\Bank_Account' => __DIR__ . '/../..' . '/app/Models/Bank_Account.php',
         'App\\Models\\CartItem' => __DIR__ . '/../..' . '/app/Models/CartItem.php',
