@@ -8,7 +8,6 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\StatsController;
 use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\PromotionCodeController;
-
 use App\Http\Controllers\ProductReviewController;
 
 use App\Http\Controllers\CartController;
@@ -49,7 +48,7 @@ Route::prefix('api')->middleware(['api'])->group(function () {
     Route::resource('order', OrderController::class);
     Route::resource('order/order-details', OrderDetailController::class);
 
-    
+
     //User
     Route::get('/categories', [CategoryController::class, 'indexUser']);
     Route::get('/product', [ProductController::class, 'index']);
@@ -74,8 +73,10 @@ Route::prefix('api')->middleware(['api'])->group(function () {
     Route::put('/promotion-codes/{id}', [PromotionCodeController::class, 'update'])->name('promotion-codes.update');
     Route::delete('/promotion-codes/{id}', [PromotionCodeController::class, 'destroy']);
 
-    Route::get('/cart', [CartController::class, 'index']);
-    Route::post('/cart', [CartController::class, 'store']);
-    Route::put('/cart/{id}', [CartController::class, 'update']);
-    Route::delete('/cart/{id}', [CartController::class, 'destroy']);
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::get('/cart', [CartController::class, 'index']);
+        Route::post('/cart', [CartController::class, 'store']);
+        Route::put('/cart/{id}', [CartController::class, 'update']);
+        Route::delete('/cart/{id}', [CartController::class, 'destroy']);
+    });
 });
