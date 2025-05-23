@@ -12,7 +12,7 @@ class CartController extends Controller
     // Lấy danh sách sản phẩm trong giỏ hàng
     public function index()
     {
-        $userId = Auth::id() ?? 1;
+        $userId = Auth::id();
 
         $cartItems = CartItem::with('product')
             ->where('user_id', $userId)
@@ -31,7 +31,7 @@ class CartController extends Controller
         ]);
 
 
-        $userId = Auth::id() ?? 1;
+        $userId = Auth::id();
 
         // Kiểm tra sản phẩm có tồn tại trong giỏ hàng chưa
         $cartItem = CartItem::where('user_id', $userId)
@@ -63,7 +63,7 @@ class CartController extends Controller
     }
     public function update(Request $request, $id)
     {
-        $userId = Auth::id() ?? 1;
+        $userId = Auth::id();
         $cartItem = CartItem::where('user_id', $userId)->where('id', $id)->first();
 
         if (!$cartItem) {
@@ -79,7 +79,7 @@ class CartController extends Controller
     // Xóa sản phẩm khỏi giỏ hàng
     public function destroy($id)
     {
-        $userId = Auth::id() ?? 1;
+        $userId = Auth::id();
 
         $cartItem = CartItem::where('user_id', $userId)->where('id', $id)->first();
 
