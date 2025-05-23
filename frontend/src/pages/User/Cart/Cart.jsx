@@ -5,7 +5,7 @@ const Cart = () => {
   const [cartItems, setCartItems] = useState([]);
 
   // Lấy token 1 lần duy nhất khi component được tạo
-  const token = JSON.parse(localStorage.getItem("token")); // hoặc JSON.parse nếu bạn lưu dưới dạng JSON string
+  const token = JSON.parse(localStorage.getItem("token"));
 
   useEffect(() => {
     const fetchCartItems = async () => {
@@ -14,7 +14,7 @@ const Cart = () => {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`, // Dùng biến token ở đây
+            Authorization: `Bearer ${token}`,
           },
         });
 
@@ -30,7 +30,7 @@ const Cart = () => {
     };
 
     fetchCartItems();
-  }, [token]); // Thêm token làm dependency (thường token không đổi)
+  }, [token]);
 
   // Cập nhật số lượng sản phẩm
   const handleQuantityChange = async (id, delta) => {
