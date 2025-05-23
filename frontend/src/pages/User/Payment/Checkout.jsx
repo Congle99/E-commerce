@@ -26,14 +26,13 @@ const Checkout = () => {
   // Fetch danh sách sản phẩm từ giỏ hàng
   useEffect(() => {
     const fetchCartItems = async () => {
+      const token = JSON.parse(localStorage.getItem("token"));
       try {
         const response = await fetch("http://localhost:8000/api/cart", {
-          method: "GET",
           headers: {
-            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
           },
         });
-
         if (response.ok) {
           const data = await response.json();
           setCartItems(data);
@@ -59,6 +58,7 @@ const Checkout = () => {
   // Áp dụng mã giảm giá
   const handleApplyPromoCode = async () => {
     setError("");
+    const token = JSON.parse(localStorage.getItem("token"));
     try {
       const response = await fetch(
         "http://localhost:8000/api/promotion-codes/validate",
@@ -66,6 +66,7 @@ const Checkout = () => {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({ code: promoCode }),
         }
@@ -95,7 +96,24 @@ const Checkout = () => {
     setError("");
     setIsSubmitting(true);
 
-    // Định dạng lại data gửi về backend
+    const hasErrors = Object.entries(validationRules).some(([key, rule]) => {
+      const value = formData[key];
+      if (!rule.regex.test(value)) {
+        setFormErrors((prev) => ({
+          ...prev,
+          [key]: rule.message,
+        }));
+        return true;
+      }
+      return false;
+    });
+
+    if (hasErrors) {
+      setError("Vui lòng kiểm tra lại thông tin.");
+      setIsSubmitting(false);
+      return;
+    }
+
     const payload = {
       cart_items: cartItems.map((item) => ({
         product_id: item.product.id,
@@ -115,8 +133,10 @@ const Checkout = () => {
         note: formData.note,
       },
       payment_method: formData.paymentMethod,
-      promotion_code: promoCode ? promoCode : undefined,
+      promotion_code: promoCode || undefined,
     };
+
+    const token = JSON.parse(localStorage.getItem("token"));
 
     try {
       const response = await fetch("http://localhost:8000/api/checkout", {
@@ -124,6 +144,7 @@ const Checkout = () => {
         headers: {
           "Content-Type": "application/json",
           Accept: "application/json",
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(payload),
       });
