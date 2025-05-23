@@ -72,6 +72,9 @@ Route::prefix('api')->middleware(['api'])->group(function () {
     Route::post('/promotion-codes', [PromotionCodeController::class, 'store'])->name('promotion-codes.store');
     Route::put('/promotion-codes/{id}', [PromotionCodeController::class, 'update'])->name('promotion-codes.update');
     Route::delete('/promotion-codes/{id}', [PromotionCodeController::class, 'destroy']);
+    Route::post('/promotion-codes/validate', [PromotionCodeController::class, 'validatePromotionCode'])->name('promotion-codes.validate');
+    Route::post('/promotion-codes/confirm', [PromotionCodeController::class, 'confirmPayment'])->name('promotion-codes.confirm');
+
 
     Route::middleware('auth:sanctum')->group(function () {
         Route::get('/cart', [CartController::class, 'index']);
@@ -79,4 +82,6 @@ Route::prefix('api')->middleware(['api'])->group(function () {
         Route::put('/cart/{id}', [CartController::class, 'update']);
         Route::delete('/cart/{id}', [CartController::class, 'destroy']);
     });
+        Route::post('/checkout', [OrderController::class, 'createOrder'])->name('orders.createOrder');
+
 });

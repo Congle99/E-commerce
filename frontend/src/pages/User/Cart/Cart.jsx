@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from "react";
 import "./Cart.scss";
+import { useNavigate } from "react-router-dom";
 
 const Cart = () => {
   const [cartItems, setCartItems] = useState([]);
+  const navigate = useNavigate();
 
   // Lấy token 1 lần duy nhất khi component được tạo
   const token = JSON.parse(localStorage.getItem("token"));
@@ -52,7 +54,12 @@ const Cart = () => {
       if (response.ok) {
         setCartItems((prev) =>
           prev.map((item) =>
-            item.id === id ? { ...item, quantity: newQuantity } : item
+            item.id === id
+              ? {
+                  ...item,
+                  quantity: newQuantity,
+                }
+              : item
           )
         );
       } else {
@@ -81,6 +88,14 @@ const Cart = () => {
     } catch (error) {
       console.error("Error removing item:", error);
     }
+  };
+
+  // Tính tổng tiền
+  const calculateTotal = () => {
+    return cartItems.reduce(
+      (total, item) => total + item.product.price * item.quantity,
+      0
+    );
   };
 
   const formatCurrency = (value) => {
@@ -142,6 +157,12 @@ const Cart = () => {
           ))}
         </tbody>
       </table>
+
+      {/* Tổng tiền */}
+      <div className="cart-total">
+        <p>Tổng tiền: {formatCurrency(calculateTotal())}</p>
+        <button onClick={() => navigate("/checkout")}>Thanh Toán</button>
+      </div>
     </div>
   );
 };
