@@ -46,12 +46,22 @@ const ProductDetail = () => {
   }, [product]);
 
   const handleAddToCart = () => {
+    console.log("token nè", JSON.parse(localStorage.getItem("userToken")));
+    const token = JSON.parse(localStorage.getItem("token"));
+    console.log("token nè", token);
     http
-      .post("/cart", {
-        user_id: fakeUserId,
-        product_id: id,
-        quantity: quantity,
-      })
+      .post(
+        "/cart",
+        {
+          product_id: id,
+          quantity: quantity,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      )
       .then(() => {
         alert(`Đã thêm ${quantity} sản phẩm vào giỏ hàng thành công!`);
       })
@@ -114,7 +124,10 @@ const ProductDetail = () => {
       <div className="row">
         {/* Hình ảnh sản phẩm */}
         <div className="col-md-6 image-section">
-          <div className="magnify-wrapper" style={{ position: "relative", zIndex: 100 }}>
+          <div
+            className="magnify-wrapper"
+            style={{ position: "relative", zIndex: 100 }}
+          >
             <TransformWrapper
               initialScale={1}
               minScale={0.5}
