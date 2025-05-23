@@ -128,13 +128,13 @@ const Login = () => {
                                             <label htmlFor="remember">Nhớ mật khẩu</label>
                                         </span>
                                         <span className="forgot-login f-right">
-                                            <a href="#">Quên mật khẩu?</a>
+                                            <a href="/forgetPassword">Quên mật khẩu?</a>
                                         </span>
                                     </div>
                                     <button className="btn theme-btn-2 w-100" type="submit" disabled={loading}>
                                         {loading ? 'Đang đăng nhập...' : 'Đăng nhập'}
                                     </button>
-                                    <div className="or-divide"><span>or</span></div>
+                                    <div className="or-divide"><span>hoặc</span></div>
                                     <button className="btn theme-btn w-100" type="button" onClick={() => navigate('/register')}>
                                         Đăng ký
                                     </button>

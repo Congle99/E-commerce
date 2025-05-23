@@ -26,7 +26,7 @@ public function login(Request $request)
             'password' => 'required|string',
         ]);
 
-        // Lấy thông tin người dùng bằng email hoặc username
+        // Có thể đăng nhập bằng email hoặc username
         $user = User::where('email', $request->account)
                     ->orWhere('username', $request->account) 
                     ->first();
@@ -35,6 +35,7 @@ public function login(Request $request)
             return response()->json(['success' => false, 'message' => 'Đăng nhập thất bại.'], 401);
         }
 
+        //Tạo token sau đăng nhập 
 $token = $user->createToken('auth_token')->plainTextToken;
 
 return response()->json([
@@ -61,6 +62,7 @@ return response()->json([
 
 }
 
+// Đăng ký tài khoản
 public function register(Request $request)
 
 {
@@ -131,6 +133,58 @@ return response()->json([
 
 ]);
 
+}
+// Xác thực thông tin để cho phép đổi mật khẩu
+public function forgotPasswordCheck(Request $request)
+{
+    $request->validate([
+        'email' => 'required|email',
+        'phone' => 'required|string',
+        'questionpassword' => 'required|string',
+    ]);
+
+    $user = User::where('email', $request->email)
+        ->where('phone', $request->phone)
+        ->where('questionpassword', $request->questionpassword)
+        ->first();
+
+    if (!$user) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Thông tin không chính xác.'
+        ], 404);
+    }
+
+    return response()->json([
+        'success' => true,
+        'message' => 'Xác thực thành công.'
+    ]);
+}
+
+// Đổi mật khẩu mới sau xác thực
+public function resetPassword(Request $request)
+{
+    $request->validate([
+        'email' => 'required|email',
+        'newPassword' => 'required|string|min:8',
+    ]);
+
+    $user = User::where('email', $request->email)->first();
+
+    if (!$user) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Người dùng không tồn tại.'
+        ], 404);
+    }
+
+    $user->password = \Hash::make($request->newPassword);
+    $user->save();
+
+    return response()->json([
+        'success' => true,
+        'message' => 'Mật khẩu đã được đổi thành công.'
+    ]);
 }
 
 }

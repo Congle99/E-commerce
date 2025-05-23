@@ -38,6 +38,8 @@ Route::prefix('api')->middleware(['api'])->group(function () {
         Route::get('/payments', [ProfileController::class, 'getUserPayments']);
     });
 
+    Route::post('/verify-reset', [AuthController::class, 'forgotPasswordCheck']);
+Route::post('/reset-password', [AuthController::class, 'resetPassword']);
     // Test route
     Route::get('/test-route', function () {
         return 'Hello from API route!';
