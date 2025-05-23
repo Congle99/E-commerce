@@ -23,3 +23,5 @@ yarn-error.log
 /.zed
 *.pack
 .eslintcache
+/node_modules
+composer.lock

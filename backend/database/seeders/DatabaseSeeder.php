@@ -34,6 +34,9 @@ class DatabaseSeeder extends Seeder
         Order::factory()->count(15)->create();
 
         Order_Items::factory()->count(50)->create();
+        $this->call([
+            FeedbackSeeder::class,
+        ]);
 
     }
 }

@@ -5,7 +5,7 @@ import InvoicePage from "~/pages/Admin/Invoice/InvoicePage.jsx";
 import OrderDetailPage from "../pages/Admin/OrderDetail/OrderDetailPage.jsx";
 import CompletedOrdersPage from "~/pages/Admin/Invoice/InvoicePage.jsx"; 
 import InvoicePrintPageWrapper from "~/pages/Admin/Invoice/InvoicePrintPageWrapper.jsx";
-
+import FeedbackPage from "~/pages/Admin/Feedback/FeedbackList.jsx";
 
 
 
@@ -18,6 +18,7 @@ const publicRoute = [
     { path: '/invoice/print/:id', component: InvoicePrintPageWrapper },
     {path: '/order/order-details/:id', component: OrderDetailPage},
     { path: "/orders/completed", component: CompletedOrdersPage },
+    { path: '/Feedback', component: FeedbackPage },
     
 ]
 const privateRoute = [
