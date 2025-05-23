@@ -56,7 +56,7 @@ class ProductController extends Controller
     
         // 💰 Lọc theo giá
         if ($request->has('min_price') && $request->has('max_price')) {
-            $query->whereBetween('price', [
+            $query->whereBetween('discount_price', [
                 (int) $request->min_price,
                 (int) $request->max_price,
             ]);
