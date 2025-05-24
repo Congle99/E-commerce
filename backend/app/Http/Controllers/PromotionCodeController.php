@@ -21,6 +21,12 @@ class PromotionCodeController extends Controller
             'valid_from' => 'required|date',
             'valid_to' => 'required|date|after_or_equal:valid_from',
             'usage_limit' => 'nullable|integer|min:1',
+        ], [
+            'code.required' => 'Mã giảm giá là bắt buộc',
+            'code.unique' => 'Mã giảm giá đã tồn tại',
+            'discount_percentage.required' => 'Phần trăm giảm giá là bắt buộc',
+            'valid_from.required' => 'Ngày bắt đầu là bắt buộc',
+            'valid_to.required' => 'Ngày kết thúc là bắt buộc',
         ]);
 
         $promo = PromotionCode::create($request->all());

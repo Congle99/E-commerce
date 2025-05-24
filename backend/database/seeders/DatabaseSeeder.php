@@ -17,27 +17,20 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        $this->call([
-            CategorySeeder::class,
-            // InvoiceSeeder::class
-        ]);
-        $this->call([
-            PromotionCodeSeeder::class,
-        ]);
-        User::factory()->count(10)->create();
-
-        User::factory()->create([
-            'email' => 'admin@example.com',
-            'password' => Hash::make('admin123'),
-            'role' => 'admin',
-        ]);
+        // $this->call([
+        //     CategorySeeder::class,
+        //     // InvoiceSeeder::class
+        // ]);
+        // $this->call([
+        //     PromotionCodeSeeder::class,
+        // ]);
         Product::factory()->count(20)->create();
 
-        Order::factory()->count(15)->create();
+        // Order::factory()->count(15)->create();
 
-        Order_Items::factory()->count(50)->create();
-        $this->call([
-            CartItemSeeder::class,
-        ]);
+        // Order_Items::factory()->count(50)->create();
+        // $this->call([
+        //     CartItemSeeder::class,
+        // ]);
     }
 }
