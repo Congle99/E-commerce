@@ -30,16 +30,23 @@ Route::prefix('api')->middleware(['api'])->group(function () {
     // Auth routes
     Route::post('/register', [AuthController::class, 'register']);
     Route::post('/login', [AuthController::class, 'login']);
+    Route::post('/verify-reset', [AuthController::class, 'forgotPasswordCheck']);
+    Route::post('/reset-password', [AuthController::class, 'resetPassword']);
 
     // User profile routes với prefix
     Route::prefix('user')->group(function () {
-        Route::post('/profile', [ProfileController::class, 'getUserProfile']);
+        Route::get('/profile', [ProfileController::class, 'getUserProfile']);
+        Route::get('/payments', [ProfileController::class, 'getUserPayments']);
+        Route::put('/update', [ProfileController::class, 'update']);
+        Route::put('/question', [ProfileController::class, 'updateQuestion']);
+        Route::put('/password', [ProfileController::class, 'updatePassword']);  
+        Route::delete('/delete', [ProfileController::class, 'deleteAccount']);
+        //Routes lấy đơn hàng Orders
         Route::get('/orders', [ProfileController::class, 'getUserOrders']);
+        //Routes lấy giao dịch Payments
         Route::get('/payments', [ProfileController::class, 'getUserPayments']);
     });
 
-    Route::post('/verify-reset', [AuthController::class, 'forgotPasswordCheck']);
-Route::post('/reset-password', [AuthController::class, 'resetPassword']);
     // Test route
     Route::get('/test-route', function () {
         return 'Hello from API route!';

@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom'; // Import useNavigate
 import Api from '~/components/Api.jsx';
 import './ForgetPassword.scss';
 
 const ForgetPassword = () => {
     const { http } = Api();
+    const navigate = useNavigate(); // Khởi tạo useNavigate
 
     const [email, setEmail] = useState('');
     const [phone, setPhone] = useState('');
@@ -64,6 +66,7 @@ const ForgetPassword = () => {
             if (response.data.success) {
                 setMessage('Mật khẩu đã được thay đổi thành công.');
                 setIsVerified(false);
+                navigate('/login'); // Chuyển hướng tới trang login
             } else {
                 setError(response.data.message || 'Đổi mật khẩu thất bại.');
             }
