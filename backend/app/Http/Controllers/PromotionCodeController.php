@@ -15,8 +15,8 @@ class PromotionCodeController extends Controller
     }
     public function store(Request $request)
     {
-        $request->validate([
-            'code' => 'required|string|unique:promotion_codes',
+        $validated = $request->validate([
+            'code' => 'required|string|max:30|unique:promotion_codes',
             'discount_percentage' => 'required|integer|min:1|max:100',
             'valid_from' => 'required|date',
             'valid_to' => 'required|date|after_or_equal:valid_from',
@@ -24,12 +24,23 @@ class PromotionCodeController extends Controller
         ], [
             'code.required' => 'Mã giảm giá là bắt buộc',
             'code.unique' => 'Mã giảm giá đã tồn tại',
+            'code.max' => 'Mã giảm giá không được vượt quá 30 ký tự',
             'discount_percentage.required' => 'Phần trăm giảm giá là bắt buộc',
             'valid_from.required' => 'Ngày bắt đầu là bắt buộc',
             'valid_to.required' => 'Ngày kết thúc là bắt buộc',
         ]);
 
-        $promo = PromotionCode::create($request->all());
+        // Chuẩn hóa input code: trim và chuyển về in hoa (nếu cần)
+        $validated['code'] = strtoupper(trim($validated['code']));
+
+        $promo = PromotionCode::create([
+            'code' => $validated['code'],
+            'discount_percentage' => $validated['discount_percentage'],
+            'valid_from' => $validated['valid_from'],
+            'valid_to' => $validated['valid_to'],
+            'usage_limit' => $validated['usage_limit'] ?? null,
+        ]);
+
         return response()->json($promo, 201);
     }
     public function update(Request $request, $id)
@@ -37,13 +48,20 @@ class PromotionCodeController extends Controller
         // Lấy bản ghi hiện tại
         $promotionCode = PromotionCode::findOrFail($id);
 
-        // Quy tắc xác thực
+        // Quy tắc xác thực và thông báo lỗi
         $request->validate([
-            'code' => 'required|string|unique:promotion_codes,code,' . $promotionCode->id,
+            'code' => 'required|string|max:30|unique:promotion_codes,code,' . $promotionCode->id,
             'discount_percentage' => 'required|integer|min:1|max:100',
             'valid_from' => 'required|date',
             'valid_to' => 'required|date|after_or_equal:valid_from',
             'usage_limit' => 'nullable|integer|min:1',
+        ], [
+            'code.required' => 'Mã giảm giá là bắt buộc',
+            'code.unique' => 'Mã giảm giá đã tồn tại',
+            'code.max' => 'Mã giảm giá không được vượt quá 30 ký tự',
+            'discount_percentage.required' => 'Phần trăm giảm giá là bắt buộc',
+            'valid_from.required' => 'Ngày bắt đầu là bắt buộc',
+            'valid_to.required' => 'Ngày kết thúc là bắt buộc',
         ]);
 
         // Cập nhật dữ liệu
