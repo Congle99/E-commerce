@@ -14,12 +14,13 @@ const Login = () => {
   const [loggedIn, setLoggedIn] = useState(false);
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem('token');
     if (token) {
       setLoggedIn(true);
     }
   }, []);
 
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -34,8 +35,14 @@ const Login = () => {
 
       if (response.data.success) {
         // Lưu thông tin user vào localStorage
-        localStorage.setItem("user", JSON.stringify(response.data.user));
-        localStorage.setItem("token", JSON.stringify(response.data.token));
+       // localStorage.setItem("user", JSON.stringify(response.data.user));
+       // localStorage.setItem("token", JSON.stringify(response.data.token));
+        // sau khi đăng nhập thành công:
+localStorage.setItem('token', response.data.token); // Lưu token
+localStorage.setItem('user', JSON.stringify(response.data.user)); // Lưu thông tin user
+        // 🔔 Phát sự kiện login để các component khác biết
+        window.dispatchEvent(new Event("userLoggedIn"));
+
         console.log("User data:", response);
         const role = response.data.user.role;
         if (role === "admin") {

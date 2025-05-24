@@ -107,7 +107,6 @@ const Products = ({
                 <option value="">-- Sắp xếp theo --</option>
                 <option value="asc">Giá: Thấp đến Cao</option>
                 <option value="desc">Giá: Cao đến Thấp</option>
-                <option value="discount_desc">Giảm giá: Cao đến Thấp (chưa) </option>
               </select>
             </div>
           </div>

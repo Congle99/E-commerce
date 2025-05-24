@@ -1,86 +1,110 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import Api from '~/components/Api.jsx';
 import './ProfileUser.scss';
 
 const ProfileUser = () => {
     const navigate = useNavigate();
     const { http } = Api();
-    const [userData, setUserData] = useState({
-        email: '',
-        role: ''
+
+    // trạng thái user, đơn hàng, thanh toán
+    const [userData, setUserData] = useState({ id: null, email: '', role: '' });
+    const [profileInfo, setProfileInfo] = useState(null);
+    const [isEditMode, setIsEditMode] = useState(false);
+    const [formData, setFormData] = useState({
+        first_name: '',
+        last_name: '',
+        company_name: '',
+        address: '',
+        phone: '',
+        city: '',
+        district: '',
+        ward: '',
     });
+    const [showForm, setShowForm] = useState(false);
     const [orders, setOrders] = useState([]);
     const [payments, setPayments] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [activeTab, setActiveTab] = useState('profile');
 
-    // Fetch user data
+    // Kiểm tra token, nếu không có thì chuyển về login
     useEffect(() => {
-        const fetchUserData = async () => {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            navigate('/login');
+        }
+    }, [navigate]);
+
+    // Lấy thông tin user từ localStorage
+    useEffect(() => {
+        const storedUser = localStorage.getItem('user');
+        if (storedUser) {
+            setUserData(JSON.parse(storedUser));
+        }
+        setLoading(false);
+    }, []);
+
+    // Lấy thông tin cá nhân khi userData.id có giá trị
+    useEffect(() => {
+        const fetchProfileInfo = async () => {
+            setLoading(true);
             try {
-                // Lấy user_id từ localStorage
-                const userInfo = JSON.parse(localStorage.getItem('user'));
-                if (!userInfo) {
-                    // Nếu không có thông tin user, chuyển hướng về trang login
-                    navigate('/login');
-                    return;
-                }
-                
-                // Trong quá trình phát triển, sử dụng dữ liệu giả
-                // Sau này, khi API sẵn sàng, sử dụng code bên dưới để gọi API thực tế
-                /*
-                const response = await http.post('/user/profile', { user_id: userInfo.id });
-                setUserData(response.data);
-                */
-                
-                // Dữ liệu giả mạo
-                setUserData({
-                    id: userInfo.id,
-                    email: userInfo.email,
-                    role: userInfo.role
-                });
-                
-                setLoading(false);
+                const response = await http.get('/user/profile-info');
+                setProfileInfo(response.data);
             } catch (err) {
-                setError('Failed to fetch user data');
-                console.error(err);
+                console.log('Chưa có thông tin cá nhân hoặc lỗi lấy dữ liệu');
+            } finally {
                 setLoading(false);
             }
         };
 
-        fetchUserData();
-    }, []);
+        if (userData.id) {
+            fetchProfileInfo();
+        }
+    }, [userData, http]);
 
-    // Fetch orders
+    // Khi có profileInfo thì khởi tạo lại formData cho form sửa/thêm
+    useEffect(() => {
+        if (profileInfo) {
+            setFormData({
+                first_name: profileInfo.first_name || '',
+                last_name: profileInfo.last_name || '',
+                company_name: profileInfo.company_name || '',
+                address: profileInfo.address || '',
+                phone: profileInfo.phone || '',
+                city: profileInfo.city || '',
+                district: profileInfo.district || '',
+                ward: profileInfo.ward || '',
+            });
+        }
+    }, [profileInfo]);
+
+    // Lấy đơn hàng khi tab orders được chọn
     useEffect(() => {
         const fetchOrders = async () => {
+            setLoading(true);
             try {
-                // Sử dụng dữ liệu giả cho orders
-                /*
-                const response = await http.get('/user/orders');
-                setOrders(response.data);
-                */
-                
-                // Dữ liệu giả mạo
+                // Thay bằng call API thật nếu có
                 setOrders([
                     {
                         id: 1,
                         total_price: 1500000,
                         status: 'Completed',
-                        created_at: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString()
+                        created_at: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
                     },
                     {
                         id: 2,
                         total_price: 750000,
                         status: 'Processing',
-                        created_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString()
-                    }
+                        created_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+                    },
                 ]);
             } catch (err) {
-                setError('Failed to fetch orders');
+                setError('Lấy đơn hàng thất bại');
                 console.error(err);
+            } finally {
+                setLoading(false);
             }
         };
 
@@ -89,36 +113,33 @@ const ProfileUser = () => {
         }
     }, [activeTab]);
 
-    // Fetch payments
+    // Lấy thanh toán khi tab payments được chọn
     useEffect(() => {
         const fetchPayments = async () => {
+            setLoading(true);
             try {
-                // Sử dụng dữ liệu giả cho payments
-                /*
-                const response = await http.get('/user/payments');
-                setPayments(response.data);
-                */
-                
-                // Dữ liệu giả mạo
+                // Thay bằng call API thật nếu có
                 setPayments([
                     {
                         payment_id: 1,
                         order_id: 1,
                         payment_method: 'Credit Card',
                         payment_status: 1,
-                        payment_date: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString()
+                        payment_date: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
                     },
                     {
                         payment_id: 2,
                         order_id: 2,
                         payment_method: 'Bank Transfer',
                         payment_status: 0,
-                        payment_date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString()
-                    }
+                        payment_date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+                    },
                 ]);
             } catch (err) {
-                setError('Failed to fetch payments');
+                setError('Lấy thông tin thanh toán thất bại');
                 console.error(err);
+            } finally {
+                setLoading(false);
             }
         };
 
@@ -127,28 +148,196 @@ const ProfileUser = () => {
         }
     }, [activeTab]);
 
+    // Xử lý input form
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setFormData((prev) => ({ ...prev, [name]: value }));
+    };
+
+    // Gửi form cập nhật thông tin cá nhân và cập nhật
+    const handleFormSubmit = async (e) => {
+        e.preventDefault();
+        try {
+            const response = await http.post('/user/profile-info', formData); // Dùng chung API
+            setProfileInfo(response.data);
+            setShowForm(false);
+            setIsEditMode(false);
+        } catch (err) {
+            console.error('Lỗi khi gửi thông tin cá nhân', err);
+        }
+    };
+
+
+    // Đăng xuất
     const handleLogout = () => {
         localStorage.removeItem('user');
+        localStorage.removeItem('token');
         navigate('/login');
     };
 
+    // Render thông tin cá nhân
+    const renderProfileInfo = () => (
+        <div className="user-info">
+            <div className="info-item">
+                <label>Họ tên:</label> <span>{profileInfo.first_name} {profileInfo.last_name}</span>
+            </div>
+            <div className="info-item">
+                <label>Email:</label> <span>{userData.email}</span>
+            </div>
+            <div className="info-item">
+                <label>SĐT:</label> <span>{profileInfo.phone}</span>
+            </div>
+            <div className="info-item">
+                <label>Địa chỉ:</label> <span>{profileInfo.address}, {profileInfo.ward}, {profileInfo.district}, {profileInfo.city}</span>
+            </div>
+            <div className="info-item">
+                <label>Công ty:</label> <span>{profileInfo.company_name || 'Không có'}</span>
+            </div>
+            <div className="info-item">
+                <button className="btn btn-outline-warning mt-3" onClick={() => {
+                    setIsEditMode(true);
+                    setShowForm(true);
+                }}>
+                    Chỉnh sửa thông tin
+                </button>
+            </div>
+        </div>
+    );
+
+    // Form thêm/sửa thông tin cá nhân với input có value và onChange để controlled
+  const renderForm = () => (
+  <form onSubmit={handleFormSubmit} className="user-form">
+    <div className="row">
+      <div className="col-md-6">
+        <label htmlFor="first_name">Họ <span style={{color: 'red'}}>*</span></label>
+        <input
+          id="first_name"
+          type="text"
+          name="first_name"
+          placeholder="Họ"
+          value={formData.first_name}
+          onChange={handleInputChange}
+          required
+        />
+      </div>
+      <div className="col-md-6">
+        <label htmlFor="last_name">Tên <span style={{color: 'red'}}>*</span></label>
+        <input
+          id="last_name"
+          type="text"
+          name="last_name"
+          placeholder="Tên"
+          value={formData.last_name}
+          onChange={handleInputChange}
+          required
+        />
+      </div>
+      <div className="col-md-6">
+        <label htmlFor="phone">Số điện thoại <span style={{color: 'red'}}>*</span></label>
+        <input
+          id="phone"
+          type="text"
+          name="phone"
+          placeholder="Số điện thoại"
+          value={formData.phone}
+          onChange={handleInputChange}
+          required
+        />
+      </div>
+      <div className="col-md-12">
+        <label htmlFor="company_name">Tên công ty (tuỳ chọn)</label>
+        <input
+          id="company_name"
+          type="text"
+          name="company_name"
+          placeholder="Tên công ty (tuỳ chọn)"
+          value={formData.company_name}
+          onChange={handleInputChange}
+        />
+      </div>
+      <div className="col-md-12">
+        <label htmlFor="address">Địa chỉ <span style={{color: 'red'}}>*</span></label>
+        <input
+          id="address"
+          type="text"
+          name="address"
+          placeholder="Địa chỉ"
+          value={formData.address}
+          onChange={handleInputChange}
+          required
+        />
+      </div>
+      <div className="col-md-4">
+        <label htmlFor="ward">Phường/xã <span style={{color: 'red'}}>*</span></label>
+        <input
+          id="ward"
+          type="text"
+          name="ward"
+          placeholder="Phường/xã"
+          value={formData.ward}
+          onChange={handleInputChange}
+          required
+        />
+      </div>
+      <div className="col-md-4">
+        <label htmlFor="district">Quận/huyện <span style={{color: 'red'}}>*</span></label>
+        <input
+          id="district"
+          type="text"
+          name="district"
+          placeholder="Quận/huyện"
+          value={formData.district}
+          onChange={handleInputChange}
+          required
+        />
+      </div>
+      <div className="col-md-4">
+        <label htmlFor="city">Tỉnh/thành <span style={{color: 'red'}}>*</span></label>
+        <input
+          id="city"
+          type="text"
+          name="city"
+          placeholder="Tỉnh/thành"
+          value={formData.city}
+          onChange={handleInputChange}
+          required
+        />
+      </div>
+
+      <div className="col-md-12 mt-3">
+        <button type="submit" className="btn btn-primary">
+          {isEditMode ? 'Cập nhật' : 'Hoàn thành'}
+        </button>
+      </div>
+    </div>
+  </form>
+);
+
+
+    // Render nội dung theo tab
     const renderContent = () => {
+        if (loading) {
+            return (
+                <div className="text-center">
+                    <div className="spinner-border text-primary" role="status">
+                        <span className="sr-only">Đang tải...</span>
+                    </div>
+                </div>
+            );
+        }
+
         switch (activeTab) {
             case 'profile':
                 return (
                     <div className="profile-content">
                         <h3 className="mb-4">Thông tin cá nhân</h3>
-                        {error && <div className="alert alert-danger">{error}</div>}
-                        <div className="user-info">
-                            <div className="info-item">
-                                <label>Email:</label>
-                                <span>{userData.email}</span>
-                            </div>
-                            <div className="info-item">
-                                <label>Vai trò:</label>
-                                <span>{userData.role === 'admin' ? 'Quản trị viên' : 'Người dùng'}</span>
-                            </div>
-                        </div>
+                        {profileInfo ? renderProfileInfo() : <p>Bạn chưa có thông tin cá nhân.</p>}
+                        {!profileInfo && !showForm && (
+                            <button className="btn btn-outline-primary mt-3" onClick={() => setShowForm(true)}>
+                                Thêm thông tin cá nhân
+                            </button>
+                        )}
+                        {showForm && renderForm()}
                     </div>
                 );
             case 'orders':
@@ -169,7 +358,7 @@ const ProfileUser = () => {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {orders.map(order => (
+                                        {orders.map((order) => (
                                             <tr key={order.id}>
                                                 <td>{order.id}</td>
                                                 <td>{order.total_price.toLocaleString()} VNĐ</td>
@@ -206,7 +395,7 @@ const ProfileUser = () => {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {payments.map(payment => (
+                                        {payments.map((payment) => (
                                             <tr key={payment.payment_id}>
                                                 <td>{payment.payment_id}</td>
                                                 <td>{payment.order_id}</td>
@@ -234,84 +423,45 @@ const ProfileUser = () => {
 
     return (
         <main>
-            <section className="breadcrumb-area" style={{ backgroundImage: 'url(img/bg/page-title.png)' }}>
-                <div className="container">
-                    <div className="row">
-                        <div className="col-xl-12">
-                            <div className="breadcrumb-text text-center">
-                                <h1>Thông tin người dùng</h1>
-                                <ul className="breadcrumb-menu">
-                                    <li><a href="/">Trang chủ</a></li>
-                                    <li><span>Thông tin người dùng</span></li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
+            <div className="profile container">
+                <div className="profile-header d-flex justify-content-between align-items-center">
+                    <h2>Xin chào, {userData.email || 'Người dùng'}</h2>
+                    <button className="btn btn-danger" onClick={handleLogout}>
+                        Đăng xuất
+                    </button>
                 </div>
-            </section>
 
-            <section className="profile-area pt-100 pb-100">
-                <div className="container">
-                    <div className="row">
-                        <div className="col-lg-3">
-                            <div className="profile-sidebar">
-                                <div className="profile-user text-center mb-4">
-                                    <div className="profile-avatar">
-                                        <img 
-                                            src="https://via.placeholder.com/150" 
-                                            alt="Avatar" 
-                                            className="rounded-circle"
-                                            width="100"
-                                        />
-                                    </div>
-                                    <h4 className="mt-3">{userData.email}</h4>
-                                    <p className="text-muted">{userData.role === 'admin' ? 'Quản trị viên' : 'Người dùng'}</p>
-                                </div>
-                                
-                                <nav className="profile-menu">
-                                    <ul>
-                                        <li 
-                                            className={activeTab === 'profile' ? 'active' : ''}
-                                            onClick={() => setActiveTab('profile')}
-                                        >
-                                            <i className="fas fa-user"></i> Thông tin cá nhân
-                                        </li>
-                                        <li 
-                                            className={activeTab === 'orders' ? 'active' : ''}
-                                            onClick={() => setActiveTab('orders')}
-                                        >
-                                            <i className="fas fa-shopping-bag"></i> Đơn hàng
-                                        </li>
-                                        <li 
-                                            className={activeTab === 'payments' ? 'active' : ''}
-                                            onClick={() => setActiveTab('payments')}
-                                        >
-                                            <i className="fas fa-credit-card"></i> Thanh toán
-                                        </li>
-                                        <li onClick={handleLogout}>
-                                            <i className="fas fa-sign-out-alt"></i> Đăng xuất
-                                        </li>
-                                    </ul>
-                                </nav>
-                            </div>
-                        </div>
-                        
-                        <div className="col-lg-9">
-                            <div className="profile-main">
-                                {loading ? (
-                                    <div className="text-center">
-                                        <div className="spinner-border text-primary" role="status">
-                                            <span className="sr-only">Loading...</span>
-                                        </div>
-                                    </div>
-                                ) : (
-                                    renderContent()
-                                )}
-                            </div>
-                        </div>
-                    </div>
+                <nav className="profile-nav nav nav-tabs mb-4">
+                    <button
+                        className={`nav-link ${activeTab === 'profile' ? 'active' : ''}`}
+                        onClick={() => setActiveTab('profile')}
+                    >
+                        Hồ sơ
+                    </button>
+                    <button
+                        className={`nav-link ${activeTab === 'orders' ? 'active' : ''}`}
+                        onClick={() => setActiveTab('orders')}
+                    >
+                        Đơn hàng
+                    </button>
+                    <button
+                        className={`nav-link ${activeTab === 'payments' ? 'active' : ''}`}
+                        onClick={() => setActiveTab('payments')}
+                    >
+                        Thanh toán
+                    </button>
+                </nav>
+
+                {error && <div className="alert alert-danger">{error}</div>}
+
+                {renderContent()}
+
+                <div className="mt-5">
+                    <Link to="/" className="btn btn-secondary">
+                        Quay lại trang chủ
+                    </Link>
                 </div>
-            </section>
+            </div>
         </main>
     );
 };

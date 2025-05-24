@@ -18,7 +18,20 @@ const ProductDetail = () => {
   const [reviews, setReviews] = useState([]);
   const [newRating, setNewRating] = useState(5);
   const [newComment, setNewComment] = useState("");
-  const [fakeUserId] = useState(1); // Tạm thời dùng ID cố định để test gửi đánh giá
+  const [editingReviewId, setEditingReviewId] = useState(null);
+  const [currentUserId, setCurrentUserId] = useState(null);
+
+  useEffect(() => {
+    const token = JSON.parse(localStorage.getItem("token"));
+    if (token) {
+      http
+        .get("/user", {
+          headers: { Authorization: `Bearer ${token}` },
+        })
+        .then((res) => setCurrentUserId(res.data.id))
+        .catch((err) => console.error("Không thể lấy user:", err));
+    }
+  }, []);
 
   useEffect(() => {
     http
@@ -26,6 +39,7 @@ const ProductDetail = () => {
       .then((res) => setReviews(res.data))
       .catch((err) => console.error("Lỗi khi tải đánh giá:", err));
   }, [id]);
+
 
   useEffect(() => {
     http
@@ -46,9 +60,11 @@ const ProductDetail = () => {
   }, [product]);
 
   const handleAddToCart = () => {
-    console.log("token nè", JSON.parse(localStorage.getItem("userToken")));
     const token = JSON.parse(localStorage.getItem("token"));
-    console.log("token nè", token);
+    if (!token) {
+      alert("Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng.");
+      return;
+    }
     http
       .post(
         "/cart",
@@ -71,35 +87,75 @@ const ProductDetail = () => {
       });
   };
 
-  const handleSubmitReview = () => {
-    if (!newComment.trim()) return alert("Vui lòng nhập nội dung đánh giá.");
+   const handleEditReview = (review) => {
+    setNewRating(review.rating);
+    setNewComment(review.comment);
+    setEditingReviewId(review.review_id);
+  };
 
+  const handleDeleteReview = (reviewId) => {
+    if (!window.confirm("Bạn có chắc chắn muốn xóa đánh giá này không?")) return;
+    const token = JSON.parse(localStorage.getItem("token"));
     http
-      .post("/reviews", {
-        user_id: fakeUserId,
-        product_id: id,
-        rating: newRating,
-        comment: newComment,
+      .delete(`/reviews/${reviewId}`, {
+        headers: { Authorization: `Bearer ${token}` },
       })
       .then(() => {
-        alert("Gửi đánh giá thành công!");
-        setNewComment("");
-        return http.get(`/reviews/${id}`);
+        setReviews((prev) => prev.filter((r) => r.review_id !== reviewId));
+        alert("Xóa đánh giá thành công.");
       })
-      .then((res) => setReviews(res.data))
-      .catch((err) => {
-        console.error("Lỗi khi gửi đánh giá:", err);
-        alert("Gửi đánh giá thất bại.");
-      });
+      .catch(() => alert("Không thể xóa đánh giá."));
   };
+
+ const handleSubmitReview = async (e) => {
+    e.preventDefault();
+    if (!newComment.trim()) return alert("Vui lòng nhập nội dung đánh giá.");
+
+    const token = JSON.parse(localStorage.getItem("token"));
+    if (!token) return alert("Vui lòng đăng nhập để gửi đánh giá.");
+
+    try {
+      if (editingReviewId) {
+        await http.put(
+          `/reviews/${editingReviewId}`,
+          {
+            product_id: id,
+            rating: newRating,
+            comment: newComment,
+          },
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        alert("Cập nhật đánh giá thành công!");
+        setEditingReviewId(null);
+      } else {
+        await http.post(
+          "/reviews",
+          {
+            product_id: id,
+            rating: newRating,
+            comment: newComment,
+          },
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        alert("Gửi đánh giá thành công!");
+      }
+
+      setNewComment("");
+      setNewRating(5);
+      const res = await http.get(`/reviews/${id}`);
+      setReviews(res.data);
+    } catch {
+      alert("Gửi/Cập nhật đánh giá thất bại.");
+    }
+  };
+
 
   const renderStars = (rating) => {
     return Array.from({ length: 5 }, (_, i) => (
       <i
         key={i}
-        className={`fa-star ${
-          i < rating ? "fas text-warning" : "far text-secondary"
-        }`}
+        className={`fa-star ${i < rating ? "fas text-warning" : "far text-secondary"
+          }`}
       ></i>
     ));
   };
@@ -108,9 +164,8 @@ const ProductDetail = () => {
     return Array.from({ length: 5 }, (_, i) => (
       <i
         key={i}
-        className={`fa-star ${
-          i < newRating ? "fas text-warning" : "far text-secondary"
-        } me-1 star-clickable`}
+        className={`fa-star ${i < newRating ? "fas text-warning" : "far text-secondary"
+          } me-1 star-clickable`}
         onClick={() => setNewRating(i + 1)}
         style={{ cursor: "pointer", fontSize: "20px" }}
       ></i>
@@ -229,6 +284,8 @@ const ProductDetail = () => {
       {/* Đánh giá sản phẩm */}
       <div className="product-reviews mt-5">
         <h3>Đánh giá sản phẩm</h3>
+        <p>Tổng số người đánh giá: {reviews.length}</p>
+
         {reviews.length === 0 ? (
           <p>Chưa có đánh giá nào.</p>
         ) : (
@@ -236,14 +293,25 @@ const ProductDetail = () => {
             <div key={index} className="review-item mb-3">
               <div className="rating mb-1">{renderStars(review.rating)}</div>
               <p>{review.comment}</p>
-              <small>Người đánh giá: {review.user?.name || "Ẩn danh"}</small>
+              <p>Người đánh giá : {review.user?.email || "Ẩn danh"}</p>
+              {review.user?.id === currentUserId && (
+                <div>
+                  <button className="btn btn-sm btn-outline-primary me-2" onClick={() => handleEditReview(review)}>
+                    Sửa
+                  </button>
+                  <button className="btn btn-sm btn-outline-danger" onClick={() => handleDeleteReview(review.review_id)}>
+                    Xóa
+                  </button>
+                </div>
+              )}
+              <hr />
             </div>
           ))
         )}
 
-        {/* Gửi đánh giá */}
-        <div className="submit-review mt-4">
-          <h4>Viết đánh giá của bạn:</h4>
+        {/* Gửi/chỉnh sửa đánh giá */}
+        <form className="submit-review mt-4" onSubmit={handleSubmitReview}>
+          <h4>{editingReviewId ? "Chỉnh sửa đánh giá" : "Viết đánh giá của bạn:"}</h4>
           <div className="mb-2">
             <label>Chọn sao: </label>{" "}
             <span className="ms-2">{renderSelectableStars()}</span>
@@ -255,11 +323,12 @@ const ProductDetail = () => {
             placeholder="Nhận xét của bạn..."
             rows={4}
           />
-          <button className="btn btn-success mt-2" onClick={handleSubmitReview}>
-            Gửi đánh giá
+          <button className="btn btn-success mt-2" type="submit">
+            {editingReviewId ? "Cập nhật đánh giá" : "Gửi đánh giá"}
           </button>
-        </div>
+        </form>
       </div>
+
     </div>
   );
 };
