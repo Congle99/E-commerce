@@ -14,7 +14,6 @@ use App\Http\Controllers\CartController;
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\ProductReviewController;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\UserProfileController;
