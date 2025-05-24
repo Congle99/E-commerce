@@ -15,50 +15,15 @@ use Illuminate\Support\Facades\Auth;
 class OrderController extends Controller
 {
 
-    public function index()
-    {
-        try {
-            $orders = Order::with('user')
-                ->orderBy('created_at', 'desc')
-                ->paginate(10);
-
-            return response()->json([
-                'data' => $orders->items(),
-                'current_page' => $orders->currentPage(),
-                'last_page' => $orders->lastPage(),
-                'total' => $orders->total(),
-            ], 200);
-        } catch (\Exception $e) {
-            return response()->json([
-                'message' => 'Không thể lấy danh sách đơn hàng',
-                'error' => $e->getMessage(),
-            ], 500);
-        }
-    }
-
-    /**
-     * Display a listing of the orders.
-     */
-    // public function index(Request $request)
+    // public function index()
     // {
     //     try {
-    //         // Lấy tham số status từ query string
-    //         $status = $request->query('status');
-
-    //         // Bắt đầu query
-    //         $query = Order::with('user') // Lấy thông tin user liên quan
-    //             ->orderBy('created_at', 'desc'); // Sắp xếp theo ngày tạo mới nhất
-
-    //         // Nếu có status và không phải 'all', thêm điều kiện lọc
-    //         if ($status && $status !== 'all') {
-    //             $query->where('status', $status);
-    //         }
-
-    //         // Phân trang, 10 đơn hàng/trang
-    //         $orders = $query->paginate(10);
+    //         $orders = Order::with('user')
+    //             ->orderBy('created_at', 'desc')
+    //             ->paginate(10);
 
     //         return response()->json([
-    //             'data' => $orders->items(), // Danh sách đơn hàng
+    //             'data' => $orders->items(),
     //             'current_page' => $orders->currentPage(),
     //             'last_page' => $orders->lastPage(),
     //             'total' => $orders->total(),
@@ -70,6 +35,41 @@ class OrderController extends Controller
     //         ], 500);
     //     }
     // }
+
+    /**
+     * Display a listing of the orders.
+     */
+    public function index(Request $request)
+    {
+        try {
+            // Lấy tham số status từ query string
+            $status = $request->query('status');
+
+            // Bắt đầu query
+            $query = Order::with('user') // Lấy thông tin user liên quan
+                ->orderBy('created_at', 'desc'); // Sắp xếp theo ngày tạo mới nhất
+
+            // Nếu có status và không phải 'all', thêm điều kiện lọc
+            if ($status && $status !== 'all') {
+                $query->where('status', $status);
+            }
+
+            // Phân trang, 10 đơn hàng/trang
+            $orders = $query->paginate(10);
+
+            return response()->json([
+                'data' => $orders->items(), // Danh sách đơn hàng
+                'current_page' => $orders->currentPage(),
+                'last_page' => $orders->lastPage(),
+                'total' => $orders->total(),
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Không thể lấy danh sách đơn hàng',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
 
     /**
      * Store a newly created order in storage.
@@ -304,7 +304,7 @@ class OrderController extends Controller
             $order = Order::create([
                 'user_id' => $userId,
                 'total_price' => $finalPrice,
-                'status' => 'pending',
+                'status' => 'Chờ xác nhận',
             ]);
 
             // Lưu chi tiết đơn hàng vào order_items
