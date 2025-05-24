@@ -27,6 +27,43 @@ const ProfileUser = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [activeTab, setActiveTab] = useState('profile');
+    const [errors, setErrors] = useState({});
+    //Hàm kiểm tra dữ liệu
+    const validateForm = () => {
+        const newErrors = {};
+        const noSpecialCharsRegex = /^[a-zA-ZÀ-ỹ0-9\s\-]+$/u;
+        const noDoubleSpacesRegex = / {2,}/;
+
+        const validateTextField = (fieldName, fieldLabel) => {
+            const value = formData[fieldName].trim();
+
+            if (!value) {
+                newErrors[fieldName] = `${fieldLabel} không được để trống.`;
+            } else if (!noSpecialCharsRegex.test(value) || noDoubleSpacesRegex.test(value) || value.length > 30) {
+                newErrors[fieldName] = `${fieldLabel} không hợp lệ.`;
+            }
+        };
+
+        // Áp dụng các ràng buộc cho các trường văn bản
+        validateTextField("first_name", "Họ");
+        validateTextField("last_name", "Tên");
+        validateTextField("address", "Địa chỉ");
+        validateTextField("ward", "Phường/xã");
+        validateTextField("district", "Quận/huyện");
+        validateTextField("city", "Tỉnh/thành");
+
+        // Kiểm tra phone
+        if (!formData.phone.trim()) {
+            newErrors.phone = "Số điện thoại không được để trống.";
+        } else if (!/^\d{10,11}$/.test(formData.phone)) {
+            newErrors.phone = "Số điện thoại phải có 10–11 chữ số.";
+        }
+
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
+
+
 
     // Kiểm tra token, nếu không có thì chuyển về login
     useEffect(() => {
@@ -157,16 +194,18 @@ const ProfileUser = () => {
     // Gửi form cập nhật thông tin cá nhân và cập nhật
     const handleFormSubmit = async (e) => {
         e.preventDefault();
+        if (!validateForm()) return;
+
         try {
-            const response = await http.post('/user/profile-info', formData); // Dùng chung API
+            const response = await http.post('/user/profile-info', formData);
             setProfileInfo(response.data);
             setShowForm(false);
             setIsEditMode(false);
+            setErrors({});
         } catch (err) {
             console.error('Lỗi khi gửi thông tin cá nhân', err);
         }
     };
-
 
     // Đăng xuất
     const handleLogout = () => {
@@ -205,113 +244,142 @@ const ProfileUser = () => {
     );
 
     // Form thêm/sửa thông tin cá nhân với input có value và onChange để controlled
-  const renderForm = () => (
-  <form onSubmit={handleFormSubmit} className="user-form">
-    <div className="row">
-      <div className="col-md-6">
-        <label htmlFor="first_name">Họ <span style={{color: 'red'}}>*</span></label>
-        <input
-          id="first_name"
-          type="text"
-          name="first_name"
-          placeholder="Họ"
-          value={formData.first_name}
-          onChange={handleInputChange}
-          required
-        />
-      </div>
-      <div className="col-md-6">
-        <label htmlFor="last_name">Tên <span style={{color: 'red'}}>*</span></label>
-        <input
-          id="last_name"
-          type="text"
-          name="last_name"
-          placeholder="Tên"
-          value={formData.last_name}
-          onChange={handleInputChange}
-          required
-        />
-      </div>
-      <div className="col-md-6">
-        <label htmlFor="phone">Số điện thoại <span style={{color: 'red'}}>*</span></label>
-        <input
-          id="phone"
-          type="text"
-          name="phone"
-          placeholder="Số điện thoại"
-          value={formData.phone}
-          onChange={handleInputChange}
-          required
-        />
-      </div>
-      <div className="col-md-12">
-        <label htmlFor="company_name">Tên công ty (tuỳ chọn)</label>
-        <input
-          id="company_name"
-          type="text"
-          name="company_name"
-          placeholder="Tên công ty (tuỳ chọn)"
-          value={formData.company_name}
-          onChange={handleInputChange}
-        />
-      </div>
-      <div className="col-md-12">
-        <label htmlFor="address">Địa chỉ <span style={{color: 'red'}}>*</span></label>
-        <input
-          id="address"
-          type="text"
-          name="address"
-          placeholder="Địa chỉ"
-          value={formData.address}
-          onChange={handleInputChange}
-          required
-        />
-      </div>
-      <div className="col-md-4">
-        <label htmlFor="ward">Phường/xã <span style={{color: 'red'}}>*</span></label>
-        <input
-          id="ward"
-          type="text"
-          name="ward"
-          placeholder="Phường/xã"
-          value={formData.ward}
-          onChange={handleInputChange}
-          required
-        />
-      </div>
-      <div className="col-md-4">
-        <label htmlFor="district">Quận/huyện <span style={{color: 'red'}}>*</span></label>
-        <input
-          id="district"
-          type="text"
-          name="district"
-          placeholder="Quận/huyện"
-          value={formData.district}
-          onChange={handleInputChange}
-          required
-        />
-      </div>
-      <div className="col-md-4">
-        <label htmlFor="city">Tỉnh/thành <span style={{color: 'red'}}>*</span></label>
-        <input
-          id="city"
-          type="text"
-          name="city"
-          placeholder="Tỉnh/thành"
-          value={formData.city}
-          onChange={handleInputChange}
-          required
-        />
-      </div>
+    const renderForm = () => (
+        <form onSubmit={handleFormSubmit} className="user-form">
+            <div className="row">
+                <div className="col-md-6">
+                    <label htmlFor="first_name">
+                        Họ <span style={{ color: 'red' }}>*</span> <small>(Không kí tự đặt biệt, không quá 30 kí tự, không có 2 khoảng trắng liên tục)</small>
+                    </label>
+                    <input
+                        id="first_name"
+                        type="text"
+                        name="first_name"
+                        placeholder="Họ"
+                        value={formData.first_name}
+                        onChange={handleInputChange}
+                        required
+                    />
+                    {errors.first_name && <p className="text-danger">{errors.first_name}</p>}
+                </div>
 
-      <div className="col-md-12 mt-3">
-        <button type="submit" className="btn btn-primary">
-          {isEditMode ? 'Cập nhật' : 'Hoàn thành'}
-        </button>
-      </div>
-    </div>
-  </form>
-);
+                <div className="col-md-6">
+                    <label htmlFor="last_name">
+                        Tên <span style={{ color: 'red' }}>*</span> <small>(Không kí tự đặt biệt, không quá 30 kí tự, không có 2 khoảng trắng liên tục)</small>
+                    </label>
+                    <input
+                        id="last_name"
+                        type="text"
+                        name="last_name"
+                        placeholder="Tên"
+                        value={formData.last_name}
+                        onChange={handleInputChange}
+                        required
+                    />
+                    {errors.last_name && <p className="text-danger">{errors.last_name}</p>}
+                </div>
+
+                <div className="col-md-6">
+                    <label htmlFor="phone">
+                        Số điện thoại <span style={{ color: 'red' }}>*</span> <small>(chỉ số từ 10-11 số)</small>
+                    </label>
+                    <input
+                        id="phone"
+                        type="text"
+                        name="phone"
+                        placeholder="Số điện thoại"
+                        value={formData.phone}
+                        onChange={handleInputChange}
+                        required
+                    />
+                    {errors.phone && <p className="text-danger">{errors.phone}</p>}
+                </div>
+
+                <div className="col-md-12">
+                    <label htmlFor="company_name">Tên công ty (Không kí tự đặt biệt, không quá 30 kí tự, không có 2 khoảng trắng liên tục)</label>
+                    <input
+                        id="company_name"
+                        type="text"
+                        name="company_name"
+                        placeholder="Tên công ty (tuỳ chọn)"
+                        value={formData.company_name}
+                        onChange={handleInputChange}
+                    />
+                </div>
+
+                <div className="col-md-12">
+                    <label htmlFor="address">
+                        Địa chỉ <span style={{ color: 'red' }}>*Không được bỏ trống</span>
+                    </label>
+                    <input
+                        id="address"
+                        type="text"
+                        name="address"
+                        placeholder="Địa chỉ"
+                        value={formData.address}
+                        onChange={handleInputChange}
+                        required
+                    />
+                    {errors.address && <p className="text-danger">{errors.address}</p>}
+                </div>
+
+                <div className="col-md-4">
+                    <label htmlFor="ward">
+                        Phường/xã <span style={{ color: 'red' }}>*</span>
+                    </label>
+                    <input
+                        id="ward"
+                        type="text"
+                        name="ward"
+                        placeholder="Phường/xã"
+                        value={formData.ward}
+                        onChange={handleInputChange}
+                        required
+                    />
+                    {errors.ward && <p className="text-danger">{errors.ward}</p>}
+                </div>
+
+                <div className="col-md-4">
+                    <label htmlFor="district">
+                        Quận/huyện <span style={{ color: 'red' }}>*</span>
+                    </label>
+                    <input
+                        id="district"
+                        type="text"
+                        name="district"
+                        placeholder="Quận/huyện"
+                        value={formData.district}
+                        onChange={handleInputChange}
+                        required
+                    />
+                    {errors.district && <p className="text-danger">{errors.district}</p>}
+                </div>
+
+                <div className="col-md-4">
+                    <label htmlFor="city">
+                        Tỉnh/thành <span style={{ color: 'red' }}>*</span>
+                    </label>
+                    <input
+                        id="city"
+                        type="text"
+                        name="city"
+                        placeholder="Tỉnh/thành"
+                        value={formData.city}
+                        onChange={handleInputChange}
+                        required
+                    />
+                    {errors.city && <p className="text-danger">{errors.city}</p>}
+                </div>
+
+                <div className="col-md-12 mt-3">
+                    <button type="submit" className="btn btn-primary">
+                        {isEditMode ? 'Cập nhật' : 'Hoàn thành'}
+                    </button>
+                </div>
+            </div>
+        </form>
+
+    );
 
 
     // Render nội dung theo tab
