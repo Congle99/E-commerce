@@ -23,6 +23,7 @@ const Checkout = () => {
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formErrors, setFormErrors] = useState({});
+
   const validationRules = {
     firstName: {
       regex: /^[a-zA-ZÀ-ỹ\s]{2,30}$/,
@@ -49,7 +50,7 @@ const Checkout = () => {
       message: "Địa chỉ quá ngắn",
     },
   };
-  // Fetch danh sách sản phẩm từ giỏ hàng
+
   useEffect(() => {
     const fetchCartItems = async () => {
       const token = JSON.parse(localStorage.getItem("token"));
@@ -73,7 +74,6 @@ const Checkout = () => {
     fetchCartItems();
   }, []);
 
-  // Tính tổng tiền
   const calculateTotal = () => {
     return cartItems.reduce(
       (total, item) => total + item.product.price * item.quantity,
@@ -81,7 +81,6 @@ const Checkout = () => {
     );
   };
 
-  // Áp dụng mã giảm giá
   const handleApplyPromoCode = async () => {
     setError("");
     const token = JSON.parse(localStorage.getItem("token"));
@@ -111,30 +110,34 @@ const Checkout = () => {
     }
   };
 
-  // Xử lý nhập liệu
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+    // Xóa lỗi của field vừa nhập (nếu có)
+    setFormErrors((prev) => {
+      const newErrors = { ...prev };
+      delete newErrors[name];
+      return newErrors;
+    });
   };
 
-  // Gửi dữ liệu thanh toán
   const handleSubmit = async () => {
     setError("");
     setIsSubmitting(true);
+    setFormErrors({}); // Reset lỗi
 
-    const hasErrors = Object.entries(validationRules).some(([key, rule]) => {
-      const value = formData[key];
+    // Validate
+    const errors = {};
+    Object.entries(validationRules).forEach(([key, rule]) => {
+      const value = (formData[key] || "").trim();
       if (!rule.regex.test(value)) {
-        setFormErrors((prev) => ({
-          ...prev,
-          [key]: rule.message,
-        }));
-        return true;
+        errors[key] = rule.message;
       }
-      return false;
     });
 
-    if (hasErrors) {
+    setFormErrors(errors);
+
+    if (Object.keys(errors).length > 0) {
       setError("Vui lòng kiểm tra lại thông tin.");
       setIsSubmitting(false);
       return;
@@ -192,7 +195,6 @@ const Checkout = () => {
     }
   };
 
-  // Định dạng tiền tệ
   const formatCurrency = (value) => {
     return value.toLocaleString("vi-VN", {
       style: "currency",
@@ -210,65 +212,94 @@ const Checkout = () => {
             type="text"
             name="firstName"
             placeholder="First Name"
+            value={formData.firstName}
             onChange={handleInputChange}
           />
+          {formErrors.firstName && (
+            <span className="error-message">{formErrors.firstName}</span>
+          )}
           <input
             type="text"
             name="lastName"
             placeholder="Last Name"
+            value={formData.lastName}
             onChange={handleInputChange}
           />
+          {formErrors.lastName && (
+            <span className="error-message">{formErrors.lastName}</span>
+          )}
           <input
             type="text"
             name="companyName"
             placeholder="Company Name"
+            value={formData.companyName}
             onChange={handleInputChange}
           />
           <input
             type="text"
             name="address"
             placeholder="Address"
+            value={formData.address}
             onChange={handleInputChange}
           />
+          {formErrors.address && (
+            <span className="error-message">{formErrors.address}</span>
+          )}
           <input
             type="text"
             name="phone"
             placeholder="Phone"
+            value={formData.phone}
             onChange={handleInputChange}
           />
+          {formErrors.phone && (
+            <span className="error-message">{formErrors.phone}</span>
+          )}
           <input
             type="email"
             name="email"
             placeholder="Email"
+            value={formData.email}
             onChange={handleInputChange}
           />
+          {formErrors.email && (
+            <span className="error-message">{formErrors.email}</span>
+          )}
           <input
             type="text"
             name="city"
             placeholder="City"
+            value={formData.city}
             onChange={handleInputChange}
           />
           <input
             type="text"
             name="district"
             placeholder="District"
+            value={formData.district}
             onChange={handleInputChange}
           />
           <input
             type="text"
             name="ward"
             placeholder="Ward"
+            value={formData.ward}
             onChange={handleInputChange}
           />
           <input
             type="text"
             name="postcode"
             placeholder="Postcode"
+            value={formData.postcode}
             onChange={handleInputChange}
           />
+          {formErrors.postcode && (
+            <span className="error-message">{formErrors.postcode}</span>
+          )}
           <textarea
             name="note"
             placeholder="Note"
+            value={formData.note}
             onChange={handleInputChange}
           />
           <h3>Phương Thức Thanh Toán</h3>
@@ -297,6 +328,7 @@ const Checkout = () => {
               type="text"
               name="bankName"
               placeholder="Bank Name"
+              value={formData.bankName}
               onChange={handleInputChange}
             />
           )}
