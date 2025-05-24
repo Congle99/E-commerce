@@ -52,8 +52,37 @@ const Checkout = () => {
   };
 
   useEffect(() => {
+    const token = JSON.parse(localStorage.getItem("token"));
+    const user = JSON.parse(localStorage.getItem("user"));
+    const fetchProfile = async () => {
+      try {
+        const res = await fetch("http://localhost:8000/api/user/profile-info", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setFormData((prev) => ({
+            ...prev,
+            firstName: data.first_name || "",
+            lastName: data.last_name || "",
+            companyName: data.company_name || "",
+            city: data.city || "",
+            district: data.district || "",
+            ward: data.ward || "",
+            address: data.address || "",
+            phone: data.phone || "",
+            email: data.email || user.email || "",
+          }));
+        }
+      } catch (err) {
+        console.error("Error fetching profile info:", err);
+      }
+    };
+
+    // Fetch cart items
     const fetchCartItems = async () => {
-      const token = JSON.parse(localStorage.getItem("token"));
       try {
         const response = await fetch("http://localhost:8000/api/cart", {
           headers: {
@@ -71,6 +100,7 @@ const Checkout = () => {
       }
     };
 
+    fetchProfile();
     fetchCartItems();
   }, []);
 
