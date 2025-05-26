@@ -41,7 +41,7 @@ class ProductController extends Controller
             $query->where('name', 'like', '%' . $request->keyword . '%');
         }
     
-        // 📦 Lọc theo danh mục
+        //  Lọc theo danh mục
         if ($request->has('categories')) {
             $categories = $request->categories;
         
@@ -56,7 +56,7 @@ class ProductController extends Controller
     
         // 💰 Lọc theo giá
         if ($request->has('min_price') && $request->has('max_price')) {
-            $query->whereBetween('price', [
+            $query->whereBetween('discount_price', [
                 (int) $request->min_price,
                 (int) $request->max_price,
             ]);

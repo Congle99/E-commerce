@@ -1,10 +1,14 @@
 import React, { useState, useEffect } from "react";
 import "./Cart.scss";
+import { useNavigate } from "react-router-dom";
 
 const Cart = () => {
   const [cartItems, setCartItems] = useState([]);
+  const navigate = useNavigate();
 
-  // Lấy danh sách giỏ hàng từ API
+  // Lấy token 1 lần duy nhất khi component được tạo
+  const token = JSON.parse(localStorage.getItem("token"));
+
   useEffect(() => {
     const fetchCartItems = async () => {
       try {
@@ -12,7 +16,7 @@ const Cart = () => {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("token")}`, // Nếu cần token
+            Authorization: `Bearer ${token}`,
           },
         });
 
@@ -28,7 +32,7 @@ const Cart = () => {
     };
 
     fetchCartItems();
-  }, []);
+  }, [token]);
 
   // Cập nhật số lượng sản phẩm
   const handleQuantityChange = async (id, delta) => {
@@ -42,7 +46,7 @@ const Cart = () => {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`, // Nếu cần token
+          Authorization: `Bearer ${token}`, // Dùng biến token
         },
         body: JSON.stringify({ quantity: newQuantity }),
       });
@@ -72,7 +76,7 @@ const Cart = () => {
       const response = await fetch(`http://localhost:8000/api/cart/${id}`, {
         method: "DELETE",
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`, // Nếu cần token
+          Authorization: `Bearer ${token}`, // Dùng biến token
         },
       });
 
@@ -86,9 +90,17 @@ const Cart = () => {
     }
   };
 
+  // Tính tổng tiền
+  const calculateTotal = () => {
+    return cartItems.reduce(
+      (total, item) => total + item.product.price * item.quantity,
+      0
+    );
+  };
+
   const formatCurrency = (value) => {
     value = parseFloat(value);
-    if (typeof value !== "number") return "0 ₫"; // fallback giá trị
+    if (typeof value !== "number" || isNaN(value)) return "0 ₫"; // fallback giá trị
     return value.toLocaleString("vi-VN", {
       style: "currency",
       currency: "VND",
@@ -115,7 +127,7 @@ const Cart = () => {
               <td>
                 <img
                   src={item.product.image}
-                  alt={item.name}
+                  alt={item.product.name}
                   className="cart-img"
                 />
               </td>
@@ -145,6 +157,12 @@ const Cart = () => {
           ))}
         </tbody>
       </table>
+
+      {/* Tổng tiền */}
+      <div className="cart-total">
+        <p>Tổng tiền: {formatCurrency(calculateTotal())}</p>
+        <button onClick={() => navigate("/checkout")}>Thanh Toán</button>
+      </div>
     </div>
   );
 };

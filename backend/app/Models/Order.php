@@ -22,17 +22,24 @@ class Order extends Model
         'updated_at' => 'datetime',
     ];
 
-public function user()
-{
-    // Tham số thứ 2 là khóa ngoại trong bảng orders trỏ tới users.id
-    return $this->belongsTo(User::class, 'user_id');
-}
+    public function user()
+    {
+        // Tham số thứ 2 là khóa ngoại trong bảng orders trỏ tới users.id
+        return $this->belongsTo(User::class, 'user_id');
+    }
 
-public function invoice()
-{
-    return $this->hasOne(Invoice::class, 'order_id');
-}
+    public function invoice()
+    {
+        return $this->hasOne(Invoice::class, 'order_id');
+    }
 
-    
-    
+    public function payment()
+    {
+        return $this->hasOne(Payment::class, 'order_id');
+    }
+
+    public function shipping()
+    {
+        return $this->hasOne(Shipping::class, 'order_id');
+    }
 }

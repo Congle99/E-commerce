@@ -21,6 +21,8 @@ use Illuminate\Support\Traits\Macroable;
 use Illuminate\Support\Traits\ReflectsClosures;
 use ReflectionClass;
 
+use function Illuminate\Support\enum_value;
+
 class Dispatcher implements DispatcherContract
 {
     use Macroable, ReflectsClosures;
@@ -71,7 +73,6 @@ class Dispatcher implements DispatcherContract
      * Create a new event dispatcher instance.
      *
      * @param  \Illuminate\Contracts\Container\Container|null  $container
-     * @return void
      */
     public function __construct(?ContainerContract $container = null)
     {
@@ -344,7 +345,8 @@ class Dispatcher implements DispatcherContract
     protected function broadcastWhen($event)
     {
         return method_exists($event, 'broadcastWhen')
-            ? $event->broadcastWhen() : true;
+            ? $event->broadcastWhen()
+            : true;
     }
 
     /**
@@ -631,8 +633,8 @@ class Dispatcher implements DispatcherContract
             : $listener->delay ?? null;
 
         is_null($delay)
-            ? $connection->pushOn($queue, $job)
-            : $connection->laterOn($queue, $delay, $job);
+            ? $connection->pushOn(enum_value($queue), $job)
+            : $connection->laterOn(enum_value($queue), $delay, $job);
     }
 
     /**

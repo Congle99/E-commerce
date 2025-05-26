@@ -86,8 +86,6 @@ class Command extends SymfonyCommand
 
     /**
      * Create a new console command instance.
-     *
-     * @return void
      */
     public function __construct()
     {
@@ -265,7 +263,7 @@ class Command extends SymfonyCommand
      * Fail the command manually.
      *
      * @param  \Throwable|string|null  $exception
-     * @return void
+     * @return never
      *
      * @throws \Illuminate\Console\ManuallyFailedException|\Throwable
      */

@@ -1,0 +1,233 @@
+.profile-area {
+    .profile-sidebar {
+        background: #fff;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        padding: 20px;
+        
+        .profile-user {
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+            
+            .profile-avatar {
+                margin: 0 auto;
+                width: 100px;
+                height: 100px;
+                overflow: hidden;
+                border-radius: 50%;
+                border: 3px solid #f5f5f5;
+            }
+            
+            h4 {
+                font-size: 18px;
+                margin-top: 15px;
+                margin-bottom: 5px;
+            }
+            
+            p {
+                font-size: 14px;
+                color: #777;
+            }
+        }
+        
+        .profile-menu {
+            ul {
+                list-style: none;
+                padding: 0;
+                margin: 0;
+                
+                li {
+                    padding: 12px 15px;
+                    margin: 5px 0;
+                    border-radius: 5px;
+                    cursor: pointer;
+                    transition: all 0.3s ease;
+                    display: flex;
+                    align-items: center;
+                    
+                    i {
+                        margin-right: 10px;
+                        width: 20px;
+                        text-align: center;
+                        color: #666;
+                    }
+                    
+                    &:hover {
+                        background: #f8f9fa;
+                        color: #333;
+                    }
+                    
+                    &.active {
+                        background: #007bff;
+                        color: white;
+                        
+                        i {
+                            color: white;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    .profile-main {
+        background: #fff;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        padding: 30px;
+        
+        .profile-content {
+            h3 {
+                font-size: 22px;
+                margin-bottom: 25px;
+                padding-bottom: 15px;
+                border-bottom: 1px solid #eee;
+            }
+            
+            .user-info {
+                .info-item {
+                    margin-bottom: 15px;
+                    
+                    label {
+                        font-weight: 600;
+                        display: inline-block;
+                        width: 100px;
+                    }
+                    
+                    span {
+                        color: #555;
+                    }
+                }
+            }
+            
+            .table {
+                width: 100%;
+                border-collapse: collapse;
+                
+                th, td {
+                    padding: 12px 15px;
+                    text-align: left;
+                    border-bottom: 1px solid #ddd;
+                }
+                
+                th {
+                    background-color: #f8f9fa;
+                    font-weight: 600;
+                }
+                
+                tr:hover {
+                    background-color: #f5f5f5;
+                }
+                
+                .status-badge {
+                    padding: 5px 10px;
+                    border-radius: 20px;
+                    font-size: 12px;
+                    font-weight: 500;
+                    
+                    &.success, &.completed {
+                        background-color: #d4edda;
+                        color: #155724;
+                    }
+                    
+                    &.failed, &.cancelled {
+                        background-color: #f8d7da;
+                        color: #721c24;
+                    }
+                    
+                    &.pending {
+                        background-color: #fff3cd;
+                        color: #856404;
+                    }
+                }
+            }
+        }
+    }
+    
+    .alert {
+        padding: 15px;
+        margin-bottom: 20px;
+        border-radius: 5px;
+        
+        &.alert-danger {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+    }
+    
+    .spinner-border {
+        width: 3rem;
+        height: 3rem;
+    }
+}
+.user-form {
+    background: #fff;
+    border-radius: 8px;
+    padding: 25px 30px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    margin-top: 20px;
+
+    .row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+
+    input {
+        width: 100%;
+        padding: 12px 15px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        font-size: 15px;
+        transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        background-color: #f9f9f9;
+
+        &:focus {
+            border-color: #007bff;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.15);
+            background-color: #fff;
+        }
+
+        &::placeholder {
+            color: #aaa;
+            font-size: 14px;
+        }
+    }
+
+    .btn {
+        padding: 10px 20px;
+        font-size: 15px;
+        border-radius: 6px;
+        transition: background-color 0.3s ease, box-shadow 0.3s ease;
+
+        &.btn-primary {
+            background-color: #007bff;
+            border: none;
+
+            &:hover {
+                background-color: #0056b3;
+                box-shadow: 0 2px 8px rgba(0, 123, 255, 0.3);
+            }
+        }
+    }
+
+    .text-right {
+        text-align: right;
+    }
+
+    .mt-3 {
+        margin-top: 1rem !important;
+    }
+
+    @media (max-width: 768px) {
+        .col-md-6, .col-md-4, .col-md-12 {
+            width: 100%;
+        }
+
+        .text-right {
+            text-align: center;
+        }
+    }
+}

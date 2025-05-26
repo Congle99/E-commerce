@@ -39,6 +39,13 @@ class Product extends Model
         return $this->belongsTo(Category::class, 'category_id');
     }
 
+    //Review
+    
+    public function reviews()
+    {
+        return $this->hasMany(Review::class, 'product_id');
+    }
+
     // Nếu cần cast các kiểu dữ liệu
     protected $casts = [
         'price' => 'decimal:2',

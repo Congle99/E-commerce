@@ -15,15 +15,32 @@ class PromotionCodeController extends Controller
     }
     public function store(Request $request)
     {
-        $request->validate([
-            'code' => 'required|string|unique:promotion_codes',
+        $validated = $request->validate([
+            'code' => 'required|string|max:30|unique:promotion_codes',
             'discount_percentage' => 'required|integer|min:1|max:100',
             'valid_from' => 'required|date',
             'valid_to' => 'required|date|after_or_equal:valid_from',
             'usage_limit' => 'nullable|integer|min:1',
+        ], [
+            'code.required' => 'Mã giảm giá là bắt buộc',
+            'code.unique' => 'Mã giảm giá đã tồn tại',
+            'code.max' => 'Mã giảm giá không được vượt quá 30 ký tự',
+            'discount_percentage.required' => 'Phần trăm giảm giá là bắt buộc',
+            'valid_from.required' => 'Ngày bắt đầu là bắt buộc',
+            'valid_to.required' => 'Ngày kết thúc là bắt buộc',
         ]);
 
-        $promo = PromotionCode::create($request->all());
+        // Chuẩn hóa input code: trim và chuyển về in hoa (nếu cần)
+        $validated['code'] = strtoupper(trim($validated['code']));
+
+        $promo = PromotionCode::create([
+            'code' => $validated['code'],
+            'discount_percentage' => $validated['discount_percentage'],
+            'valid_from' => $validated['valid_from'],
+            'valid_to' => $validated['valid_to'],
+            'usage_limit' => $validated['usage_limit'] ?? null,
+        ]);
+
         return response()->json($promo, 201);
     }
     public function update(Request $request, $id)
@@ -31,13 +48,20 @@ class PromotionCodeController extends Controller
         // Lấy bản ghi hiện tại
         $promotionCode = PromotionCode::findOrFail($id);
 
-        // Quy tắc xác thực
+        // Quy tắc xác thực và thông báo lỗi
         $request->validate([
-            'code' => 'required|string|unique:promotion_codes,code,' . $promotionCode->id,
+            'code' => 'required|string|max:30|unique:promotion_codes,code,' . $promotionCode->id,
             'discount_percentage' => 'required|integer|min:1|max:100',
             'valid_from' => 'required|date',
             'valid_to' => 'required|date|after_or_equal:valid_from',
             'usage_limit' => 'nullable|integer|min:1',
+        ], [
+            'code.required' => 'Mã giảm giá là bắt buộc',
+            'code.unique' => 'Mã giảm giá đã tồn tại',
+            'code.max' => 'Mã giảm giá không được vượt quá 30 ký tự',
+            'discount_percentage.required' => 'Phần trăm giảm giá là bắt buộc',
+            'valid_from.required' => 'Ngày bắt đầu là bắt buộc',
+            'valid_to.required' => 'Ngày kết thúc là bắt buộc',
         ]);
 
         // Cập nhật dữ liệu
@@ -60,5 +84,61 @@ class PromotionCodeController extends Controller
         } catch (\Exception $e) {
             return response()->json(['message' => 'Không thể xóa mã khuyến mãi.', 'error' => $e->getMessage()], 500);
         }
+    }
+    // Xác thực mã khuyến mãi (chỉ trả về thông tin)
+    public function validatePromotionCode(Request $request)
+    {
+        $request->validate([
+            'code' => 'required|string',
+        ]);
+
+        $promotionCode = PromotionCode::where('code', $request->code)
+            ->where('valid_from', '<=', now())
+            ->where('valid_to', '>=', now())
+            ->first();
+
+        if (!$promotionCode) {
+            return response()->json(['message' => 'Mã khuyến mãi không hợp lệ hoặc đã hết hạn.'], 400);
+        }
+
+        if ($promotionCode->usage_limit !== null && $promotionCode->usage_limit <= 0) {
+            return response()->json(['message' => 'Mã khuyến mãi đã đạt giới hạn sử dụng.'], 400);
+        }
+
+        return response()->json([
+            'message' => 'Mã khuyến mãi hợp lệ.',
+            'discount_percentage' => $promotionCode->discount_percentage,
+        ], 200);
+    }
+
+    //Xác nhận thanh toán và trừ mã khuyến mãi
+    public function confirmPayment(Request $request)
+    {
+        $request->validate([
+            'code' => 'required|string',
+        ]);
+
+        $promotionCode = PromotionCode::where('code', $request->code)
+            ->where('valid_from', '<=', now())
+            ->where('valid_to', '>=', now())
+            ->first();
+
+        if (!$promotionCode) {
+            return response()->json(['message' => 'Mã khuyến mãi không hợp lệ hoặc đã hết hạn.'], 400);
+        }
+
+        if ($promotionCode->usage_limit !== null && $promotionCode->usage_limit <= 0) {
+            return response()->json(['message' => 'Mã khuyến mãi đã đạt giới hạn sử dụng.'], 400);
+        }
+
+        // Trừ số lượng sử dụng
+        if ($promotionCode->usage_limit !== null) {
+            $promotionCode->decrement('usage_limit');
+        }
+
+        return response()->json([
+            'message' => 'Xác nhận thanh toán thành công. Mã khuyến mãi đã được áp dụng.',
+            'discount_percentage' => $promotionCode->discount_percentage,
+        ], 200);
     }
 }

@@ -9,26 +9,27 @@ import FeaturedProduct from './FeaturedProduct';
 const slides = [
   {
     city: 'Paris',
-    country: 'France',
+    country: 'Áo thun',
     img: 'https://s3-us-west-2.amazonaws.com/s.cdpn.io/142996/paris.jpg',
   },
   {
     city: 'Singapore',
+    country: 'Áo Khoác',
     img: 'https://s3-us-west-2.amazonaws.com/s.cdpn.io/142996/singapore.jpg',
   },
   {
     city: 'Prague',
-    country: 'Czech Republic',
+    country: 'Quần Jeans',
     img: 'https://s3-us-west-2.amazonaws.com/s.cdpn.io/142996/prague.jpg',
   },
   {
     city: 'Amsterdam',
-    country: 'Netherlands',
+    country: 'Áo dài',
     img: 'https://s3-us-west-2.amazonaws.com/s.cdpn.io/142996/amsterdam.jpg',
   },
   {
     city: 'Moscow',
-    country: 'Russia',
+    country: 'Áo sơ mi',
     img: 'https://s3-us-west-2.amazonaws.com/s.cdpn.io/142996/moscow.jpg',
   },
 ];

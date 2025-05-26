@@ -27,7 +27,6 @@ class Stringable implements JsonSerializable, ArrayAccess, BaseStringable
      * Create a new instance of the class.
      *
      * @param  string  $value
-     * @return void
      */
     public function __construct($value = '')
     {
@@ -1334,6 +1333,17 @@ class Stringable implements JsonSerializable, ArrayAccess, BaseStringable
     public function fromBase64($strict = false)
     {
         return new static(base64_decode($this->value, $strict));
+    }
+
+    /**
+     * Hash the string using the given algorithm.
+     *
+     * @param  string  $algorithm
+     * @return static
+     */
+    public function hash(string $algorithm)
+    {
+        return new static(hash($algorithm, $this->value));
     }
 
     /**

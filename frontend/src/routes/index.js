@@ -12,13 +12,22 @@ import Shop from "../pages/User/Shop/Shop.jsx";
 import ProductDetail from "../pages/User/ProductDetail/ProductDetail.jsx";
 import Cart from "../pages/User/Cart/Cart.jsx";
 import PromotionPage from "../pages/Admin/Promotion/PromotionPage.jsx";
+import Login from "../pages/Auth/Login.jsx"; // Import trang Login
+import Register from "../pages/Auth/Register.jsx"; // Import trang Register
+import ProfileUser from "../pages/User/ProfileUser/ProfileUser.jsx"; // Import trang ProfileUser
+import Payment from "../pages/User/Payment/Checkout.jsx";
 
 // Dành cho User
 const UserRoute = [
   { path: "/user", component: HomeUser },
   { path: "/ShopUser", component: Shop },
   { path: "/ProductUser/:id", component: ProductDetail },
+  { path: "/reviews/:id", component: ProductDetail },
   { path: "/CartUser", component: Cart },
+  { path: "/login", component: Login }, // Thêm route cho trang Login
+  { path: "/register", component: Register }, // Thêm route cho trang Register
+  { path: "/profileUser", component: ProfileUser }, // Thêm route cho trang ProfileUser
+  { path: "/checkout", component: Payment },
 ];
 
 // Dành cho admin
