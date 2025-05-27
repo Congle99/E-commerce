@@ -21,7 +21,10 @@ class Order extends Model
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
-
+    public function orderItems()
+    {
+        return $this->hasMany(\App\Models\Order_Items::class, 'order_id');
+    }
     public function user()
     {
         // Tham số thứ 2 là khóa ngoại trong bảng orders trỏ tới users.id
