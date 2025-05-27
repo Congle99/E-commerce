@@ -14,7 +14,7 @@ const Checkout = () => {
     email: "",
     postcode: "",
     note: "",
-    paymentMethod: "cash",
+    paymentMethod: "cod",
     bankName: "",
   });
   const [cartItems, setCartItems] = useState([]);
@@ -337,9 +337,9 @@ const Checkout = () => {
             <input
               type="radio"
               name="paymentMethod"
-              value="cash"
+              value="cod"
               onChange={handleInputChange}
-              checked={formData.paymentMethod === "cash"}
+              checked={formData.paymentMethod === "cod"}
             />
             Cash on Delivery
           </label>
@@ -347,9 +347,9 @@ const Checkout = () => {
             <input
               type="radio"
               name="paymentMethod"
-              value="bank_transfer"
+              value="bank"
               onChange={handleInputChange}
-              checked={formData.paymentMethod === "bank_transfer"}
+              checked={formData.paymentMethod === "bank"}
             />
             Direct Bank Transfer
           </label>

@@ -235,27 +235,59 @@ class OrderController extends Controller
     public function createOrder(Request $request)
     {
         $userId = Auth::id();
-
         $request->validate([
             'cart_items' => 'required|array',
             'cart_items.*.product_id' => 'required|exists:products,id',
             'cart_items.*.quantity' => 'required|integer|min:1',
             'shipping' => 'required|array',
-            'shipping.first_name' => 'required|string|max:255',
-            'shipping.last_name' => 'required|string|max:255',
-            'shipping.company_name' => 'nullable|string|max:255',
-            'shipping.city' => 'required|string|max:255',
-            'shipping.district' => 'required|string|max:255',
-            'shipping.ward' => 'required|string|max:255',
-            'shipping.address' => 'required|string|max:255',
-            'shipping.phone' => 'required|string|max:15',
-            'shipping.email' => 'required|email|max:255',
-            'shipping.postcode' => 'required|string|max:10',
-            'shipping.note' => 'nullable|string',
-            'payment_method' => 'required|string|max:20',
-            'promotion_code' => 'nullable|string',
+            'shipping.first_name' => ['required', 'string', 'max:255', 'regex:/^[\p{L}\p{M}\p{N} .\'\-]+$/u'],
+            'shipping.last_name' => ['required', 'string', 'max:255', 'regex:/^[\p{L}\p{M}\p{N} .\'\-]+$/u'],
+            'shipping.company_name' => ['nullable', 'string', 'max:255'],
+            'shipping.city' => ['required', 'string', 'max:255'],
+            'shipping.district' => ['required', 'string', 'max:255'],
+            'shipping.ward' => ['required', 'string', 'max:255'],
+            'shipping.address' => ['required', 'string', 'max:255'],
+            'shipping.phone' => ['required', 'string', 'max:15', 'regex:/^[0-9\+\-\s]+$/'],
+            'shipping.email' => ['required', 'email', 'max:255'],
+            'shipping.postcode' => ['required', 'string', 'max:10', 'regex:/^[a-zA-Z0-9]+$/'],
+            'shipping.note' => ['nullable', 'string', 'max:255'],
+            'payment_method' => ['required', 'string', 'max:20', 'in:cod,bank,credit'],
+            'promotion_code' => ['nullable', 'string', 'max:50', 'regex:/^[A-Za-z0-9\-_]+$/'],
         ]);
+        $pendingOrders = Order::where('user_id', $userId)
+            ->where('status', 'Chờ xác nhận')
+            ->get();
 
+        $cartItems = collect($request->cart_items)->map(function ($item) {
+            return [
+                'product_id' => $item['product_id'],
+                'quantity'   => $item['quantity'],
+            ];
+        })->sortBy('product_id')->values()->toArray();
+
+        $foundDuplicate = false;
+        $orderIdDuplicate = null;
+
+        foreach ($pendingOrders as $order) {
+            $orderItems = $order->orderItems()
+                ->select('product_id', 'quantity')
+                ->orderBy('product_id')
+                ->get()
+                ->toArray();
+
+            if (count($orderItems) === count($cartItems) && $orderItems === $cartItems) {
+                $foundDuplicate = true;
+                $orderIdDuplicate = $order->id;
+                break;
+            }
+        }
+
+        if ($foundDuplicate) {
+            return response()->json([
+                'message' => 'Bạn đã có đơn hàng đang chờ xác nhận với cùng sản phẩm.',
+                'order_id' => $orderIdDuplicate,
+            ], 409);
+        }
         DB::beginTransaction();
 
         try {
@@ -263,8 +295,10 @@ class OrderController extends Controller
             $orderItems = [];
 
             foreach ($request->cart_items as $item) {
-                $product = \App\Models\Product::find($item['product_id']);
-                if (!$product) continue;
+                $product = \App\Models\Product::where('id', $item['product_id'])->lockForUpdate()->first();
+                if (!$product) {
+                    return response()->json(['message' => 'Sản phẩm không tồn tại.'], 400);
+                }
                 if ($product->inventory < $item['quantity']) {
                     return response()->json(['message' => 'Sản phẩm không đủ số lượng.'], 400);
                 }
@@ -306,7 +340,9 @@ class OrderController extends Controller
                 'total_price' => $finalPrice,
                 'status' => 'Chờ xác nhận',
             ]);
-
+            if (empty($orderItems)) {
+                return response()->json(['message' => 'Không có sản phẩm hợp lệ trong giỏ hàng.'], 400);
+            }
             // Lưu chi tiết đơn hàng vào order_items
             foreach ($orderItems as $item) {
                 \App\Models\Order_Items::create([
