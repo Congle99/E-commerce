@@ -85,11 +85,16 @@ const ProductsPage = () => {
 
     const handleSaveProduct = (updatedProduct) => {
         if (selectedProduct) {
+            // Update existing product
             setProducts((prevProducts) =>
                 prevProducts.map((product) => (product.id === updatedProduct.id ? updatedProduct : product)),
             );
+            // Show success message
+            alert('Cập nhật sản phẩm thành công!');
         } else {
+            // Add new product
             setProducts((prevProducts) => [...prevProducts, updatedProduct]);
+            alert('Tạo sản phẩm mới thành công!');
         }
         fetchProducts(currentPage);
         fetchStats();
@@ -98,16 +103,26 @@ const ProductsPage = () => {
     };
 
     const handleDeleteProduct = async (id) => {
-        if (window.confirm('Bạn có chắc chắn muốn xóa sản phẩm này?')) {
-            try {
-                await http.delete(`/product/${id}`);
+    if (window.confirm('Bạn có chắc chắn muốn xóa sản phẩm này?')) {
+        try {
+            const response = await http.delete(`/product/${id}`);
+            if (response.status === 200) {
                 setProducts((prevProducts) => prevProducts.filter((product) => product.id !== id));
                 fetchStats();
-            } catch (error) {
-                console.error('Lỗi khi xóa sản phẩm:', error);
+                alert('Xóa sản phẩm thành công!');
             }
+        } catch (error) {
+            console.error('Lỗi khi xóa sản phẩm:', error);
+            if (error.response && error.response.status === 404) {
+                alert('Sản phẩm không tồn tại hoặc đã bị xóa!');
+            } else {
+                alert('Đã xảy ra lỗi khi xóa sản phẩm. Vui lòng thử lại!');
+            }
+
+            await fetchProducts();
         }
-    };
+    }
+};
 
     const handleEditProduct = (product) => {
         setSelectedProduct(product);

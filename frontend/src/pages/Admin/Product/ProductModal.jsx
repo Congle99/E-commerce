@@ -17,9 +17,11 @@ const ProductModal = ({ show, onClose, onSave, product }) => {
         image: null,
     });
     const [message, setMessage] = useState('');
+    const [messageType, setMessageType] = useState('info'); // 'info', 'success', 'warning', 'error'
     const [imagePreview, setImagePreview] = useState(null);
     const [categories, setCategories] = useState([]);
     const [error, setError] = useState(null);
+    const [lastUpdatedAt, setLastUpdatedAt] = useState(null);
 
     // Khởi tạo formData khi chỉnh sửa sản phẩm
     useEffect(() => {
@@ -33,8 +35,9 @@ const ProductModal = ({ show, onClose, onSave, product }) => {
                 category_id: product.category_id || '',
                 status: product.status || '',
                 inventory: product.inventory || '',
-                image: null, // Không load lại file ảnh, để người dùng chọn lại nếu muốn
+                image: null,
             });
+            setLastUpdatedAt(product.updated_at);
             // Hiển thị ảnh hiện tại nếu có
             if (product.image) {
                 setImagePreview(`http://localhost:8000/storage/${product.image}`);
@@ -53,6 +56,7 @@ const ProductModal = ({ show, onClose, onSave, product }) => {
                 image: null,
             });
             setImagePreview(null);
+            setLastUpdatedAt(null);
         }
     }, [product]);
 
@@ -94,8 +98,16 @@ const ProductModal = ({ show, onClose, onSave, product }) => {
         e.preventDefault();
 
         // Kiểm tra dữ liệu
-        if (!formData.name || !formData.price || !formData.discount_price || !formData.category_id || !formData.status || !formData.inventory) {
+        if (
+            !formData.name ||
+            !formData.price ||
+            !formData.discount_price ||
+            !formData.category_id ||
+            !formData.status ||
+            !formData.inventory
+        ) {
             setMessage('Vui lòng điền đầy đủ các trường bắt buộc!');
+            setMessageType('error');
             return;
         }
 
@@ -107,22 +119,31 @@ const ProductModal = ({ show, onClose, onSave, product }) => {
 
             if (isNaN(price) || price <= 0) {
                 setMessage('Giá bán phải lớn hơn 0!');
+                setMessageType('error');
                 return;
             }
             if (isNaN(discountPrice) || discountPrice > price) {
                 setMessage('Giá giảm phải nhỏ hơn giá bán!');
+                setMessageType('error');
                 return;
             }
             if (isNaN(inventory) || inventory < 0) {
                 setMessage('Số lượng không thể âm!');
+                setMessageType('error');
                 return;
             }
             if (isNaN(categoryId) || !categories.find((cat) => cat.id === categoryId)) {
                 setMessage('Danh mục không hợp lệ!');
+                setMessageType('error');
                 return;
             }
 
-            const slug = formData.slug || formData.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+            const slug =
+                formData.slug ||
+                formData.name
+                    .toLowerCase()
+                    .replace(/\s+/g, '-')
+                    .replace(/[^a-z0-9-]/g, '');
 
             const dataToSend = new FormData();
             dataToSend.append('name', formData.name);
@@ -139,14 +160,34 @@ const ProductModal = ({ show, onClose, onSave, product }) => {
 
             let response;
             if (product) {
-                // Cập nhật sản phẩm
-                dataToSend.append('_method', 'PUT'); // Laravel giả lập PUT qua POST
-                response = await http.post(`/product/${product.id}`, dataToSend, {
-                    headers: {
-                        'Content-Type': 'multipart/form-data',
-                    },
-                });
-                setMessage('Cập nhật sản phẩm thành công');
+                // Check if product was updated in another tab
+                try {
+                    const checkResponse = await http.get(`/product/${product.id}`);
+                    if (checkResponse.data.updated_at !== lastUpdatedAt) {
+                        setMessage('Sản phẩm đã được cập nhật bởi người dùng khác. Vui lòng tải lại trang trước khi tiếp tục.');
+                        setMessageType('warning');
+                        return;
+                    }
+
+                    // Proceed with update if no concurrent changes
+                    dataToSend.append('_method', 'PUT');
+                    dataToSend.append('updated_at', lastUpdatedAt);
+                    response = await http.post(`/product/${product.id}`, dataToSend, {
+                        headers: {
+                            'Content-Type': 'multipart/form-data',
+                        },
+                    });
+                    setMessage('Cập nhật sản phẩm thành công');
+                    setMessageType('success');
+                    onSave(response.data);
+                } catch (error) {
+                    if (error.response?.status === 409) {
+                        setMessage('Sản phẩm đã được cập nhật bởi người dùng khác. Vui lòng tải lại trang trước khi tiếp tục.');
+                        setMessageType('warning');
+                        return;
+                    }
+                    throw error;
+                }
             } else {
                 // Thêm sản phẩm mới
                 response = await http.post('/product', dataToSend, {
@@ -155,9 +196,10 @@ const ProductModal = ({ show, onClose, onSave, product }) => {
                     },
                 });
                 setMessage('Tạo sản phẩm thành công');
+                setMessageType('success');
+                onSave(response.data);
             }
 
-            onSave(response.data);
             setFormData({
                 name: '',
                 slug: '',
@@ -173,8 +215,10 @@ const ProductModal = ({ show, onClose, onSave, product }) => {
         } catch (error) {
             const errorMessage = error.response?.data?.message || error.message;
             setMessage(`Có lỗi xảy ra: ${errorMessage}`);
+            setMessageType('error');
             console.error('Error details:', error.response?.data?.errors || error);
         }
+        setTimeout(() => setMessage(null), 3000);
     };
 
     if (!show) return null;
@@ -191,7 +235,11 @@ const ProductModal = ({ show, onClose, onSave, product }) => {
                         </div>
                         <form onSubmit={handleSubmit}>
                             <div className="modal-body">
-                                {message && <div className="alert alert-info">{message}</div>}
+                                {message && (
+                                    <div className={`alert alert-${messageType === 'error' ? 'danger' : messageType}`}>
+                                        {message}
+                                    </div>
+                                )}
                                 <div className="row mb-3">
                                     <div className="col-md-6">
                                         <label className="form-label">Tên sản phẩm</label>
