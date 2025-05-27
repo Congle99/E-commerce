@@ -218,6 +218,7 @@ const ProductModal = ({ show, onClose, onSave, product }) => {
             setMessageType('error');
             console.error('Error details:', error.response?.data?.errors || error);
         }
+        setTimeout(() => setMessage(null), 3000);
     };
 
     if (!show) return null;
