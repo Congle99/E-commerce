@@ -10,7 +10,7 @@ use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
-use App\Models\Invoice;
+
 class DatabaseSeeder extends Seeder
 {
     /**
@@ -34,10 +34,6 @@ class DatabaseSeeder extends Seeder
         Order::factory()->count(15)->create();
 
         Order_Items::factory()->count(50)->create();
-       
-        
-Invoice::factory()->count(20)->create([
-    'status' => 'Đang chờ thanh toán',
-        ]);
+
     }
 }

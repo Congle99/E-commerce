@@ -27,8 +27,7 @@ export default function InvoicePrintPage({ invoiceId }) {
         const res = await axios.get(`http://localhost:8000/api/invoices/${invoiceId}`);
         setInvoice(res.data.data);
       } catch (err) {
-        setError("Hoá Đơn Không Tồn Tại Hoặc Đã Bị Xoá");
-        console.error("Error fetching invoice:", err); 
+        setError("Không tải được hóa đơn.");
       } finally {
         setLoading(false);
       }

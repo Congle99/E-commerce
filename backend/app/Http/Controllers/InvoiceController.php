@@ -22,8 +22,6 @@ class InvoiceController extends Controller
             'last_page' => $invoices->lastPage(),
             'total' => $invoices->total(),
         ]);
-        return response()->json($invoice);
-
     }
     
 
