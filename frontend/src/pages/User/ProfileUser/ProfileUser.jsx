@@ -29,48 +29,49 @@ const ProfileUser = () => {
     const [activeTab, setActiveTab] = useState('profile');
     const [errors, setErrors] = useState({});
     //Hàm kiểm tra dữ liệu
-  const validateForm = () => {
-    const newErrors = {};
-    const noSpecialCharsRegex = /^[a-zA-ZÀ-ỹ0-9\s\-]+$/u;
-    const noDoubleSpacesRegex = / {2,}/;
+    const validateForm = () => {
+        const newErrors = {};
+        const noSpecialCharsRegex = /^[a-zA-ZÀ-ỹ0-9\s\-]+$/u;
+        const noDoubleSpacesRegex = / {2,}/;
 
-    const validateTextField = (fieldName, fieldLabel) => {
-        const value = formData[fieldName].trim();
+        const validateTextField = (fieldName, fieldLabel) => {
+            const value = formData[fieldName].trim();
 
-        if (!value) {
-            newErrors[fieldName] = `${fieldLabel} không được để trống.`;
-        } else if (value.length > 30) {
-            newErrors[fieldName] = `${fieldLabel} không được vượt quá 30 ký tự.`;
-            alert(`${fieldLabel} không được vượt quá 30 ký tự.`);
-        } else if (!noSpecialCharsRegex.test(value)) {
-            newErrors[fieldName] = `${fieldLabel} không được chứa ký tự đặc biệt.`;
-            alert(`${fieldLabel} không được chứa ký tự đặc biệt.`);
-        } else if (noDoubleSpacesRegex.test(value)) {
-            newErrors[fieldName] = `${fieldLabel} không được chứa nhiều hơn một khoảng trắng liên tiếp.`;
-            alert(`${fieldLabel} không được chứa nhiều hơn một khoảng trắng liên tiếp.`);
+            if (!value) {
+                newErrors[fieldName] = `${fieldLabel} không được để trống.`;
+            } else if (value.length > 30) {
+                newErrors[fieldName] = `${fieldLabel} không được vượt quá 30 ký tự.`;
+                alert(`${fieldLabel} không được vượt quá 30 ký tự.`);
+            } else if (!noSpecialCharsRegex.test(value)) {
+                newErrors[fieldName] = `${fieldLabel} không được chứa ký tự đặc biệt.`;
+                alert(`${fieldLabel} không được chứa ký tự đặc biệt.`);
+            } else if (noDoubleSpacesRegex.test(value)) {
+                newErrors[fieldName] = `${fieldLabel} không được chứa nhiều hơn một khoảng trắng liên tiếp.`;
+                alert(`${fieldLabel} không được chứa nhiều hơn một khoảng trắng liên tiếp.`);
+            }
+        };
+
+        // Áp dụng các ràng buộc cho các trường văn bản
+        validateTextField("first_name", "Họ");
+        validateTextField("last_name", "Tên");
+        validateTextField("address", "Địa chỉ");
+        validateTextField("company_name", "Công ty");
+        validateTextField("ward", "Phường/xã");
+        validateTextField("district", "Quận/huyện");
+        validateTextField("city", "Tỉnh/thành");
+
+        // Kiểm tra phone
+        if (!formData.phone.trim()) {
+            newErrors.phone = "Số điện thoại không được để trống.";
+            alert("Số điện thoại không được để trống.");
+        } else if (!/^\d{10,11}$/.test(formData.phone)) {
+            newErrors.phone = "Số điện thoại phải có 10–11 chữ số.";
+            alert("Số điện thoại chỉ là số từ 0-9 và phải có 10–11 chữ số.");
         }
+
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
     };
-
-    // Áp dụng các ràng buộc cho các trường văn bản
-    validateTextField("first_name", "Họ");
-    validateTextField("last_name", "Tên");
-    validateTextField("address", "Địa chỉ");
-    validateTextField("ward", "Phường/xã");
-    validateTextField("district", "Quận/huyện");
-    validateTextField("city", "Tỉnh/thành");
-
-    // Kiểm tra phone
-    if (!formData.phone.trim()) {
-        newErrors.phone = "Số điện thoại không được để trống.";
-        alert("Số điện thoại không được để trống.");
-    } else if (!/^\d{10,11}$/.test(formData.phone)) {
-        newErrors.phone = "Số điện thoại phải có 10–11 chữ số.";
-        alert("Số điện thoại chỉ là số từ 0-9 và phải có 10–11 chữ số.");
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-};
 
     // Kiểm tra token, nếu không có thì chuyển về login
     useEffect(() => {
@@ -247,6 +248,7 @@ const ProfileUser = () => {
                     Chỉnh sửa thông tin
                 </button>
             </div>
+
         </div>
     );
 
@@ -377,12 +379,33 @@ const ProfileUser = () => {
                     />
                     {errors.city && <p className="text-danger">{errors.city}</p>}
                 </div>
+                <div className="col-md-12 mt-3 d-flex justify-content-start gap-3">
+                    <button
+                        className="btn btn-secondary"
+                        onClick={() => {
+                            setShowForm(false);
+                            setIsEditMode(false);
+                            setErrors({});
+                            setFormData({
+                                first_name: profileInfo.first_name || '',
+                                last_name: profileInfo.last_name || '',
+                                company_name: profileInfo.company_name || '',
+                                address: profileInfo.address || '',
+                                phone: profileInfo.phone || '',
+                                city: profileInfo.city || '',
+                                district: profileInfo.district || '',
+                                ward: profileInfo.ward || '',
+                            });
+                        }}
+                    >
+                        Huỷ
+                    </button>
 
-                <div className="col-md-12 mt-3">
                     <button type="submit" className="btn btn-primary">
                         {isEditMode ? 'Cập nhật' : 'Hoàn thành'}
                     </button>
                 </div>
+
             </div>
         </form>
 
