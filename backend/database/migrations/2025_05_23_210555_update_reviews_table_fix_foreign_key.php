@@ -8,21 +8,23 @@ return new class extends Migration
 {
    public function up(): void
     {
-        Schema::table('reviews', function (Blueprint $table) {
-            // Xóa ràng buộc cũ (nếu có)
-            $table->dropForeign(['user_id']);
+          Schema::table('reviews', function (Blueprint $table) {
+        // Sửa lại dòng này: chỉ rõ tên constraint để tránh lỗi
+        $table->dropForeign('reviews_user_id_foreign');
 
-            // Sửa foreign key liên kết đúng bảng `user`
-            $table->foreign('user_id')->references('id')->on('user')->onDelete('cascade');
-        });
+        // Tạo lại khóa ngoại, chú ý bảng là 'user' hoặc 'users' tùy bảng thực tế
+        $table->foreign('user_id')->references('id')->on('user')->onDelete('cascade');
+    });
+        
     }
 
     public function down(): void
     {
         Schema::table('reviews', function (Blueprint $table) {
-            $table->dropForeign(['user_id']);
-            // Nếu muốn rollback lại như cũ
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
-        });
+        $table->dropForeign('reviews_user_id_foreign');
+
+        // Quay lại như ban đầu
+        $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+    });
     }
 };

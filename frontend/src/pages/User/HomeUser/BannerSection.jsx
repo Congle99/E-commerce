@@ -15,7 +15,7 @@ const BannerSection = () => {
   useEffect(() => {
     const fetchRandomProducts = async () => {
       try {
-        const response = await http.get("/product?random=6");
+        const response = await http.get("/product?random=8");
         setRandomProducts(response.data.data || []);
       } catch (error) {
         console.error("Lỗi khi tải sản phẩm banner:", error);

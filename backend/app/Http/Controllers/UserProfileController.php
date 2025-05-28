@@ -53,6 +53,7 @@ class UserProfileController extends Controller
         $data = $request->only([
             'first_name', 'last_name', 'company_name', 'address', 'phone', 'email', 'city', 'district', 'ward'
         ]);
+        
 
         $profile = InformationCustomer::updateOrCreate(
             ['user_id' => $userId],

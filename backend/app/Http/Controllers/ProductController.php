@@ -78,7 +78,7 @@ class ProductController extends Controller
             $query->orderBy('created_at', 'desc');
         }
 
-
+        //Phân trang sản phẩm
         $products = $query->paginate(12);
 
         return response()->json([

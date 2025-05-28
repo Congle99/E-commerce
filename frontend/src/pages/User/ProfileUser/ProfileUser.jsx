@@ -7,7 +7,7 @@ const ProfileUser = () => {
     const navigate = useNavigate();
     const { http } = Api();
 
-    // trạng thái user, đơn hàng, thanh toán
+    // trạng thái user, đơn hàng,.0 thanh toán
     const [userData, setUserData] = useState({ id: null, email: '', role: '' });
     const [profileInfo, setProfileInfo] = useState(null);
     const [isEditMode, setIsEditMode] = useState(false);
@@ -29,41 +29,48 @@ const ProfileUser = () => {
     const [activeTab, setActiveTab] = useState('profile');
     const [errors, setErrors] = useState({});
     //Hàm kiểm tra dữ liệu
-    const validateForm = () => {
-        const newErrors = {};
-        const noSpecialCharsRegex = /^[a-zA-ZÀ-ỹ0-9\s\-]+$/u;
-        const noDoubleSpacesRegex = / {2,}/;
+  const validateForm = () => {
+    const newErrors = {};
+    const noSpecialCharsRegex = /^[a-zA-ZÀ-ỹ0-9\s\-]+$/u;
+    const noDoubleSpacesRegex = / {2,}/;
 
-        const validateTextField = (fieldName, fieldLabel) => {
-            const value = formData[fieldName].trim();
+    const validateTextField = (fieldName, fieldLabel) => {
+        const value = formData[fieldName].trim();
 
-            if (!value) {
-                newErrors[fieldName] = `${fieldLabel} không được để trống.`;
-            } else if (!noSpecialCharsRegex.test(value) || noDoubleSpacesRegex.test(value) || value.length > 30) {
-                newErrors[fieldName] = `${fieldLabel} không hợp lệ.`;
-            }
-        };
-
-        // Áp dụng các ràng buộc cho các trường văn bản
-        validateTextField("first_name", "Họ");
-        validateTextField("last_name", "Tên");
-        validateTextField("address", "Địa chỉ");
-        validateTextField("ward", "Phường/xã");
-        validateTextField("district", "Quận/huyện");
-        validateTextField("city", "Tỉnh/thành");
-
-        // Kiểm tra phone
-        if (!formData.phone.trim()) {
-            newErrors.phone = "Số điện thoại không được để trống.";
-        } else if (!/^\d{10,11}$/.test(formData.phone)) {
-            newErrors.phone = "Số điện thoại phải có 10–11 chữ số.";
+        if (!value) {
+            newErrors[fieldName] = `${fieldLabel} không được để trống.`;
+        } else if (value.length > 30) {
+            newErrors[fieldName] = `${fieldLabel} không được vượt quá 30 ký tự.`;
+            alert(`${fieldLabel} không được vượt quá 30 ký tự.`);
+        } else if (!noSpecialCharsRegex.test(value)) {
+            newErrors[fieldName] = `${fieldLabel} không được chứa ký tự đặc biệt.`;
+            alert(`${fieldLabel} không được chứa ký tự đặc biệt.`);
+        } else if (noDoubleSpacesRegex.test(value)) {
+            newErrors[fieldName] = `${fieldLabel} không được chứa nhiều hơn một khoảng trắng liên tiếp.`;
+            alert(`${fieldLabel} không được chứa nhiều hơn một khoảng trắng liên tiếp.`);
         }
-
-        setErrors(newErrors);
-        return Object.keys(newErrors).length === 0;
     };
 
+    // Áp dụng các ràng buộc cho các trường văn bản
+    validateTextField("first_name", "Họ");
+    validateTextField("last_name", "Tên");
+    validateTextField("address", "Địa chỉ");
+    validateTextField("ward", "Phường/xã");
+    validateTextField("district", "Quận/huyện");
+    validateTextField("city", "Tỉnh/thành");
 
+    // Kiểm tra phone
+    if (!formData.phone.trim()) {
+        newErrors.phone = "Số điện thoại không được để trống.";
+        alert("Số điện thoại không được để trống.");
+    } else if (!/^\d{10,11}$/.test(formData.phone)) {
+        newErrors.phone = "Số điện thoại phải có 10–11 chữ số.";
+        alert("Số điện thoại chỉ là số từ 0-9 và phải có 10–11 chữ số.");
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+};
 
     // Kiểm tra token, nếu không có thì chuyển về login
     useEffect(() => {
@@ -243,7 +250,7 @@ const ProfileUser = () => {
         </div>
     );
 
-    // Form thêm/sửa thông tin cá nhân với input có value và onChange để controlled
+    // Form sửa thông tin cá nhân với input có value và onChange để controlled
     const renderForm = () => (
         <form onSubmit={handleFormSubmit} className="user-form">
             <div className="row">
@@ -309,7 +316,7 @@ const ProfileUser = () => {
 
                 <div className="col-md-12">
                     <label htmlFor="address">
-                        Địa chỉ <span style={{ color: 'red' }}>*Không được bỏ trống</span>
+                        Địa chỉ <span style={{ color: 'red' }}>*</span>
                     </label>
                     <input
                         id="address"
