@@ -22,7 +22,8 @@ class ProductReviewController extends Controller
         $validated = $request->validate([
             'product_id' => 'required|exists:products,id',
             'rating' => 'required|integer|min:1|max:5',
-            'comment' => 'nullable|string',
+            //'comment' => 'nullable|string',
+            'comment' => 'required|string|max:255',
         ]);
 
         $review = Review::updateOrCreate(
@@ -51,7 +52,7 @@ class ProductReviewController extends Controller
 
     $request->validate([
         'rating' => 'required|integer|min:1|max:5',
-        'comment' => 'required|string|max:1000',
+        'comment' => 'required|string|max:255',
     ]);
 
     $review->update([
