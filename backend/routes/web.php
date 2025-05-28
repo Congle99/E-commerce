@@ -15,7 +15,9 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProductReviewController;
 
-use Illuminate\Http\Request;  // Đảm bảo đã import Request đúng namespace
+use Illuminate\Http\Request;
+use App\Http\Controllers\UserProfileController;
+
 
 
 
@@ -77,17 +79,19 @@ Route::prefix('api')->middleware(['api'])->group(function () {
     Route::post('/promotion-codes/validate', [PromotionCodeController::class, 'validatePromotionCode'])->name('promotion-codes.validate');
     Route::post('/promotion-codes/confirm', [PromotionCodeController::class, 'confirmPayment'])->name('promotion-codes.confirm');
 
-// Review
+    // Review
     Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
         return $request->user();
     });
     Route::middleware('auth:sanctum')->delete('/reviews/{id}', [ProductReviewController::class, 'destroy']);
     Route::middleware('auth:sanctum')->put('/reviews/{id}', [ProductReviewController::class, 'update']);
 
-
+ 
 
 
     Route::middleware('auth:sanctum')->group(function () {
+        Route::get('/user/profile-info', [UserProfileController::class, 'show']);
+    Route::post('/user/profile-info', [UserProfileController::class, 'store']);
         Route::get('/cart', [CartController::class, 'index']);
         Route::post('/cart', [CartController::class, 'store']);
         Route::put('/cart/{id}', [CartController::class, 'update']);

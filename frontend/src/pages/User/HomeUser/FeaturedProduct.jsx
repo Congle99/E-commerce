@@ -28,12 +28,7 @@ const FeaturedProduct = () => {
             <button className="btn-primary">MUA NGAY</button>
             <button className="btn-secondary">CHI TIẾT</button>
           </div>
-          <div className="countdown">
-            <div><strong>0</strong><span>Ngày</span></div>
-            <div><strong>0</strong><span>Giờ</span></div>
-            <div><strong>00</strong><span>Phút</span></div>
-            <div><strong>00</strong><span>Giây</span></div>
-          </div>
+         
         </div>
       </div>
     </section>

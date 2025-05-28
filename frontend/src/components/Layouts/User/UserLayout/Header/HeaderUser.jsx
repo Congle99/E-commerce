@@ -69,7 +69,9 @@ function HeaderUser() {
             </a>
             {user ? (
               <div className="user-info">
-                <span className="hello-user">Hi {user.email}</span>
+               <Link to="/profileUser" className="hello-user">
+  Hi {user.email}
+</Link>
                 <button className="logout-btn" onClick={handleLogout}>
                   <i className="fas fa-sign-out-alt"></i>
                 </button>

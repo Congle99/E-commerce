@@ -9,7 +9,7 @@ const Products = ({
   searchTerm,
   selectedCategories,
   priceRange,
-  filterTriggered 
+  filterTriggered
 }) => {
   const [products, setProducts] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -18,7 +18,6 @@ const Products = ({
   const [loading, setLoading] = useState(true);
   const [sortOrder, setSortOrder] = useState("");
   const navigate = useNavigate();
-  const itemsPerPage = 12;
   useEffect(() => {
     setCurrentPage(1);
   }, [filterTriggered]);
@@ -60,13 +59,27 @@ const Products = ({
     };
 
     fetchProducts();
-  }, [currentPage, sortOrder, filterTriggered]); 
+  }, [currentPage, sortOrder, filterTriggered]);
 
   const handlePageChange = (page) => {
     if (page >= 1 && page <= totalPages) {
       setCurrentPage(page);
     }
   };
+
+  const handleSortChange = (e) => {
+    const selectedValue = e.target.value;
+
+    if (selectedValue === "asc" || selectedValue === "desc") {
+      setCurrentPage(1); // nếu bạn cần reset phân trang
+      setSortOrder(selectedValue);
+     
+    } else {
+      console.error("Giá trị sắp xếp không hợp lệ:", selectedValue);
+      alert("Không thể sắp xếp: Giá trị không hợp lệ.");
+    }
+  };
+
 
   return (
     <div className="products-page">
@@ -98,16 +111,14 @@ const Products = ({
             <div>
               <select
                 value={sortOrder}
-                onChange={(e) => {
-                  setCurrentPage(1);
-                  setSortOrder(e.target.value);
-                }}
+                onChange={handleSortChange}
                 style={{ padding: "6px 12px", fontSize: "14px" }}
               >
                 <option value="">-- Sắp xếp theo --</option>
-                <option value="asc">Giá: Thấp đến Cao</option>
+                <option value="asc">Giá: Thấp đến Cao</option> 
                 <option value="desc">Giá: Cao đến Thấp</option>
               </select>
+
             </div>
           </div>
           {/* Sản phẩm */}

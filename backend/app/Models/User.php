@@ -50,8 +50,15 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
+
      public function reviews()
     {
         return $this->hasMany(Review::class, 'user_id');
     }
+    //Mqh 1-1 
+    public function customerInfo()
+{
+    return $this->hasOne(InformationCustomer::class, 'user_id');
+}
+
 }
