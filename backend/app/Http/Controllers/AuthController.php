@@ -7,7 +7,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
-
+ 
 class AuthController extends Controller
 {
     public function register(Request $request)
@@ -28,7 +28,12 @@ class AuthController extends Controller
                 'not_regex:/<[^>]*>/i'
             ],
             'password_confirmation' => 'required|same:password',
-            'questionpassword' => 'nullable|string|max:255',
+            'questionpassword' => [
+                'required',
+                'string',
+                'max:50',
+                'not_regex:/<[^>]*>/i'
+            ],
         ], [
             'email.required' => 'Vui lòng nhập email.',
             'email.email' => 'Email không hợp lệ.',
@@ -40,7 +45,9 @@ class AuthController extends Controller
             'password.not_regex' => 'Mật khẩu không được chứa mã HTML.',
             'password_confirmation.required' => 'Vui lòng xác nhận mật khẩu.',
             'password_confirmation.same' => 'Mật khẩu xác nhận không khớp.',
-            'questionpassword.max' => 'Câu hỏi bảo mật không được vượt quá 255 ký tự.',
+            'questionpassword.required' => 'Câu hỏi bảo mật là bắt buộc.',
+            'questionpassword.max' => 'Câu hỏi bảo mật không được vượt quá 50 ký tự.',
+            'questionpassword.not_regex' => 'Câu hỏi bảo mật không được chứa mã HTML.',
         ]);
 
         if ($validator->fails()) {
@@ -116,10 +123,26 @@ class AuthController extends Controller
 
     //Xác thực tài khoản với questionpassword 
     public function forgotPasswordCheck(Request $request)
-    {
+{
     $request->validate([
-        'email' => 'required|email',
-        'questionpassword' => 'required|string',
+        'email' => [
+            'required',
+            'email:rfc,dns',
+            'not_regex:/<[^>]*>/i'
+        ],
+        'questionpassword' => [
+            'required',
+            'string',
+            'max:50',
+            'not_regex:/<[^>]*>/i'
+        ],
+    ], [
+        'email.required' => 'Vui lòng nhập email.',
+        'email.email' => 'Email không hợp lệ.',
+        'email.not_regex' => 'Email không được chứa mã HTML.',
+        'questionpassword.required' => 'Câu hỏi bảo mật là bắt buộc.',
+        'questionpassword.max' => 'Câu hỏi bảo mật không được vượt quá 50 ký tự.',
+        'questionpassword.not_regex' => 'Câu hỏi bảo mật không được chứa mã HTML.',
     ]);
 
     $user = User::where('email', $request->email)
@@ -137,13 +160,37 @@ class AuthController extends Controller
         'success' => true,
         'message' => 'Xác thực thành công.'
     ]);
-    }
+}
+
     // Đổi mật khẩu mới sau xác thực
     public function resetPassword(Request $request)
-    {
+{
     $request->validate([
-        'email' => 'required|email',
-        'newPassword' => 'required|string|min:8',
+        'email' => [
+            'required',
+            'email:rfc,dns',
+            'not_regex:/<[^>]*>/i'
+        ],
+        'newPassword' => [
+            'required',
+            'string',
+            'min:8',
+            'max:50',
+            'regex:/[a-z]/',         // ít nhất 1 chữ thường
+            'regex:/[0-9]/',         // ít nhất 1 số
+            'not_regex:/<[^>]*>/i',  // không chứa HTML
+            'not_regex:/\s/',        // không chứa khoảng trắng
+        ],
+    ], [
+        'email.required' => 'Vui lòng nhập email.',
+        'email.email' => 'Email không hợp lệ.',
+        'email.not_regex' => 'Email không được chứa mã HTML.',
+
+        'newPassword.required' => 'Vui lòng nhập mật khẩu mới.',
+        'newPassword.min' => 'Mật khẩu phải có ít nhất 8 ký tự.',
+        'newPassword.max' => 'Mật khẩu không được vượt quá 50 ký tự.',
+        'newPassword.regex' => 'Mật khẩu phải có ít nhất một chữ thường và một số.',
+        'newPassword.not_regex' => 'Mật khẩu không được chứa khoảng trắng hoặc mã HTML.',
     ]);
 
     $user = User::where('email', $request->email)->first();
@@ -162,5 +209,5 @@ class AuthController extends Controller
         'success' => true,
         'message' => 'Mật khẩu đã được đổi thành công.'
     ]);
-    }
+}
 }
