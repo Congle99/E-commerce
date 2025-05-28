@@ -3,148 +3,126 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-
 use App\Models\User;
-
 use Illuminate\Support\Facades\Hash;
-
 use Illuminate\Support\Facades\Validator;
-
 use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
-
 {
-
-public function login(Request $request)
-
-{
-
-// Xác thực dữ liệu đầu vào
-        $request->validate([
-            'account' => 'required|string', // Kiểm tra trường account
-            'password' => 'required|string',
+    public function register(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'email' => [
+                'required',
+                'email:rfc,dns',
+                'unique:user,email',
+                'not_regex:/<[^>]*>/i'
+            ],
+            'password' => [
+                'required',
+                'string',
+                'min:8',
+                'regex:/[a-z]/',        // chữ thường
+                'regex:/[0-9]/',        // số
+                'not_regex:/<[^>]*>/i'
+            ],
+            'password_confirmation' => 'required|same:password',
+            'questionpassword' => 'nullable|string|max:255',
+        ], [
+            'email.required' => 'Vui lòng nhập email.',
+            'email.email' => 'Email không hợp lệ.',
+            'email.unique' => 'Email đã được sử dụng.',
+            'email.not_regex' => 'Email không được chứa mã HTML.',
+            'password.required' => 'Vui lòng nhập mật khẩu.',
+            'password.min' => 'Mật khẩu phải có ít nhất 8 ký tự.',
+            'password.regex' => 'Mật khẩu phải bao gồm chữ thường và số.',
+            'password.not_regex' => 'Mật khẩu không được chứa mã HTML.',
+            'password_confirmation.required' => 'Vui lòng xác nhận mật khẩu.',
+            'password_confirmation.same' => 'Mật khẩu xác nhận không khớp.',
+            'questionpassword.max' => 'Câu hỏi bảo mật không được vượt quá 255 ký tự.',
         ]);
 
-        // Có thể đăng nhập bằng email hoặc username
-        $user = User::where('email', $request->account)
-                    ->orWhere('username', $request->account) 
-                    ->first();
-
-        if (!$user || !Hash::check($request->password, $user->password)) {
-            return response()->json(['success' => false, 'message' => 'Đăng nhập thất bại.'], 401);
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Dữ liệu không hợp lệ.',
+                'errors' => $validator->errors(),
+            ], 400);
         }
 
-        //Tạo token sau đăng nhập 
-$token = $user->createToken('auth_token')->plainTextToken;
+        $user = User::create([
+            'email' => strip_tags(trim($request->email)),
+            'password' => Hash::make(strip_tags(trim($request->password))),
+            'questionpassword' => strip_tags(trim($request->questionpassword ?? '')),
+            'role' => 'user',
+        ]);
 
-return response()->json([
+        $token = $user->createToken('auth_token')->plainTextToken;
 
-'success' => true,
+        return response()->json([
+            'success' => true,
+            'message' => 'Đăng ký thành công!',
+            'user' => [
+                'id' => $user->id,
+                'email' => $user->email,
+                'role' => $user->role,
+            ],
+            'token' => $token,
+        ]);
+    }
 
-'user' => [
-
-'id' => $user->id,
-
-'email' => $user->email,
-
-'username' => $user->username,
-
-'phone' => $user->phone,
-
-'role' => $user->role,
-
-],
-
-'token' => $token,
-
-]);
-
-}
-
-// Đăng ký tài khoản
-public function register(Request $request)
-
-{
-
-$validator = Validator::make($request->all(), [
-
-'username' => 'required|string|unique:user,username',
-
-'phone' => 'required|string|unique:user,phone',
-
-'email' => 'required|email|unique:user,email',
-
-'password' => 'required|min:6',
-
-]);
-
-if ($validator->fails()) {
-
-return response()->json([
-
-'success' => false,
-
-'message' => $validator->errors()->first(),
-
-'errors' => $validator->errors()
-
-], 400);
-
-}
-
-$user = User::create([
-
-'username' => $request->username,
-
-'phone' => $request->phone,
-
-'email' => $request->email,
-
-'password' => Hash::make($request->password),
-
-'questionpassword' => '', // để rỗng 
-
-'role' => 'user',
-
-]);
-
-$token = $user->createToken('auth_token')->plainTextToken;
-
-return response()->json([
-
-'success' => true,
-
-'user' => [
-
-'id' => $user->id,
-
-'email' => $user->email,
-
-'username' => $user->username,
-
-'phone' => $user->phone,
-
-'role' => $user->role,
-
-],
-
-'token' => $token,
-
-]);
-
-}
-// Xác thực thông tin để cho phép đổi mật khẩu
-public function forgotPasswordCheck(Request $request)
-{
+    public function login(Request $request)
+    {
+    // Xác thực đầu vào: chỉ dùng email + password
     $request->validate([
         'email' => 'required|email',
-        'phone' => 'required|string',
+        'password' => 'required|string',
+    ]);
+
+    // Tìm người dùng theo email
+    $user = User::where('email', $request->email)->first();
+
+    // Nếu không tìm thấy người dùng
+    if (!$user) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Tài khoản không tồn tại.'
+        ], 404);
+    }
+
+    // Nếu mật khẩu sai
+    if (!Hash::check($request->password, $user->password)) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Mật khẩu không đúng.'
+        ], 401);
+    }
+
+    // Đăng nhập thành công - tạo token
+    $token = $user->createToken('auth_token')->plainTextToken;
+
+    return response()->json([
+        'success' => true,
+        'message' => 'Đăng nhập thành công.',
+        'user' => [
+            'id' => $user->id,
+            'email' => $user->email,
+            'role' => $user->role,
+        ],
+        'token' => $token,
+    ]);
+    }
+
+    //Xác thực tài khoản với questionpassword 
+    public function forgotPasswordCheck(Request $request)
+    {
+    $request->validate([
+        'email' => 'required|email',
         'questionpassword' => 'required|string',
     ]);
 
     $user = User::where('email', $request->email)
-        ->where('phone', $request->phone)
         ->where('questionpassword', $request->questionpassword)
         ->first();
 
@@ -159,11 +137,10 @@ public function forgotPasswordCheck(Request $request)
         'success' => true,
         'message' => 'Xác thực thành công.'
     ]);
-}
-
-// Đổi mật khẩu mới sau xác thực
-public function resetPassword(Request $request)
-{
+    }
+    // Đổi mật khẩu mới sau xác thực
+    public function resetPassword(Request $request)
+    {
     $request->validate([
         'email' => 'required|email',
         'newPassword' => 'required|string|min:8',
@@ -185,6 +162,5 @@ public function resetPassword(Request $request)
         'success' => true,
         'message' => 'Mật khẩu đã được đổi thành công.'
     ]);
-}
-
+    }
 }

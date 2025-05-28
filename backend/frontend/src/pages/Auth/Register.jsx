@@ -3,139 +3,206 @@ import { useNavigate } from 'react-router-dom';
 import Api from '~/components/Api.jsx';
 import './Register.scss';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
+import { faEye, faEyeSlash, faCheck, faExclamationTriangle, faSpinner } from '@fortawesome/free-solid-svg-icons';
 
 const Register = () => {
     const navigate = useNavigate();
     const { http } = Api();
 
-    const [username, setUsername] = useState('');
-    const [phone, setPhone] = useState('');
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [confirmPassword, setConfirmPassword] = useState('');
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState('');
-    const [successMessage, setSuccessMessage] = useState('');
-    const [formErrors, setFormErrors] = useState({
-        username: '',
-        phone: '',
+    // Form state
+    const [formData, setFormData] = useState({
         email: '',
         password: '',
-        confirmPassword: ''
+        password_confirmation: '',
+        questionpassword: ''
     });
+
+    // UI state
+    const [loading, setLoading] = useState(false);
+    const [alert, setAlert] = useState({ type: '', message: '', show: false });
+    const [fieldErrors, setFieldErrors] = useState({});
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+    const [showQuestionPassword, setShowQuestionPassword] = useState(false);
 
+    // Password strength indicator
+    const [passwordStrength, setPasswordStrength] = useState({
+        score: 0,
+        feedback: '',
+        color: 'weak'
+    });
+
+    // Handle input changes
+    const handleInputChange = (field, value) => {
+        setFormData(prev => ({ ...prev, [field]: value }));
+        
+        // Clear field error when user starts typing
+        if (fieldErrors[field]) {
+            setFieldErrors(prev => ({ ...prev, [field]: '' }));
+        }
+
+        // Check password strength
+        if (field === 'password') {
+            checkPasswordStrength(value);
+        }
+
+        // Clear alert when user starts typing
+        if (alert.show) {
+            setAlert({ type: '', message: '', show: false });
+        }
+    };
+
+    // Password strength checker
+    const checkPasswordStrength = (password) => {
+        let score = 0;
+        let feedback = '';
+        let color = 'weak';
+
+        if (password.length >= 8) score++;
+        if (/[a-z]/.test(password)) score++;
+        if (/[A-Z]/.test(password)) score++;
+        if (/[0-9]/.test(password)) score++;
+        if (/[^A-Za-z0-9]/.test(password)) score++;
+
+        switch (score) {
+            case 0:
+            case 1:
+                feedback = 'Rất yếu';
+                color = 'weak';
+                break;
+            case 2:
+                feedback = 'Yếu';
+                color = 'weak';
+                break;
+            case 3:
+                feedback = 'Trung bình';
+                color = 'medium';
+                break;
+            case 4:
+                feedback = 'Mạnh';
+                color = 'strong';
+                break;
+            case 5:
+                feedback = 'Rất mạnh';
+                color = 'very-strong';
+                break;
+        }
+
+        setPasswordStrength({ score, feedback, color });
+    };
+
+    // Client-side validation
     const validateForm = () => {
+        const errors = {};
         let isValid = true;
-        const errors = {
-            username: '',
-            phone: '',
-            email: '',
-            password: '',
-            confirmPassword: ''
-        };
 
-        if (!username.trim()) {
-            errors.username = 'Tên người dùng không được để trống';
+        // Email validation
+        if (!formData.email.trim()) {
+            errors.email = 'Email là bắt buộc';
+            isValid = false;
+        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+            errors.email = 'Email không đúng định dạng';
             isValid = false;
         }
 
-        if (!phone.trim()) {
-            errors.phone = 'Số điện thoại không được để trống';
+        // Password validation
+        if (!formData.password) {
+            errors.password = 'Mật khẩu là bắt buộc';
             isValid = false;
-        } else if (!/^0\d{9}$/.test(phone)) {
-            errors.phone = 'Số điện thoại phải bắt đầu bằng số 0 và có đúng 10 chữ số';
-            isValid = false;
-        }
-
-        if (!email) {
-            errors.email = 'Email không được để trống';
-            isValid = false;
-        } else if (!/\S+@\S+\.\S+/.test(email)) {
-            errors.email = 'Email không hợp lệ';
-            isValid = false;
-        }
-
-        if (!password) {
-            errors.password = 'Mật khẩu không được để trống';
-            isValid = false;
-        } else if (password.length < 8) {
+        } else if (formData.password.length < 8) {
             errors.password = 'Mật khẩu phải có ít nhất 8 ký tự';
             isValid = false;
-        }
-
-        if (password !== confirmPassword) {
-            errors.confirmPassword = 'Mật khẩu không khớp';
+        } else if (passwordStrength.score < 3) {
+            errors.password = 'Mật khẩu cần mạnh hơn';
             isValid = false;
         }
 
-        setFormErrors(errors);
+        // Confirm password validation
+        if (!formData.password_confirmation) {
+            errors.password_confirmation = 'Vui lòng xác nhận mật khẩu';
+            isValid = false;
+        } else if (formData.password !== formData.password_confirmation) {
+            errors.password_confirmation = 'Mật khẩu xác nhận không khớp';
+            isValid = false;
+        }
+
+        setFieldErrors(errors);
         return isValid;
     };
 
+    // Handle form submission
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (!validateForm()) return;
+        
+        if (!validateForm()) {
+            showAlert('error', 'Vui lòng kiểm tra lại thông tin đã nhập');
+            return;
+        }
 
         setLoading(true);
-        setError('');
-        setSuccessMessage('');
-
-        const userData = {
-            username,
-            phone,
-            email,
-            password,
-            role: 'user'
-        };
-
+        
         try {
-            const response = await http.post('/register', userData);
+            const response = await http.post('/register', formData);
+            
             if (response.data.success) {
-                setSuccessMessage('Đăng ký thành công! Bạn sẽ được chuyển sang trang đăng nhập sau vài giây...');
+                showAlert('success', 'Đăng ký thành công! Bạn sẽ được chuyển đến trang đăng nhập sau 3 giây...');
+                
+                // Store token if auto-login is enabled
+                if (response.data.token) {
+                    localStorage.setItem('auth_token', response.data.token);
+                    localStorage.setItem('user', JSON.stringify(response.data.user));
+                }
+                
+                // Redirect after 3 seconds
                 setTimeout(() => {
-                    navigate('/login');
+                    navigate('/login', { 
+                        state: { 
+                            message: 'Đăng ký thành công! Vui lòng đăng nhập.', 
+                            email: formData.email 
+                        } 
+                    });
                 }, 3000);
-            } else {
-                setError(response.data.message || 'Đăng ký thất bại.');
             }
-        } catch (err) {
-            console.error('Lỗi khi đăng ký:', err);
-            setError('Đã xảy ra lỗi, vui lòng thử lại.');
-
-            if (err.response && err.response.data) {
-                const apiErrors = err.response.data.errors || {};
-                const translatedErrors = {
-                    username: '',
-                    phone: '',
-                    email: '',
-                    password: '',
-                    confirmPassword: ''
-                };
-
-                if (apiErrors.username?.[0]?.includes('has already been taken')) {
-                    translatedErrors.username = 'Tên người dùng đã được đăng ký trước đó';
+        } catch (error) {
+            console.error('Registration error:', error);
+            
+            if (error.response) {
+                const { status, data } = error.response;
+                
+                // Handle validation errors from server
+                if (status === 400 && data.errors) {
+                    setFieldErrors(data.errors);
+                    showAlert('error', data.message || 'Dữ liệu không hợp lệ');
                 }
-
-                if (apiErrors.phone?.[0]?.includes('has already been taken') || err.response.data.message?.toLowerCase().includes('phone')) {
-                    translatedErrors.phone = 'Số điện thoại đã được đăng ký trước đó';
+                // Handle rate limiting
+                else if (status === 429) {
+                    showAlert('error', data.message || 'Quá nhiều yêu cầu. Vui lòng thử lại sau.');
                 }
-
-                if (apiErrors.email?.[0]?.includes('has already been taken')) {
-                    translatedErrors.email = 'Email đã được đăng ký trước đó';
+                // Handle server errors
+                else if (status === 500) {
+                    showAlert('error', 'Lỗi hệ thống. Vui lòng thử lại sau.');
                 }
-
-                // Nếu backend trả về lỗi khác
-                if (apiErrors.password?.[0]) {
-                    translatedErrors.password = apiErrors.password[0];
+                // Handle other errors
+                else {
+                    showAlert('error', data.message || 'Đăng ký thất bại. Vui lòng thử lại.');
                 }
-
-                setFormErrors(translatedErrors);
+            } else {
+                showAlert('error', 'Không thể kết nối đến máy chủ. Vui lòng kiểm tra kết nối internet.');
             }
         } finally {
             setLoading(false);
+        }
+    };
+
+    // Show alert helper
+    const showAlert = (type, message) => {
+        setAlert({ type, message, show: true });
+        
+        // Auto hide success alerts
+        if (type === 'success') {
+            setTimeout(() => {
+                setAlert(prev => ({ ...prev, show: false }));
+            }, 5000);
         }
     };
 
@@ -147,104 +214,180 @@ const Register = () => {
                         <div className="basic-login">
                             <h3 className="text-center mb-60">Đăng ký tài khoản</h3>
 
-                            {error && <div className="alert alert-danger">{error}</div>}
-                            {successMessage && <div className="alert alert-success">{successMessage}</div>}
-
-                            <form onSubmit={handleSubmit}>
-                                {/* Username */}
-                                <div className="form-group">
-                                    <label htmlFor="username">Tên tài khoản <span className="required">*</span></label>
-                                    <input
-                                        id="username"
-                                        type="text"
-                                        placeholder="Nhập tên người dùng..."
-                                        value={username}
-                                        onChange={(e) => setUsername(e.target.value)}
-                                        className={formErrors.username ? 'error' : ''}
-                                        required
+                            {/* Alert Messages */}
+                            {alert.show && (
+                                <div className={`alert alert-${alert.type === 'error' ? 'danger' : alert.type} alert-dismissible`}>
+                                    <FontAwesomeIcon 
+                                        icon={alert.type === 'success' ? faCheck : faExclamationTriangle} 
+                                        className="me-2" 
                                     />
-                                    {formErrors.username && <div className="error-message">{formErrors.username}</div>}
+                                    {alert.message}
+                                    <button 
+                                        type="button" 
+                                        className="btn-close" 
+                                        onClick={() => setAlert({ ...alert, show: false })}
+                                    ></button>
                                 </div>
+                            )}
 
-                                {/* Phone */}
+                            <form onSubmit={handleSubmit} noValidate>
+                                {/* Email Field */}
                                 <div className="form-group">
-                                    <label htmlFor="phone">Số điện thoại <span className="required">*</span></label>
-                                    <input
-                                        id="phone"
-                                        type="tel"
-                                        placeholder="Nhập số điện thoại..."
-                                        value={phone}
-                                        onChange={(e) => setPhone(e.target.value)}
-                                        className={formErrors.phone ? 'error' : ''}
-                                        required
-                                    />
-                                    {formErrors.phone && <div className="error-message">{formErrors.phone}</div>}
-                                </div>
-
-                                {/* Email */}
-                                <div className="form-group">
-                                    <label htmlFor="email-id">Email <span className="required">*</span></label>
+                                    <label htmlFor="email-id">
+                                        Email <span className="required">*</span>
+                                    </label>
                                     <input
                                         id="email-id"
                                         type="email"
                                         placeholder="Nhập email..."
-                                        value={email}
-                                        onChange={(e) => setEmail(e.target.value)}
-                                        className={formErrors.email ? 'error' : ''}
-                                        required
+                                        value={formData.email}
+                                        onChange={(e) => handleInputChange('email', e.target.value.toLowerCase().trim())}
+                                        className={fieldErrors.email ? 'error' : ''}
+                                        disabled={loading}
+                                        autoComplete="email"
                                     />
-                                    {formErrors.email && <div className="error-message">{formErrors.email}</div>}
+                                    {fieldErrors.email && (
+                                        <div className="error-message">
+                                            <FontAwesomeIcon icon={faExclamationTriangle} className="me-1" />
+                                            {fieldErrors.email}
+                                        </div>
+                                    )}
                                 </div>
 
-                                {/* Password */}
+                                {/* Password Field */}
                                 <div className="form-group">
-                                    <label htmlFor="pass">Mật khẩu <span className="required">*</span></label>
+                                    <label htmlFor="password">
+                                        Mật khẩu <span className="required">*</span>
+                                    </label>
                                     <div className="password-field">
                                         <input
-                                            id="pass"
+                                            id="password"
                                             type={showPassword ? 'text' : 'password'}
                                             placeholder="Nhập mật khẩu..."
-                                            value={password}
-                                            onChange={(e) => setPassword(e.target.value)}
-                                            className={formErrors.password ? 'error' : ''}
-                                            required
+                                            value={formData.password}
+                                            onChange={(e) => handleInputChange('password', e.target.value)}
+                                            className={fieldErrors.password ? 'error' : ''}
+                                            disabled={loading}
+                                            autoComplete="new-password"
                                         />
-                                        <button type="button" className="toggle-password" onClick={() => setShowPassword(!showPassword)}>
+                                        <button 
+                                            type="button" 
+                                            className="toggle-password" 
+                                            onClick={() => setShowPassword(!showPassword)}
+                                            disabled={loading}
+                                        >
                                             <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
                                         </button>
                                     </div>
-                                    {formErrors.password && <div className="error-message">{formErrors.password}</div>}
+                                    
+                                    {/* Password Strength Indicator */}
+                                    {formData.password && (
+                                        <div className={`password-strength ${passwordStrength.color}`}>
+                                            <div className="strength-bar">
+                                                <div 
+                                                    className="strength-fill" 
+                                                    style={{ width: `${(passwordStrength.score / 5) * 100}%` }}
+                                                ></div>
+                                            </div>
+                                            <span className="strength-text">{passwordStrength.feedback}</span>
+                                        </div>
+                                    )}
+                                    
+                                    {fieldErrors.password && (
+                                        <div className="error-message">
+                                            <FontAwesomeIcon icon={faExclamationTriangle} className="me-1" />
+                                            {fieldErrors.password}
+                                        </div>
+                                    )}
                                 </div>
 
-                                {/* Confirm Password */}
+                                {/* Confirm Password Field */}
                                 <div className="form-group">
-                                    <label htmlFor="confirm-pass">Xác nhận mật khẩu <span className="required">*</span></label>
+                                    <label htmlFor="confirm-password">
+                                        Xác nhận mật khẩu <span className="required">*</span>
+                                    </label>
                                     <div className="password-field">
                                         <input
-                                            id="confirm-pass"
+                                            id="confirm-password"
                                             type={showConfirmPassword ? 'text' : 'password'}
                                             placeholder="Nhập lại mật khẩu..."
-                                            value={confirmPassword}
-                                            onChange={(e) => setConfirmPassword(e.target.value)}
-                                            className={formErrors.confirmPassword ? 'error' : ''}
-                                            required
+                                            value={formData.password_confirmation}
+                                            onChange={(e) => handleInputChange('password_confirmation', e.target.value)}
+                                            className={fieldErrors.password_confirmation ? 'error' : ''}
+                                            disabled={loading}
+                                            autoComplete="new-password"
                                         />
-                                        <button type="button" className="toggle-password" onClick={() => setShowConfirmPassword(!showConfirmPassword)}>
+                                        <button 
+                                            type="button" 
+                                            className="toggle-password" 
+                                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                            disabled={loading}
+                                        >
                                             <FontAwesomeIcon icon={showConfirmPassword ? faEyeSlash : faEye} />
                                         </button>
                                     </div>
-                                    {formErrors.confirmPassword && <div className="error-message">{formErrors.confirmPassword}</div>}
+                                    {fieldErrors.password_confirmation && (
+                                        <div className="error-message">
+                                            <FontAwesomeIcon icon={faExclamationTriangle} className="me-1" />
+                                            {fieldErrors.password_confirmation}
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* Security Question (Optional) */}
+                                <div className="form-group">
+                                    <label htmlFor="question-password">
+                                        Câu hỏi bảo mật <span className="text-muted">(Tùy chọn)</span>
+                                    </label>
+                                    <div className="password-field">
+                                        <input
+                                            id="question-password"
+                                            type={showQuestionPassword ? 'text' : 'password'}
+                                            placeholder="Ví dụ: Tên thú cưng đầu tiên của bạn?"
+                                            value={formData.questionpassword}
+                                            onChange={(e) => handleInputChange('questionpassword', e.target.value)}
+                                            disabled={loading}
+                                        />
+                                        <button 
+                                            type="button" 
+                                            className="toggle-password" 
+                                            onClick={() => setShowQuestionPassword(!showQuestionPassword)}
+                                            disabled={loading}
+                                        >
+                                            <FontAwesomeIcon icon={showQuestionPassword ? faEyeSlash : faEye} />
+                                        </button>
+                                    </div>
+                                    <small className="form-text text-muted">
+                                        Câu hỏi này sẽ được dùng để khôi phục mật khẩu
+                                    </small>
                                 </div>
 
                                 {/* Submit Button */}
-                                <button className="btn theme-btn-2 w-100" type="submit" disabled={loading}>
-                                    {loading ? <span><span className="spinner"></span> Đang xử lý...</span> : 'Đăng ký ngay'}
+                                <button 
+                                    className="btn theme-btn-2 w-100" 
+                                    type="submit" 
+                                    disabled={loading}
+                                >
+                                    {loading ? (
+                                        <span>
+                                            <FontAwesomeIcon icon={faSpinner} spin className="me-2" />
+                                            Đang xử lý...
+                                        </span>
+                                    ) : (
+                                        'Đăng ký ngay'
+                                    )}
                                 </button>
 
                                 <div className="or-divide"><span>hoặc</span></div>
 
-                                <button className="btn theme-btn w-100" type="button" onClick={() => navigate('/login')}>
-                                    Đăng nhập
+                                {/* Login Button */}
+                                <button 
+                                    className="btn theme-btn w-100" 
+                                    type="button" 
+                                    onClick={() => navigate('/login')}
+                                    disabled={loading}
+                                >
+                                    Đã có tài khoản? Đăng nhập
                                 </button>
                             </form>
                         </div>

@@ -66,7 +66,6 @@ Route::prefix('api')->middleware(['api'])->group(function () {
 
 
 
-
     Route::get('invoices', [InvoiceController::class, 'index']);
     Route::post('invoices', [InvoiceController::class, 'store']);
     Route::put('/invoices/{id}', [InvoiceController::class, 'update']);

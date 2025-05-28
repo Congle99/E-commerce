@@ -1,14 +1,13 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom'; // Import useNavigate
+import { useNavigate } from 'react-router-dom';
 import Api from '~/components/Api.jsx';
 import './ForgetPassword.scss';
 
 const ForgetPassword = () => {
     const { http } = Api();
-    const navigate = useNavigate(); // Khởi tạo useNavigate
+    const navigate = useNavigate();
 
     const [email, setEmail] = useState('');
-    const [phone, setPhone] = useState('');
     const [questionPassword, setQuestionPassword] = useState('');
     const [newPassword, setNewPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
@@ -17,6 +16,9 @@ const ForgetPassword = () => {
     const [message, setMessage] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
+    
+    const [showPassword, setShowPassword] = useState(false);
+
 
     const handleVerify = async () => {
         setLoading(true);
@@ -26,7 +28,6 @@ const ForgetPassword = () => {
         try {
             const response = await http.post('/verify-reset', {
                 email,
-                phone,
                 questionpassword: questionPassword
             });
 
@@ -64,9 +65,8 @@ const ForgetPassword = () => {
             });
 
             if (response.data.success) {
-                setMessage('Mật khẩu đã được thay đổi thành công.');
-                setIsVerified(false);
-                navigate('/login'); // Chuyển hướng tới trang login
+                setMessage('Mật khẩu đã được thay đổi thành công. Chuyển hướng...');
+                setTimeout(() => navigate('/login'), 2000);
             } else {
                 setError(response.data.message || 'Đổi mật khẩu thất bại.');
             }
@@ -95,16 +95,6 @@ const ForgetPassword = () => {
                     </div>
 
                     <div className="form-group">
-                        <label>Số điện thoại</label>
-                        <input
-                            type="text"
-                            value={phone}
-                            onChange={(e) => setPhone(e.target.value)}
-                            placeholder="Nhập số điện thoại đã đăng ký"
-                        />
-                    </div>
-
-                    <div className="form-group">
                         <label>Câu hỏi bảo mật (Nơi du lịch bạn thích nhất)</label>
                         <input
                             type="text"
@@ -123,14 +113,24 @@ const ForgetPassword = () => {
             {isVerified && (
                 <>
                     <div className="form-group mt-4">
-                        <label>Mật khẩu mới</label>
-                        <input
-                            type="password"
-                            value={newPassword}
-                            onChange={(e) => setNewPassword(e.target.value)}
-                            placeholder="Nhập mật khẩu mới"
-                        />
-                    </div>
+    <label>Mật khẩu mới</label>
+    <div className="password-wrapper">
+        <input
+            type={showPassword ? 'text' : 'password'}
+            value={newPassword}
+            onChange={(e) => setNewPassword(e.target.value)}
+            placeholder="Nhập mật khẩu mới"
+        />
+        <button
+            type="button"
+            className="toggle-password"
+            onClick={() => setShowPassword(!showPassword)}
+        >
+            {showPassword ? 'Ẩn' : 'Hiện'}
+        </button>
+    </div>
+</div>
+
 
                     <div className="form-group">
                         <label>Xác nhận mật khẩu</label>

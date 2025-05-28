@@ -6,51 +6,24 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Laravel\Sanctum\HasApiTokens; // Nếu bạn sử dụng Sanctum
+use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
-     use HasApiTokens, HasFactory, Notifiable, SoftDeletes;
-    // use HasApiTokens; // Thêm nếu bạn sử dụng Sanctum
+    use HasApiTokens, HasFactory, Notifiable, SoftDeletes;
 
-    /**
-     * Tên bảng được liên kết với model.
-     *
-     * @var string
-     */
-    protected $table = 'user'; // Quan trọng: Đảm bảo đúng tên bảng từ migration
+    protected $table = 'user'; // tên bảng đúng
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
     protected $fillable = [
-     'email',
-     'username',
-     'password',
-     'phone',  
-     'questionpassword',  
-     'role',
-    ];
-
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array<int, string>
-     */
-    protected $hidden = [
+        'email',
         'password',
-        //'remember_token',
+        'questionpassword',
+        'role',
     ];
 
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
+    protected $hidden = ['password'];
+
     protected $casts = [
-        //'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
 }

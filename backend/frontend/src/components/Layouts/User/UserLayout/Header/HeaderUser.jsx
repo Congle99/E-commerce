@@ -50,7 +50,7 @@ function HeaderUser() {
                         {isLoggedIn ? (
                             <a href="/profileUser" className="user-name">
                                 <i className="far fa-user me-1"></i>{" "}
-                                {storedUser.username}
+                                {storedUser.email}
                             </a>
                         ) : (
                             <a href="/login">
