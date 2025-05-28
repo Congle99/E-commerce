@@ -8,10 +8,8 @@ const ProfileUser = () => {
     const { http } = Api();
     const [userData, setUserData] = useState({
         id: "",
-        username: "",
         email: "",
         role: "",
-        phone: "",
         created_at: "",
     });
     const [editData, setEditData] = useState({});
@@ -23,11 +21,12 @@ const ProfileUser = () => {
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
     const [activeTab, setActiveTab] = useState("profile");
-    const [isEditing, setIsEditing] = useState(false);
+    const [setIsEditing] = useState(false);
+    const [changePasswordMsg, setChangePasswordMsg] = useState("");
+    const [changePasswordError, setChangePasswordError] = useState("");
 
-    //Câu hỏi bảo mật
-    const [questionInput, setQuestionInput] = useState("");
-    const [questionMsg, setQuestionMsg] = useState("");
+    const [deleteAccountMsg, setDeleteAccountMsg] = useState("");
+    const [deleteAccountError, setDeleteAccountError] = useState("");
 
     useEffect(() => {
         const fetchUserData = async () => {
@@ -40,17 +39,13 @@ const ProfileUser = () => {
 
                 setUserData({
                     id: userInfo.id,
-                    username: userInfo.username || "nguoimau",
                     email: userInfo.email || "",
                     role: userInfo.role || "user",
-                    phone: userInfo.phone || "0123-456-789",
                     created_at: userInfo.created_at || new Date().toISOString(),
                 });
 
                 setEditData({
-                    username: userInfo.username || "",
                     email: userInfo.email || "",
-                    phone: userInfo.phone || "",
                 });
 
                 setLoading(false);
@@ -61,7 +56,7 @@ const ProfileUser = () => {
         };
 
         fetchUserData();
-    }, []);
+    }, [navigate]);
 
     useEffect(() => {
         if (activeTab === "orders") {
@@ -81,48 +76,46 @@ const ProfileUser = () => {
             };
             fetchOrders();
         }
-    }, [activeTab, currentPage]);
+    }, [activeTab, currentPage, http]);
 
     useEffect(() => {
-    if (activeTab === "payments") {
-        const fetchPayments = async () => {
-            try {
-                const userInfo = JSON.parse(localStorage.getItem("user"));
-                const response = await http.get(
-                    `/user/payments?id=${userInfo.id}&page=${currentPage}&per_page=8`
-                );
+        if (activeTab === "payments") {
+            const fetchPayments = async () => {
+                try {
+                    const userInfo = JSON.parse(localStorage.getItem("user"));
+                    const response = await http.get(
+                        `/user/payments?id=${userInfo.id}&page=${currentPage}&per_page=8`
+                    );
 
-                setPayments(response.data.data);
-                setTotalPages(response.data.last_page);
-            } catch (err) {
-                console.error("Lỗi API:", err);
-                setError("Không thể tải lịch sử thanh toán");
-            }
-        };
-        fetchPayments();
-    }
-}, [activeTab, currentPage]);
-
+                    setPayments(response.data.data);
+                    setTotalPages(response.data.last_page);
+                } catch (err) {
+                    console.error("Lỗi API:", err);
+                    setError("Không thể tải lịch sử thanh toán");
+                }
+            };
+            fetchPayments();
+        }
+    }, [activeTab, currentPage, http]);
 
     //Đổi mật khẩu
     const handleChangePassword = async (newPassword) => {
         try {
             const userInfo = JSON.parse(localStorage.getItem("user"));
 
-            console.log("Gửi đổi mật khẩu:", {
-                id: userInfo.id,
-                password: newPassword,
-            });
-
             const response = await http.put("/user/password", {
                 id: userInfo.id,
                 password: newPassword,
             });
 
-            alert(response.data.message);
+            // Cập nhật thông báo thành công
+            setChangePasswordMsg(response.data.message);
+            setChangePasswordError("");
         } catch (err) {
-            console.error("Lỗi 422:", err.response?.data?.errors);
-            alert("Đổi mật khẩu thất bại");
+            const message =
+                err.response?.data?.message || "Đổi mật khẩu thất bại";
+            setChangePasswordError(message);
+            setChangePasswordMsg("");
         }
     };
 
@@ -140,15 +133,18 @@ const ProfileUser = () => {
                 data: { id: userInfo.id },
             });
 
-            alert(response.data.message);
+            setDeleteAccountMsg(response.data.message); // Thông báo thành công
+            setDeleteAccountError("");
+
             localStorage.removeItem("user");
-            navigate("/login");
+            setTimeout(() => {
+                navigate("/login");
+            }, 2000); // Cho người dùng thấy thông báo trước khi chuyển trang
         } catch (err) {
-            console.error(
-                "Lỗi xóa tài khoản:",
-                err.response?.data || err.message
-            );
-            alert("Xóa tài khoản thất bại");
+            const message =
+                err.response?.data?.message || "Xóa tài khoản thất bại";
+            setDeleteAccountError(message);
+            setDeleteAccountMsg("");
         }
     };
 
@@ -158,213 +154,86 @@ const ProfileUser = () => {
         navigate("/login");
     };
 
-    //Cập nhật thông tin
-    const handleUpdate = async () => {
-        try {
-            const response = await http.put("/user/update", {
-                id: userData.id,
-                username: editData.username,
-                email: editData.email,
-                phone: editData.phone,
-            });
-
-            if (response.data.success) {
-                setSuccess("Cập nhật thành công!");
-                setUserData((prev) => ({
-                    ...prev,
-                    username: editData.username,
-                    email: editData.email,
-                    phone: editData.phone,
-                }));
-                localStorage.setItem(
-                    "user",
-                    JSON.stringify({
-                        ...userData,
-                        username: editData.username,
-                        email: editData.email,
-                        phone: editData.phone,
-                    })
-                );
-                setIsEditing(false);
-                setTimeout(() => setSuccess(""), 3000);
-            } else {
-                setError("Cập nhật thất bại!");
-            }
-        } catch (err) {
-            const message =
-                err.response?.data?.message || "Có lỗi xảy ra khi cập nhật.";
-            setError(message);
-        }
-    };
-
-    //  Lưu câu hỏi bảo mật
-    const handleQuestionSave = async () => {
-        try {
-            const userInfo = JSON.parse(localStorage.getItem("user"));
-
-            const response = await http.put("/user/question", {
-                id: userInfo.id,
-                questionpassword: questionInput,
-            });
-
-            if (response.data.success) {
-                setQuestionMsg("Đã lưu thành công!");
-                // Cập nhật localStorage
-                userInfo.questionpassword = questionInput;
-                localStorage.setItem("user", JSON.stringify(userInfo));
-                setTimeout(() => setQuestionMsg(""), 2000);
-            } else {
-                setQuestionMsg("Có lỗi xảy ra!");
-            }
-        } catch (err) {
-            setQuestionMsg(
-                "Lỗi kết nối: " + (err.response?.data?.message || err.message)
-            );
-        }
-    };
-
-    //Lấy thông tin người dùng
-    const renderProfile = () => (
-        <div className="profile-content">
-            <h3 className="mb-4">Thông tin cá nhân</h3>
-            {error && <div className="alert alert-danger">{error}</div>}
-            {success && <div className="alert alert-success">{success}</div>}
-            <div className="user-info">
-                <div className="info-item">
-                    <label>Tên đăng nhập:</label>
-                    {isEditing ? (
-                        <input
-                            type="text"
-                            value={editData.username}
-                            onChange={(e) =>
-                                setEditData({
-                                    ...editData,
-                                    username: e.target.value,
-                                })
-                            }
-                        />
-                    ) : (
-                        <span>{userData.username}</span>
-                    )}
-                </div>
-                <div className="info-item">
-                    <label>Email:</label>
-                    {isEditing ? (
-                        <input
-                            type="email"
-                            value={editData.email}
-                            onChange={(e) =>
-                                setEditData({
-                                    ...editData,
-                                    email: e.target.value,
-                                })
-                            }
-                        />
-                    ) : (
-                        <span>{userData.email}</span>
-                    )}
-                </div>
-                <div className="info-item">
-                    <label>Số điện thoại:</label>
-                    {isEditing ? (
-                        <input
-                            type="text"
-                            value={editData.phone}
-                            onChange={(e) =>
-                                setEditData({
-                                    ...editData,
-                                    phone: e.target.value,
-                                })
-                            }
-                        />
-                    ) : (
-                        <span>{userData.phone}</span>
-                    )}
-                </div>
-                <div className="info-item">
-                    <label>Vai trò:</label>
-                    <span>
-                        {userData.role === "admin"
-                            ? "Quản trị viên"
-                            : "Người dùng"}
-                    </span>
-                </div>
-                <div className="info-item">
-                    <label>Ngày tạo:</label>
-                    <span>
-                        {new Date(userData.created_at).toLocaleDateString()}
-                    </span>
-                </div>
-                <div className="info-item">
-                    <label>Nơi du lịch bạn thích nhất (Câu hỏi bảo mật):</label>
-                    <div className="d-flex align-items-center">
-                        <input
-                            type="text"
-                            value={questionInput}
-                            onChange={(e) => setQuestionInput(e.target.value)}
-                            placeholder="Nhập địa điểm"
-                            className="me-2 form-control"
-                        />
-                        <button
-                            className="btn btn-sm btn-success"
-                            onClick={handleQuestionSave}
-                        >
-                            Lưu
-                        </button>
-                    </div>
-                    {questionMsg && (
-                        <small className="text-success">{questionMsg}</small>
-                    )}
-                </div>
-                <div className="text-end mt-3">
-                    {isEditing ? (
-                        <>
-                            <button
-                                className="btn btn-success me-2"
-                                onClick={handleUpdate}
-                            >
-                                Lưu thay đổi
-                            </button>
-                            <button
-                                className="btn btn-secondary"
-                                onClick={() => setIsEditing(false)}
-                            >
-                                Hủy
-                            </button>
-                        </>
-                    ) : (
-                        <button
-                            className="btn btn-primary"
-                            onClick={() => setIsEditing(true)}
-                        >
-                            Cập nhật thông tin
-                        </button>
-                    )}
-                </div>
-            </div>
-        </div>
-    );
-
-    const ChangePassword = ({ onChangePassword, onDeleteAccount, loading }) => {
-        const [newPassword, setNewPassword] = React.useState("");
-        const [confirmPassword, setConfirmPassword] = React.useState("");
-        const [error, setError] = React.useState("");
+    // Component đổi mật khẩu
+    const ChangePassword = ({
+        onChangePassword,
+        onDeleteAccount,
+        loading,
+        success,
+        errorMsg,
+        deleteMsg,
+        deleteError,
+    }) => {
+        const [newPassword, setNewPassword] = useState("");
+        const [confirmPassword, setConfirmPassword] = useState("");
+        const [error, setError] = useState("");
 
         const handleSubmit = (e) => {
             e.preventDefault();
-            if (newPassword !== confirmPassword) {
-                setError("Mật khẩu xác nhận không khớp");
+            setError("");
+
+            const htmlTagRegex = /<[^>]*>/;
+            const whitespaceRegex = /\s/;
+            const lowercaseRegex = /[a-z]/;
+            const digitRegex = /[0-9]/;
+
+            if (!newPassword) {
+                setError("Vui lòng nhập mật khẩu mới.");
                 return;
             }
-            setError("");
+
+            if (newPassword.length < 8) {
+                setError("Mật khẩu phải có ít nhất 8 ký tự.");
+                return;
+            }
+
+            if (newPassword.length > 50) {
+                setError("Mật khẩu không được vượt quá 50 ký tự.");
+                return;
+            }
+
+            if (whitespaceRegex.test(newPassword)) {
+                setError("Mật khẩu không được chứa khoảng trắng.");
+                return;
+            }
+
+            if (
+                !lowercaseRegex.test(newPassword) ||
+                !digitRegex.test(newPassword)
+            ) {
+                setError(
+                    "Mật khẩu phải chứa ít nhất một chữ thường và một số."
+                );
+                return;
+            }
+
+            if (htmlTagRegex.test(newPassword)) {
+                setError("Mật khẩu không được chứa mã HTML.");
+                return;
+            }
+
+            if (newPassword !== confirmPassword) {
+                setError("Mật khẩu xác nhận không khớp.");
+                return;
+            }
+
             onChangePassword(newPassword);
         };
 
         return (
             <div className="change-password">
                 <h3>Đổi mật khẩu</h3>
+
+                {/* Hiển thị thông báo */}
+                {success && (
+                    <div className="alert alert-success">{success}</div>
+                )}
+                {(error || errorMsg) && (
+                    <div className="alert alert-danger">
+                        {error || errorMsg}
+                    </div>
+                )}
                 <form onSubmit={handleSubmit} className="change-password-form">
-                    {error && <div className="alert alert-danger">{error}</div>}
                     <div className="form-group">
                         <label htmlFor="newPassword">Mật khẩu mới</label>
                         <input
@@ -404,6 +273,12 @@ const ProfileUser = () => {
 
                 <div className="delete-account-section">
                     <h4>Xóa tài khoản</h4>
+                    {deleteMsg && (
+                        <div className="alert alert-success">{deleteMsg}</div>
+                    )}
+                    {deleteError && (
+                        <div className="alert alert-danger">{deleteError}</div>
+                    )}
                     <p className="text-muted">
                         Hành động này không thể hoàn tác. Vui lòng cân nhắc kỹ
                         trước khi xóa tài khoản.
@@ -419,6 +294,88 @@ const ProfileUser = () => {
             </div>
         );
     };
+
+    // Component hỗ trợ khách hàng
+    const SupportComponent = () => {
+        const [message, setMessage] = useState("");
+        const [sent, setSent] = useState(false);
+        const [errorMsg, setErrorMsg] = useState("");
+
+        const handleSendSupport = async () => {
+            try {
+                await http.post("user/support", {
+                    user_id: userData.id,
+                    email: userData.email,
+                    message,
+                });
+
+                setSent(true);
+                setErrorMsg("");
+                setMessage("");
+            } catch (error) {
+                setErrorMsg("Không thể gửi yêu cầu, vui lòng thử lại.");
+            }
+        };
+
+        return (
+            <div className="profile-content">
+                <h3 className="mb-4">Hỗ trợ khách hàng</h3>
+                {sent && (
+                    <div className="alert alert-success">
+                        Yêu cầu của bạn đã được gửi thành công!
+                    </div>
+                )}
+                {errorMsg && (
+                    <div className="alert alert-danger">{errorMsg}</div>
+                )}
+                <div className="form-group">
+                    <label>Nội dung yêu cầu hỗ trợ:</label>
+                    <textarea
+                        className="form-control"
+                        rows="5"
+                        placeholder="Nhập yêu cầu của bạn..."
+                        value={message}
+                        onChange={(e) => setMessage(e.target.value)}
+                    ></textarea>
+                </div>
+                <button
+                    className="btn btn-primary mt-3"
+                    onClick={handleSendSupport}
+                >
+                    Gửi yêu cầu
+                </button>
+            </div>
+        );
+    };
+
+    //Lấy thông tin người dùng
+    const renderProfile = () => (
+        <div className="profile-content">
+            <h3 className="mb-4">Thông tin cá nhân</h3>
+            {error && <div className="alert alert-danger">{error}</div>}
+            {success && <div className="alert alert-success">{success}</div>}
+            <div className="user-info">
+                <div className="info-item">
+                    <label>Email:</label>
+                    <span>{userData.email}</span>
+                </div>
+                <div className="info-item">
+                    <label>Vai trò:</label>
+                    <span>
+                        {userData.role === "admin"
+                            ? "Quản trị viên"
+                            : "Người dùng"}
+                    </span>
+                </div>
+                <div className="info-item">
+                    <label>Ngày tạo:</label>
+                    <span>
+                        {new Date(userData.created_at).toLocaleDateString()}
+                    </span>
+                </div>
+            </div>
+        </div>
+    );
 
     //Lấy lịch sử đặt hàng
     const renderOrders = () => (
@@ -487,71 +444,71 @@ const ProfileUser = () => {
     );
 
     const renderPayments = () => (
-    <div className="profile-content">
-        <h3 className="mb-4">Lịch sử thanh toán</h3>
-        {payments.length === 0 ? (
-            <p>Bạn chưa có giao dịch thanh toán nào</p>
-        ) : (
-            <>
-                <div className="table-responsive">
-                    <table className="table">
-                        <thead>
-                            <tr>
-                                <th>Mã thanh toán</th>
-                                <th>Mã đơn hàng</th>
-                                <th>Phương thức</th>
-                                <th>Trạng thái</th>
-                                <th>Ngày thanh toán</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {payments.map((payment) => (
-                                <tr key={payment.payment_id}>
-                                    <td>{payment.payment_id}</td>
-                                    <td>{payment.order_id}</td>
-                                    <td>{payment.payment_method}</td>
-                                    <td>
-                                        {payment.payment_status === 1 ? (
-                                            <span className="status-badge success">
-                                                Thành công
-                                            </span>
-                                        ) : (
-                                            <span className="status-badge failed">
-                                                Thất bại
-                                            </span>
-                                        )}
-                                    </td>
-                                    <td>
-                                        {new Date(
-                                            payment.payment_date
-                                        ).toLocaleString()}
-                                    </td>
+        <div className="profile-content">
+            <h3 className="mb-4">Lịch sử thanh toán</h3>
+            {payments.length === 0 ? (
+                <p>Bạn chưa có giao dịch thanh toán nào</p>
+            ) : (
+                <>
+                    <div className="table-responsive">
+                        <table className="table">
+                            <thead>
+                                <tr>
+                                    <th>Mã thanh toán</th>
+                                    <th>Mã đơn hàng</th>
+                                    <th>Phương thức</th>
+                                    <th>Trạng thái</th>
+                                    <th>Ngày thanh toán</th>
                                 </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
+                            </thead>
+                            <tbody>
+                                {payments.map((payment) => (
+                                    <tr key={payment.payment_id}>
+                                        <td>{payment.payment_id}</td>
+                                        <td>{payment.order_id}</td>
+                                        <td>{payment.payment_method}</td>
+                                        <td>
+                                            {payment.payment_status === 1 ? (
+                                                <span className="status-badge success">
+                                                    Thành công
+                                                </span>
+                                            ) : (
+                                                <span className="status-badge failed">
+                                                    Thất bại
+                                                </span>
+                                            )}
+                                        </td>
+                                        <td>
+                                            {new Date(
+                                                payment.payment_date
+                                            ).toLocaleString()}
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
 
-                {/* Phân trang */}
-                <div className="pagination mt-3 text-center">
-                    {Array.from({ length: totalPages }, (_, i) => (
-                        <button
-                            key={i + 1}
-                            className={`btn btn-sm me-1 ${
-                                currentPage === i + 1
-                                    ? "btn-primary"
-                                    : "btn-outline-secondary"
-                            }`}
-                            onClick={() => setCurrentPage(i + 1)}
-                        >
-                            {i + 1}
-                        </button>
-                    ))}
-                </div>
-            </>
-        )}
-    </div>
-);
+                    {/* Phân trang */}
+                    <div className="pagination mt-3 text-center">
+                        {Array.from({ length: totalPages }, (_, i) => (
+                            <button
+                                key={i + 1}
+                                className={`btn btn-sm me-1 ${
+                                    currentPage === i + 1
+                                        ? "btn-primary"
+                                        : "btn-outline-secondary"
+                                }`}
+                                onClick={() => setCurrentPage(i + 1)}
+                            >
+                                {i + 1}
+                            </button>
+                        ))}
+                    </div>
+                </>
+            )}
+        </div>
+    );
 
     //Gán content
     const renderContent = () => {
@@ -564,12 +521,18 @@ const ProfileUser = () => {
                         onChangePassword={handleChangePassword}
                         onDeleteAccount={handleDeleteAccount}
                         loading={false}
+                        success={changePasswordMsg}
+                        errorMsg={changePasswordError}
+                        deleteMsg={deleteAccountMsg}
+                        deleteError={deleteAccountError}
                     />
                 );
             case "orders":
                 return renderOrders();
             case "payments":
                 return renderPayments();
+            case "support":
+                return <SupportComponent />;
             default:
                 return null;
         }
@@ -615,9 +578,6 @@ const ProfileUser = () => {
                                             width="100"
                                         />
                                     </div>
-                                    <h4 className="mt-3">
-                                        {userData.username}
-                                    </h4>
                                     <p className="text-muted">
                                         {userData.role === "admin"
                                             ? "Quản trị viên"
@@ -678,6 +638,19 @@ const ProfileUser = () => {
                                         >
                                             <i className="fas fa-credit-card"></i>{" "}
                                             Thanh toán
+                                        </li>
+                                        <li
+                                            className={
+                                                activeTab === "support"
+                                                    ? "active"
+                                                    : ""
+                                            }
+                                            onClick={() =>
+                                                setActiveTab("support")
+                                            }
+                                        >
+                                            <i className="fas fa-headset"></i>{" "}
+                                            Chăm sóc khách hàng
                                         </li>
                                         <li onClick={handleLogout}>
                                             <i className="fas fa-sign-out-alt"></i>{" "}

@@ -15,7 +15,7 @@ use App\Http\Controllers\CartController;
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ProfileController;
-
+use App\Http\Controllers\SupportController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -45,6 +45,7 @@ Route::prefix('api')->middleware(['api'])->group(function () {
         Route::get('/orders', [ProfileController::class, 'getUserOrders']);
         //Routes lấy giao dịch Payments
         Route::get('/payments', [ProfileController::class, 'getUserPayments']);
+        Route::post('/support', [SupportController::class, 'send']);
     });
 
     // Test route
