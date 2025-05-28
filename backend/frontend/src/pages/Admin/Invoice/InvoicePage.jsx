@@ -1,10 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { Table, Button, Modal, Form, Spinner, Alert, Badge } from "react-bootstrap";
+import { Table, Button, Modal, Form, Spinner, Alert, Badge, Pagination, Toast, ToastContainer } from "react-bootstrap";
 import Api from '~/components/Api.jsx';
-import { Pagination } from "react-bootstrap";
-import { Card } from "react-bootstrap";
-
 
 const { http } = Api();
 
@@ -24,6 +21,9 @@ export default function InvoicePage() {
         current_page: 1,
         last_page: 1,
     });
+
+    const [isConflict, setIsConflict] = useState(false);
+    const [showConflictToast, setShowConflictToast] = useState(false);
 
     const loadInvoices = async (page = 1) => {
         try {
@@ -45,6 +45,25 @@ export default function InvoicePage() {
         loadInvoices();
     }, []);
 
+    useEffect(() => {
+        const handleStorage = (event) => {
+            if (event.key === "invoice-updated") {
+                try {
+                    const data = JSON.parse(event.newValue);
+                    if (editingInvoice && data.id === editingInvoice.id) {
+                        setIsConflict(true);
+                        setShowConflictToast(true);
+                    }
+                } catch {
+                    // Ignore JSON parse errors
+                }
+            }
+        };
+
+        window.addEventListener("storage", handleStorage);
+        return () => window.removeEventListener("storage", handleStorage);
+    }, [editingInvoice]);
+
     const startEditing = (invoice) => {
         setEditingInvoice(invoice);
         setFormData({
@@ -52,13 +71,14 @@ export default function InvoicePage() {
             status: invoice.status,
             invoice_date: invoice.invoice_date ? invoice.invoice_date.split("T")[0] : ""
         });
+        setIsConflict(false);
     };
 
     const cancelEditing = () => {
         setEditingInvoice(null);
         setFormData({ total_amount: "", status: "unpaid", invoice_date: "" });
+        setIsConflict(false);
     };
-
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -68,19 +88,38 @@ export default function InvoicePage() {
         e.preventDefault();
         if (!editingInvoice) return;
 
+        if (isConflict) {
+            setShowConflictToast(true);
+            return; // Ngăn cập nhật khi có xung đột
+        }
+
         setSaving(true);
         try {
             const res = await axios.put(`http://localhost:8000/api/invoices/${editingInvoice.id}`, formData);
             if (res.data.status === "success") {
                 alert("Cập nhật hóa đơn thành công!");
+                // Thông báo cho các tab khác
+                localStorage.setItem("invoice-updated", JSON.stringify({ id: editingInvoice.id, time: Date.now() }));
                 await loadInvoices();
                 cancelEditing();
             } else {
                 alert("Lỗi: " + JSON.stringify(res.data.errors || res.data.message));
             }
         } catch (error) {
-            alert("Lỗi mạng hoặc server");
-            console.error(error);
+            alert("id hóa đơn không hợp lệ hoặc đã bị xoá");
+            if (error.response && error.response.status === 404) {
+                alert("Hóa đơn không tồn tại hoặc đã bị xoá");
+            }
+            else if (error.response && error.response.data) {
+                alert("Lỗi: " + JSON.stringify(error.response.data.errors || error.response.data.message));
+            }
+            else if (error.message) {
+                alert("Lỗi: " + error.message);
+            } else {
+                alert("Lỗi không xác định khi cập nhật hóa đơn");
+         
+    console.error("Error updating invoice:", error);
+            }
         } finally {
             setSaving(false);
         }
@@ -97,15 +136,21 @@ export default function InvoicePage() {
             } else {
                 alert("Lỗi: " + (res.data.message || "Không rõ nguyên nhân"));
             }
-        } catch (error) {
+        }catch (error) {
             console.error(error);
-            alert("Lỗi kết nối đến server hoặc server lỗi");
-        }
+            if (error.response) {
+              if (error.response.status === 404) {
+                alert("Invoice không tồn tại hoặc đã bị xoá rồi");
+              } else {
+                alert("Lỗi khi xóa hóa đơn: " + error.response.data.message || error.message);
+              }
+            } else {
+              alert("Lỗi mạng hoặc server không phản hồi");
+            }
+          }
+          
     };
 
-
-
-    // Hàm hiển thị nhãn trạng thái với màu sắc
     const renderStatusBadge = (status) => {
         switch (status) {
             case "unpaid":
@@ -154,29 +199,25 @@ export default function InvoicePage() {
                                 <td>{inv.total_amount.toLocaleString()} VNĐ</td>
                                 <td>{renderStatusBadge(inv.status)}</td>
                                 <td>
-                                    <td>
-                                        <Button variant="primary" size="sm" onClick={() => startEditing(inv)}>
-                                            Sửa
-                                        </Button>
-                                        &nbsp;
-                                        <Button
-                                            variant="info"
-                                            size="sm"
-                                            onClick={() => window.open(`/invoice/print/${inv.id}`, '_blank')}
-                                        >
-                                            In hóa đơn
-                                        </Button>
-
-                                        &nbsp;
-                                        <Button
-                                            variant="outline-danger"
-                                            size="sm"
-                                            onClick={() => handleDeleteInvoice(inv.id)}
-                                        >
-                                            Xoá
-                                        </Button>
-                                    </td>
-
+                                    <Button variant="primary" size="sm" onClick={() => startEditing(inv)}>
+                                        Sửa
+                                    </Button>
+                                    &nbsp;
+                                    <Button
+                                        variant="info"
+                                        size="sm"
+                                        onClick={() => window.open(`/invoice/print/${inv.id}`, '_blank')}
+                                    >
+                                        In hóa đơn
+                                    </Button>
+                                    &nbsp;
+                                    <Button
+                                        variant="outline-danger"
+                                        size="sm"
+                                        onClick={() => handleDeleteInvoice(inv.id)}
+                                    >
+                                        Xoá
+                                    </Button>
                                 </td>
                             </tr>
                         ))
@@ -187,6 +228,7 @@ export default function InvoicePage() {
                     )}
                 </tbody>
             </Table>
+
             <div className="d-flex justify-content-end mt-2 pagination-container">
                 <Pagination className="mb-0">
                     <Pagination.Prev
@@ -211,8 +253,6 @@ export default function InvoicePage() {
                 </Pagination>
             </div>
 
-
-
             <Modal show={!!editingInvoice} onHide={cancelEditing} centered>
                 <Modal.Header closeButton>
                     <Modal.Title>Sửa hóa đơn #{editingInvoice?.invoice_number}</Modal.Title>
@@ -228,8 +268,10 @@ export default function InvoicePage() {
                                 value={formData.total_amount}
                                 onChange={handleChange}
                                 required
+                                disabled // ✅ Thêm dòng này để không cho người dùng chỉnh sửa
                             />
                         </Form.Group>
+
 
                         <Form.Group className="mb-3" controlId="formStatus">
                             <Form.Label>Trạng thái</Form.Label>
@@ -238,6 +280,7 @@ export default function InvoicePage() {
                                 value={formData.status}
                                 onChange={handleChange}
                                 required
+                                disabled={isConflict}
                             >
                                 <option value="unpaid">Đang chờ thanh toán</option>
                                 <option value="paid">Đã thanh toán</option>
@@ -252,19 +295,38 @@ export default function InvoicePage() {
                                 name="invoice_date"
                                 value={formData.invoice_date}
                                 onChange={handleChange}
+                                disabled 
                             />
                         </Form.Group>
+
                     </Modal.Body>
                     <Modal.Footer>
                         <Button variant="secondary" onClick={cancelEditing} disabled={saving}>
                             Hủy
                         </Button>
-                        <Button variant="primary" type="submit" disabled={saving}>
+                        <Button variant="primary" type="submit" disabled={saving || isConflict}>
                             {saving ? "Đang lưu..." : "Lưu"}
                         </Button>
                     </Modal.Footer>
                 </Form>
             </Modal>
+
+            <ToastContainer position="bottom-end" className="p-3">
+                <Toast
+                    show={showConflictToast}
+                    onClose={() => setShowConflictToast(false)}
+                    bg="danger"
+                    delay={5000}
+                    autohide
+                >
+                    <Toast.Header>
+                        <strong className="me-auto">Cảnh báo</strong>
+                    </Toast.Header>
+                    <Toast.Body className="text-white">
+                        Hóa đơn này đã bị chỉnh sửa ở tab khác. Vui lòng tải lại trang trước khi cập nhật.
+                    </Toast.Body>
+                </Toast>
+            </ToastContainer>
         </div>
     );
 }
