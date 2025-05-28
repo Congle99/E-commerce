@@ -1,7 +1,7 @@
 <?php
 
 namespace Database\Seeders;
-
+use App\Models\Invoice;
 use App\Models\Category;
 use App\Models\Order;
 use App\Models\Order_Items;
@@ -35,5 +35,8 @@ class DatabaseSeeder extends Seeder
 
         Order_Items::factory()->count(50)->create();
 
+        Invoice::factory()->count(20)->create([
+            'status' => 'Đang chờ thanh toán',
+                ]);
     }
 }
