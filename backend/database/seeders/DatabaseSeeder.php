@@ -1,7 +1,8 @@
 <?php
 
 namespace Database\Seeders;
-
+use App\Models\Invoice;
+use App\Models\Category;
 use App\Models\Order;
 use App\Models\Order_Items;
 use App\Models\Product;
@@ -17,20 +18,25 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // $this->call([
-        //     CategorySeeder::class,
-        //     // InvoiceSeeder::class
-        // ]);
-        // $this->call([
-        //     PromotionCodeSeeder::class,
-        // ]);
+
+        User::factory()->create([
+            'email' => 'admin@example.com',
+            'password' => Hash::make('admin123'),
+            'role' => 'admin',
+        ]);
+
+        Category::factory()->count(5)->create();
+
         Product::factory()->count(20)->create();
 
         // Order::factory()->count(15)->create();
 
-        // Order_Items::factory()->count(50)->create();
-        // $this->call([
-        //     CartItemSeeder::class,
-        // ]);
+        Order::factory()->count(15)->create();
+
+        Order_Items::factory()->count(50)->create();
+
+        Invoice::factory()->count(20)->create([
+            'status' => 'Đang chờ thanh toán',
+                ]);
     }
 }
