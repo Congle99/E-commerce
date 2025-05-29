@@ -10,6 +10,7 @@ import ProductDetail from "../pages/User/ProductDetail/ProductDetail.jsx";
 import Cart from "../pages/User/Cart/Cart.jsx";
 import Login from "../pages/Auth/Login.jsx"; // Import trang Login
 import Register from "../pages/Auth/Register.jsx"; // Import trang Register
+import ForgetPassword from "../pages/Auth/ForgetPassword.jsx"; // Sửa tên biến từ Register thành ForgetPassword
 import ProfileUser from "../pages/User/ProfileUser/ProfileUser.jsx"; // Import trang ProfileUser
 
 import CompletedOrdersPage from "~/pages/Admin/Invoice/InvoicePage.jsx"; 
@@ -20,12 +21,13 @@ import FeedbackPage from "~/pages/Admin/Feedback/FeedbackList.jsx";
 // Dành cho User
 const UserRoute = [
     { path: '/user', component: HomeUser },
-    { path: '/shop', component: Shop }, // Đảm bảo đường dẫn chính xác
-    { path: '/product', component: ProductDetail }, // Đảm bảo đường dẫn chính xác
-    { path: '/cart', component: Cart }, // Đảm bảo đường dẫn chính xác
-    { path: '/login', component: Login }, // Thêm route cho trang Login
-    { path: '/register', component: Register }, // Thêm route cho trang Register
-    { path: '/profileUser', component: ProfileUser }, // Thêm route cho trang ProfileUser
+    { path: '/shop', component: Shop },
+    { path: '/product', component: ProductDetail },
+    { path: '/cart', component: Cart },
+    { path: '/login', component: Login },
+    { path: '/register', component: Register },
+    { path: '/forgetPassword', component: ForgetPassword }, // Đảm bảo rằng biến ForgetPassword đã được import
+    { path: '/profileUser', component: ProfileUser },
 ];
 
 // Dành cho admin

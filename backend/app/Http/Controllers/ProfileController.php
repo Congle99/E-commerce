@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\User;
+use App\Models\Order;
+use Illuminate\Support\Facades\Hash;
 
 class ProfileController extends Controller
 {
@@ -11,7 +13,7 @@ class ProfileController extends Controller
      * Lấy thông tin người dùng hiện tại
      */
     public function getUserProfile(Request $request)
-    {
+    { 
         // Trong một ứng dụng thực tế, sẽ sử dụng Auth::user() sau khi xác thực
         // Tạm thời, lấy user từ localStorage trên frontend
         $user = User::find($request->input('user_id'));
@@ -31,47 +33,118 @@ class ProfileController extends Controller
      * Lấy danh sách đơn hàng của người dùng
      */
     public function getUserOrders(Request $request)
-    {
-        // Giả lập dữ liệu đơn hàng cho mục đích demo
-        // Trong thực tế sẽ lấy từ database
-        return response()->json([
-            [
-                'id' => 1,
-                'total_price' => 1500000,
-                'status' => 'Completed',
-                'created_at' => now()->subDays(5),
-            ],
-            [
-                'id' => 2,
-                'total_price' => 750000,
-                'status' => 'Processing',
-                'created_at' => now()->subDays(2),
-            ],
-        ]);
-    }
+{
+    $request->validate([
+        'id' => 'required|exists:user,id'
+    ]);
+
+    $perPage = $request->query('per_page', 8);
+    $userId = $request->query('id');
+
+    $orders = Order::where('user_id', $userId)
+        ->orderBy('created_at', 'desc')
+        ->paginate($perPage);
+
+    return response()->json($orders);
+}
 
     /**
      * Lấy lịch sử thanh toán của người dùng
      */
-    public function getUserPayments(Request $request)
-    {
-        // Giả lập dữ liệu thanh toán cho mục đích demo
-        // Trong thực tế sẽ lấy từ database
+ public function getUserPayments(Request $request)
+{
+    try {
+        $userId = $request->query('id');
+        $perPage = $request->query('per_page', 8);
+
+        $orders = \App\Models\Order::where('user_id', $userId)->pluck('id');
+
+        if ($orders->isEmpty()) {
+            return response()->json(['message' => 'Không có đơn hàng'], 404);
+        }
+
+        $payments = \App\Models\Payment::whereIn('order_id', $orders)
+            ->orderBy('payment_date', 'desc')
+            ->paginate($perPage);
+
+        return response()->json($payments);
+
+    } catch (\Throwable $e) {
         return response()->json([
-            [
-                'payment_id' => 1,
-                'order_id' => 1,
-                'payment_method' => 'Credit Card',
-                'payment_status' => 1,
-                'payment_date' => now()->subDays(5),
-            ],
-            [
-                'payment_id' => 2,
-                'order_id' => 2,
-                'payment_method' => 'Bank Transfer',
-                'payment_status' => 0,
-                'payment_date' => now()->subDays(2),
-            ],
-        ]);
+            'message' => 'Lỗi server',
+            'error' => $e->getMessage(),
+            'trace' => $e->getTrace()[0] ?? []
+        ], 500);
     }
+}
+
+    
+    //Cập nhật thông tin 
+    public function update(Request $request)
+    {
+    $user = User::findOrFail($request->id);
+
+    $validated = $request->validate([
+        'username' => 'required|string|max:255|unique:user,username,' . $user->id,
+        'email' => 'required|string|email|max:255|unique:user,email,' . $user->id,
+        'phone' => 'nullable|string|unique:user,phone,' . $user->id,
+    ], [
+        'username.unique' => 'Tên đăng nhập đã tồn tại, vui lòng chọn tên khác.',
+        'email.unique' => 'Email đã được sử dụng.',
+        'phone.unique' => 'Số điện thoại đã được sử dụng.',
+    ]);
+
+    $user->update($validated);
+
+    return response()->json(['success' => true]);
+    }
+
+
+
+    //Thêm câu hỏi bảo mật questionpassword  
+    public function updateQuestion(Request $request)
+    {
+    $request->validate([
+        'id' => 'required|exists:user,id',
+        'questionpassword' => 'required|string|max:255',
+        ]);
+
+    $user = User::find($request->id);
+    $user->questionpassword = $request->questionpassword;
+    $user->save();
+
+    return response()->json(['success' => true, 'message' => 'Câu hỏi bảo mật đã được cập nhật']);
+    }
+
+    // Đổi mật khẩu
+public function updatePassword(Request $request)
+{
+    $request->validate([
+        'id' => 'required|exists:user,id',
+        'password' => 'required|string|min:6'
+    ]);
+
+    $user = User::find($request->id);
+    $user->password = Hash::make($request->password);
+    $user->save();
+
+    return response()->json(['success' => true, 'message' => 'Đổi mật khẩu thành công']);
+}
+
+    //Xóa tài khoản 
+    public function deleteAccount(Request $request)
+{
+    $request->validate([
+        'id' => 'required|exists:user,id' // chú ý nếu bạn dùng bảng "user"
+    ]);
+
+    $user = User::find($request->id);
+    if (!$user) {
+        return response()->json(['message' => 'User không tồn tại'], 404);
+    }
+
+    $user->delete();
+
+    return response()->json(['message' => 'Tài khoản đã bị xóa']);
+}
 }

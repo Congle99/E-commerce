@@ -11,7 +11,7 @@ const slides = [
     city: 'Singapore',
     img: 'https://s3-us-west-2.amazonaws.com/s.cdpn.io/142996/singapore.jpg',
   },
-  {
+  { 
     city: 'Prague',
     country: 'Czech Republic',
     img: 'https://s3-us-west-2.amazonaws.com/s.cdpn.io/142996/prague.jpg',

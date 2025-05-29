@@ -13,13 +13,12 @@ return new class extends Migration
     {
         Schema::create('user', function (Blueprint $table) {
             $table->id('id');
-            $table->string('email',255);
+            $table->string('email', 255)->unique(); // Đảm bảo email là duy nhất
             $table->string('password',255);
+            $table->string('questionpassword',255); //Câu hỏi lấy lại mật khẩu
             $table->string('role',10);
             $table->softDeletes();
             $table->timestamps();
-        
-
         });
     }
 

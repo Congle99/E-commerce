@@ -26,12 +26,15 @@ Route::get('/test-route-works', function () {
 // Auth routes
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
-
+  Route::put('/update-question', [UserController::class, 'updateQuestion']); // Cập nhật câu hỏi bảo mật
+    Route::get('/orders', [ProfileController::class, 'getUserOrders']); 
 // User profile routes với prefix
 Route::prefix('user')->group(function () {
     Route::post('/profile', [ProfileController::class, 'getUserProfile']);
-    Route::get('/orders', [ProfileController::class, 'getUserOrders']);
-    Route::get('/payments', [ProfileController::class, 'getUserPayments']);
+    Route::post('/updatee', [UserController::class, 'update']); // Cập nhật thông tin người dùng
+    Route::put('/update-question', [UserController::class, 'updateQuestion']); // Cập nhật câu hỏi bảo mật
+    Route::get('/orders', [ProfileController::class, 'getUserOrders']); // Lấy đơn hàng
+    Route::get('/payments', [ProfileController::class, 'getUserPayments']); // Lấy lịch sử thanh toán
 });
 
 // Test route
