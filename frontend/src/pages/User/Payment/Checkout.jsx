@@ -52,7 +52,7 @@ const Checkout = () => {
   };
 
   useEffect(() => {
-    const token = JSON.parse(localStorage.getItem("token"));
+    const token = localStorage.getItem("token");
     const user = JSON.parse(localStorage.getItem("user"));
     const fetchProfile = async () => {
       try {
@@ -113,7 +113,7 @@ const Checkout = () => {
 
   const handleApplyPromoCode = async () => {
     setError("");
-    const token = JSON.parse(localStorage.getItem("token"));
+    const token = localStorage.getItem("token");
     try {
       const response = await fetch(
         "http://localhost:8000/api/promotion-codes/validate",
@@ -195,7 +195,7 @@ const Checkout = () => {
       promotion_code: promoCode || undefined,
     };
 
-    const token = JSON.parse(localStorage.getItem("token"));
+    const token = localStorage.getItem("token");
 
     try {
       const response = await fetch("http://localhost:8000/api/checkout", {

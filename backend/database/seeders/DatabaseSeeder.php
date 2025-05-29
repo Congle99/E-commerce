@@ -1,6 +1,7 @@
 <?php
 
 namespace Database\Seeders;
+
 use App\Models\Invoice;
 use App\Models\Category;
 use App\Models\Order;
@@ -19,13 +20,13 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
 
-        User::factory()->create([
-            'email' => 'admin@example.com',
-            'password' => Hash::make('admin123'),
-            'role' => 'admin',
-        ]);
+        // User::factory()->create([
+        //     'email' => 'admin@example.com',
+        //     'password' => Hash::make('admin123'),
+        //     'role' => 'admin',
+        // ]);
 
-        Category::factory()->count(5)->create();
+        // Category::factory()->count(5)->create();
 
         Product::factory()->count(20)->create();
 
@@ -40,6 +41,6 @@ class DatabaseSeeder extends Seeder
 
         Invoice::factory()->count(20)->create([
             'status' => 'Đang chờ thanh toán',
-                ]);
+        ]);
     }
 }

@@ -7,7 +7,8 @@ const Cart = () => {
   const navigate = useNavigate();
 
   // Lấy token 1 lần duy nhất khi component được tạo
-  const token = JSON.parse(localStorage.getItem("token"));
+
+  const token = localStorage.getItem("token");
 
   useEffect(() => {
     const fetchCartItems = async () => {
