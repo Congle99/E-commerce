@@ -97,7 +97,6 @@ Route::prefix('api')->middleware(['api'])->group(function () {
     Route::post('/promotion-codes/validate', [PromotionCodeController::class, 'validatePromotionCode'])->name('promotion-codes.validate');
     Route::post('/promotion-codes/confirm', [PromotionCodeController::class, 'confirmPayment'])->name('promotion-codes.confirm');
 
-<<<<<<< HEAD
     // Review
     Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
         return $request->user();
