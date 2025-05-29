@@ -17,27 +17,60 @@ class ProductReviewController extends Controller
     }
 
     // Thêm hoặc cập nhật đánh giá (1 user chỉ được đánh giá 1 lần 1 sp)
+    // public function store(Request $request)
+    // {
+    //     $validated = $request->validate([
+    //         'product_id' => 'required|exists:products,id',
+    //         'rating' => 'required|integer|min:1|max:5',
+    //         //'comment' => 'nullable|string',
+    //         'comment' => 'required|string|max:255',
+    //     ]);
+
+    //     $review = Review::updateOrCreate(
+    //         [
+    //             'user_id' => Auth::id(),
+    //             'product_id' => $validated['product_id'],
+    //         ],
+    //         [
+    //             'rating' => $validated['rating'],
+    //             'comment' => $validated['comment'] ?? '',
+    //         ]
+    //     );
+
+    //     return response()->json($review, 201);
+    // }
+
     public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'product_id' => 'required|exists:products,id',
-            'rating' => 'required|integer|min:1|max:5',
-            'comment' => 'nullable|string',
-        ]);
+{
+    $validated = $request->validate([
+        'product_id' => 'required|exists:products,id',
+        'rating' => 'required|integer|min:1|max:5',
+        'comment' => 'required|string|max:255',
+    ]);
 
-        $review = Review::updateOrCreate(
-            [
-                'user_id' => Auth::id(),
-                'product_id' => $validated['product_id'],
-            ],
-            [
-                'rating' => $validated['rating'],
-                'comment' => $validated['comment'] ?? '',
-            ]
-        );
+    $userId = Auth::id();
 
-        return response()->json($review, 201);
+    // Kiểm tra xem user đã đánh giá sản phẩm này chưa
+    $alreadyReviewed = Review::where('user_id', $userId)
+        ->where('product_id', $validated['product_id'])
+        ->exists();
+
+    if ($alreadyReviewed) {
+        return response()->json([
+            'message' => 'Bạn đã đánh giá sản phẩm này rồi.'
+        ], 409); // Conflict
     }
+
+    $review = Review::create([
+        'user_id' => $userId,
+        'product_id' => $validated['product_id'],
+        'rating' => $validated['rating'],
+        'comment' => $validated['comment'],
+    ]);
+
+    return response()->json($review, 201);
+}
+
 
     public function update(Request $request, $id)
 {
@@ -51,7 +84,7 @@ class ProductReviewController extends Controller
 
     $request->validate([
         'rating' => 'required|integer|min:1|max:5',
-        'comment' => 'required|string|max:1000',
+        'comment' => 'required|string|max:255',
     ]);
 
     $review->update([

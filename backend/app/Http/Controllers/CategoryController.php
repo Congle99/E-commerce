@@ -18,6 +18,7 @@ class CategoryController extends Controller
     public function indexUser()
     {
         return response()->json(Category::all());
+        
     }
 
     /**

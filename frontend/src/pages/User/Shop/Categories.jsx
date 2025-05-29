@@ -30,7 +30,8 @@ const Categories = ({
     const fetchCategories = async () => {
       try {
         const response = await http.get("/categories");
-        setCategories(response.data);
+       // setCategories(response.data);
+        setCategories(response.data.slice(0, 5));
         setNoData(response.data.length === 0);
       } catch (error) {
         console.error("Lỗi khi tải danh mục:", error);
@@ -48,7 +49,7 @@ const Categories = ({
   const handleInputChange = (index, value) => {
     let newValue = parseInt(value) || 0;
     if (index === 0 && newValue < 0) newValue = 0;
-    if (index === 1 && newValue > 10000) newValue = 10000;
+    if (index === 1 && newValue > 1000) newValue = 1000;
 
     const newRange = [...priceRange];
     newRange[index] = newValue;
