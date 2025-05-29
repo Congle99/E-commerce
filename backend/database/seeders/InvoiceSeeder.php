@@ -12,9 +12,7 @@ class InvoiceSeeder extends Seeder
      */
     public function run(): void
 {
-    $this->call([
-        InvoiceSeeder::class,
-    ]);
+
 }
 
 }

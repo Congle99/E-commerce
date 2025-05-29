@@ -47,14 +47,25 @@ const Sidebar = () => {
                     <FontAwesomeIcon icon={faPercent} className="icon" />
                     <span>Khuyến mãi</span>
                 </li>
-                <li className="nav-item">
-                    <FontAwesomeIcon icon={faStar} className="icon" />
-                    <span>Đánh giá</span>
+
+                <li className={`nav-item ${location.pathname === '/Feedback' ? 'active' : ''}`}>
+                    <NavLink to="/Feedback" className="nav-link">
+                        <FontAwesomeIcon icon={faStar} className="icon" />
+                        <span>Đánh giá</span>
+                    </NavLink>
                 </li>
                 <li className="nav-item">
                     <FontAwesomeIcon icon={faChartBar} className="icon" />
                     <span>Báo cáo</span>
                 </li>
+                <li className={`nav-item ${location.pathname === '/invoice' ? 'active' : ''}`}>
+                    <NavLink to="/invoice" className="nav-link">
+                        <FontAwesomeIcon icon={faFileInvoice} className="icon" />
+                        <span>Hoá Đơn</span>
+                    </NavLink>
+                </li>
+
+
             </ul>
 
             <div className="promotion-summary">
