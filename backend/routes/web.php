@@ -17,6 +17,7 @@ use App\Http\Controllers\ProfileController;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\UserProfileController;
+use App\Http\Controllers\FeedbackController;
 
 
 
@@ -68,6 +69,9 @@ Route::prefix('api')->middleware(['api'])->group(function () {
     Route::put('/invoices/{id}', [InvoiceController::class, 'update']);
     Route::get('/invoices/{id}', [InvoiceController::class, 'show']);
     Route::delete('invoices/{id}', [InvoiceController::class, 'destroy']);
+    Route::get('/feedbacks', [FeedbackController::class, 'index']);
+    Route::put('/feedbacks/{id}', [FeedbackController::class, 'updateReply']);
+    Route::delete('/feedbacks/{id}', [FeedbackController::class, 'destroy']);
 
 
 
