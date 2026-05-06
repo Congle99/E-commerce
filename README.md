@@ -1,5 +1,4 @@
 # E-commerce
-# E-Commerce
 
 E-commerce web application built with ReactJS and Laravel, focused on admin management, customer interaction and order processing.
 
